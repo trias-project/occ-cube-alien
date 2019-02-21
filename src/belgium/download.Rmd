@@ -1,0 +1,154 @@
+---
+title: "Download GBIF occurrences"
+author:
+- Damiano Oldoni
+- Peter Desmet
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+---
+
+This document describes how to retrieve occurrences for assessing the emerging status of alien species in Belgium.
+
+# Setup
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Load libraries:
+
+```{r load_libraries}
+# Tidyverse packages
+library(tidyverse)
+library(lubridate)
+# GBIF package
+library(rgbif)
+# Project package
+library(trias)
+```
+
+Define the file where all downloads we've trriggered are added:
+
+```{r set_file_paths}
+downloads_output_file <- "../data/output/gbif_downloads.tsv"
+```
+
+# Define download query parameters
+
+## Define taxa
+
+As the list of alien species from the unified checklist is too long for a query to the GBIF API, we don't define any taxa:
+
+```{r define_taxa}
+taxa_input_file <- ""
+taxon_keys <- c()
+```
+
+## Define countries
+
+We will limit our occurrences search for specific countries. To allow better tracking, this filter will also be added to `download_output_file`:
+
+```{r define_countries}
+countries <- c("BE")
+```
+
+## Define basis of record
+
+Everything except `FOSSIL SPECIMEN` and `LIVING SPECIMEN`:
+
+```{r define_basis_of_record}
+basis_of_record <- c(
+  "OBSERVATION", 
+  "HUMAN_OBSERVATION",
+  "MATERIAL_SAMPLE", 
+  "LITERATURE", 
+  "PRESERVED_SPECIMEN", 
+  "UNKNOWN", 
+  "MACHINE_OBSERVATION"
+)
+```
+
+## Define year
+
+We will limit to occurrence with valid year.
+
+```{r define_year}
+year_begin <- 1000
+year_end <- year(Sys.Date())
+```
+
+## Define geographic coordinates
+
+We need occurrences with valid geographic coordinates:
+
+```{r define_hasCoordinate}
+hasCoordinate <- TRUE
+```
+
+## Download GBIF occurrences
+
+**Note**: GBIF credentials are required in the next step.
+
+Trigger download:
+
+```{r trigger_gbif_download}
+# Important: query arguments need to be pasts as strings of format "key = value"
+gbif_download_key <- occ_download(
+  paste0("country = ", paste(countries, collapse = ",")),
+  paste0("basisOfRecord = ", paste(basis_of_record, collapse = ",")),
+  paste0("year >= ", year_begin),
+  paste0("year <= ", year_end),
+  paste0("hasCoordinate = ", hasCoordinate),
+  curlopts = list(verbose = TRUE),
+  # user = rstudioapi::askForPassword("GBIF username"),
+  # pwd = rstudioapi::askForPassword("GBIF password"),
+  # email = rstudioapi::askForPassword("Email address for notification")
+  user = Sys.getenv("gbif_user"),
+  pwd = Sys.getenv("gbif_pwd"),
+  email = Sys.getenv("gbif_email")
+)
+```
+
+If you want to run it locally, set GBIF username, password and e-mail in your `.Renviron` file as `gbif_user`, `gbif_pwd`, `gbif_email` respectively and run the following code:
+
+```r
+gbif_download_key <- occ_download(
+  paste0("country = ", paste(countries, collapse = ",")),
+  paste0("basisOfRecord = ", paste(basis_of_record, collapse = ",")),
+  paste0("year >= ", year_begin),
+  paste0("year <= ", year_end),
+  paste0("hasCoordinate = ", hasCoordinate),
+  curlopts = list(verbose = TRUE),
+  # user = rstudioapi::askForPassword("GBIF username"),
+  # pwd = rstudioapi::askForPassword("GBIF password"),
+  # email = rstudioapi::askForPassword("Email address for notification")
+  user = Sys.getenv("gbif_user"),
+  pwd = Sys.getenv("gbif_pwd"),
+  email = Sys.getenv("gbif_email")
+)
+```
+
+For more details, type `?occ_download` in your R console.
+
+## Check status of download:
+
+```{r}
+metadata <- occ_download_meta(key = gbif_download_key)
+metadata$key
+metadata$status
+```
+
+Write download to list of downloads and check pending downloads:
+
+```{r}
+update_download_list(
+  file = downloads_output_file, 
+  download_to_add = gbif_download_key, 
+  input_checklist = taxa_input_file
+)
+```
