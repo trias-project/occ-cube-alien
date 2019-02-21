@@ -1,0 +1,24 @@
+gbif_download_key	input_checklist	gbif_download_created	gbif_download_status	gbif_download_doi
+0002455-171124123535762	../data/input/eu_concern_species.tsv	2017-11-29 11:43:02	SUCCEEDED	doi:10.15468/dl.iyhwjt
+0003004-171124123535762	../data/input/eu_concern_species.tsv	2017-11-30 08:56:33	SUCCEEDED	doi:10.15468/dl.fvlr7g
+0003007-171124123535762	../data/input/eu_concern_species.tsv	2017-11-30 09:24:39	SUCCEEDED	doi:10.15468/dl.ru5rqz
+0003008-171124123535762	../data/input/eu_concern_species.tsv	2017-11-30 09:28:44	SUCCEEDED	doi:10.15468/dl.tla3ir
+0003024-171124123535762	../data/input/eu_concern_species.tsv	2017-11-30 11:00:49	SUCCEEDED	doi:10.15468/dl.9unif7
+0001588-180131172636756	../data/input/eu_concern_species.tsv	2018-02-05 12:16:20	SUCCEEDED	doi:10.15468/dl.tkwwwh
+0001636-180131172636756	../data/input/eu_concern_species.tsv	2018-02-05 13:49:10	SUCCEEDED	doi:10.15468/dl.m2mjuj
+0001676-180131172636756	../data/input/eu_concern_species.tsv	2018-02-05 15:10:08	SUCCEEDED	doi:10.15468/dl.1vwwfw
+0007989-180131172636756	https://raw.githubusercontent.com/trias-project/pipeline/642fc791c56750e3a7b25b0ba9efa9d30d5736b4/data/input/modelling_species.tsv	2018-02-20 15:53:37	SUCCEEDED	https://doi.org/10.15468/dl.6cljf9
+0008516-180131172636756	https://raw.githubusercontent.com/trias-project/pipeline/642fc791c56750e3a7b25b0ba9efa9d30d5736b4/data/input/modelling_species.tsv	2018-02-21 08:48:06	SUCCEEDED	https://doi.org/10.15468/dl.qm87vt
+0020843-180131172636756	./data/input/species_test_invasion_curve.tsv	2018-03-14 12:49:59	SUCCEEDED	https://doi.org/10.15468/dl.xrm1lc
+0033087-180508205500799	https://raw.githubusercontent.com/trias-project/pipeline/642fc791c56750e3a7b25b0ba9efa9d30d5736b4/data/input/modelling_species.tsv	2018-06-26 11:42:26	SUCCEEDED	https://doi.org/10.15468/dl.kwlgmi
+0045622-180508205500799	../data/input/plants_species_test_downscaling.tsv	2018-07-19 08:12:24	SUCCEEDED	https://doi.org/10.15468/dl.iyi6hg
+0003300-181003121212138	https://raw.githubusercontent.com/trias-project/pipeline/9f20d33a14696bc42d059a2e0f50fb11c4f97d35/data/input/occ_indicator_emerging_species.tsv	2018-10-10 08:49:01	SUCCEEDED	https://doi.org/10.15468/dl.5xygvn
+0003400-181003121212138	https://raw.githubusercontent.com/trias-project/pipeline/a004f59c84a820b8dcee3a5d304df38c9daeded3/data/input/occ_indicator_emerging_species.tsv	2018-10-10 14:03:48	SUCCEEDED	https://doi.org/10.15468/dl.m7blny
+0003460-181003121212138	https://raw.githubusercontent.com/trias-project/pipeline/363d2037708469a9f63609f45a3c603527202a65/data/input/occ_indicator_emerging_species_part1.tsv	2018-10-10 16:23:07	CANCELLED	https://doi.org/10.15468/dl.h3dcgv
+0003482-181003121212138	https://raw.githubusercontent.com/trias-project/pipeline/363d2037708469a9f63609f45a3c603527202a65/data/input/occ_indicator_emerging_species_part2.tsv	2018-10-10 16:58:22	SUCCEEDED	https://doi.org/10.15468/dl.n2fwhm
+0003489-181003121212138	https://raw.githubusercontent.com/trias-project/pipeline/363d2037708469a9f63609f45a3c603527202a65/data/input/occ_indicator_emerging_species_part3.tsv	2018-10-10 17:15:34	SUCCEEDED	https://doi.org/10.15468/dl.ghpdpn
+0008278-181003121212138	https://raw.githubusercontent.com/trias-project/pipeline/32950c1bd94df3747bc05e5a4aac388c3333cd0a/data/input/species_test_correctness_integrity_rgbif_downloads.tsv	2018-10-18 09:59:59	SUCCEEDED	https://doi.org/10.15468/dl.eyab89
+0008376-181003121212138	https://raw.githubusercontent.com/trias-project/pipeline/32950c1bd94df3747bc05e5a4aac388c3333cd0a/data/input/species_test_correctness_integrity_rgbif_downloads.tsv	2018-10-18 12:07:11	SUCCEEDED	https://doi.org/10.15468/dl.efmrtb
+0012078-181003121212138	https://raw.githubusercontent.com/trias-project/pipeline/occ_indicators_downscaling/data/input/occ_indicator_emerging_species_AOO.tsv	2018-10-24 09:52:39	SUCCEEDED	https://doi.org/10.15468/dl.kg0uxf
+0009008-181108115102211	https://raw.githubusercontent.com/trias-project/pipeline/improve-grid-size-effects-%2340/data/input/occ_indicator_emerging_species_AOO.tsv	2018-11-26 17:55:59	SUCCEEDED	https://doi.org/10.15468/dl.asrptv
+0044021-181108115102211		2019-02-21T08:52:36.045+0000	SUCCEEDED	https://doi.org/10.15468/dl.jo7tj6

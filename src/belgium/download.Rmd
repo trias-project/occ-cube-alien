@@ -26,6 +26,8 @@ Load libraries:
 # Tidyverse packages
 library(tidyverse)
 library(lubridate)
+# to find files
+library(here)
 # GBIF package
 library(rgbif)
 # Project package
@@ -35,7 +37,7 @@ library(trias)
 Define the file where all downloads we've trriggered are added:
 
 ```{r set_file_paths}
-downloads_output_file <- "../data/output/gbif_downloads.tsv"
+downloads_output_file <- here("data", "processed", "gbif_downloads.tsv")
 ```
 
 # Define download query parameters
