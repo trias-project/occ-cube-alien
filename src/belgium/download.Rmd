@@ -34,12 +34,6 @@ library(rgbif)
 library(trias)
 ```
 
-Define the file where all downloads we've triggered are added:
-
-```{r set_file_paths}
-downloads_output_file <- here("data", "processed", "gbif_downloads.tsv")
-```
-
 # Define download query parameters
 
 ## Define taxa
@@ -149,7 +143,7 @@ Write download to list of downloads and check pending downloads:
 
 ```{r}
 update_download_list(
-  file = downloads_output_file, 
+  file = here("data", "processed", "gbif_downloads.tsv"), 
   download_to_add = gbif_download_key, 
   input_checklist = taxa_input_file
 )
