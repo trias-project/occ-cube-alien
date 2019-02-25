@@ -12,7 +12,7 @@ output:
     number_sections: true
 ---
 
-This document describes how to retrieve occurrences for assessing the emerging status of alien species in Belgium.
+In this document we download (alien) species occurrences for Belgium from [GBIF](https://www.gbif.org), to feed alien species indicators and emerging species assessments.
 
 # Setup
 
@@ -32,21 +32,21 @@ library(trias)          # To use functions developed for TrIAS
 
 # Define download query parameters
 
-## Define taxa
+## Taxa
 
-As the list of alien species from the unified checklist is too long for a query to the GBIF API, we don't define any taxa.
+As the list of alien species in Belgium (defined in the [unified checklist](https://doi.org/10.15468/xoidmd)) is [too long](https://github.com/gbif/portal-feedback/issues/1768) for a query to the GBIF API, we don't filter on taxa in the download step.
 
-## Define countries
+## Countries
 
-Only query occurrences from Belgium.
+Occurrences from Belgium:
 
 ```{r define_countries}
 countries <- c("BE")
 ```
 
-## Define basis of record
+## Basis of record
 
-Everything except `FOSSIL SPECIMEN` and `LIVING SPECIMEN`:
+All types of occurrences, except `FOSSIL SPECIMEN` and `LIVING SPECIMEN`, which can have misleading location information (e.g. location of captive animal).
 
 ```{r define_basis_of_record}
 basis_of_record <- c(
@@ -60,18 +60,18 @@ basis_of_record <- c(
 )
 ```
 
-## Define year
+## Year
 
-We will limit to occurrence with valid year.
+Occurrences with a valid year:
 
 ```{r define_year}
 year_begin <- 1000
 year_end <- year(Sys.Date())
 ```
 
-## Define geographic coordinates
+## Geographic coordinates
 
-We need occurrences with valid geographic coordinates:
+Occurrences with valid geographic coordinates:
 
 ```{r define_hasCoordinate}
 hasCoordinate <- TRUE
@@ -81,12 +81,12 @@ hasCoordinate <- TRUE
 
 ## Trigger download
 
-**Note**: GBIF credentials are required in the next step, i.e. `gbif_user`, `gbif_pwd`, `gbif_email` should be defined in your `.Renviron` file. 
+**Note**: GBIF credentials are required in the next step, i.e. `gbif_user`, `gbif_pwd`, `gbif_email` should be defined in a `.Renviron` file. 
 
 Trigger download:
 
 ```{r trigger_gbif_download}
-# Important: query arguments need to be pasts as strings of format "key = value"
+# Important: query arguments need to be pasted as strings of format "key = value"
 gbif_download_key <- occ_download(
   paste0("country = ", paste(countries, collapse = ",")),
   paste0("basisOfRecord = ", paste(basis_of_record, collapse = ",")),
