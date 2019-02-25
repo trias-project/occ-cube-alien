@@ -77,7 +77,7 @@ We need occurrences with valid geographic coordinates:
 hasCoordinate <- TRUE
 ```
 
-## Download GBIF occurrences
+# Download GBIF occurrences
 
 **Note**: GBIF credentials are required in the next step, i.e. `gbif_user`, `gbif_pwd`, `gbif_email` should be defined in your `.Renviron` file. 
 
@@ -97,7 +97,7 @@ gbif_download_key <- occ_download(
 )
 ```
 
-## Check status of download:
+# Check status of download
 
 ```{r}
 metadata <- occ_download_meta(key = gbif_download_key)
