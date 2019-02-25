@@ -34,7 +34,7 @@ library(rgbif)
 library(trias)
 ```
 
-Define the file where all downloads we've trriggered are added:
+Define the file where all downloads we've triggered are added:
 
 ```{r set_file_paths}
 downloads_output_file <- here("data", "processed", "gbif_downloads.tsv")
