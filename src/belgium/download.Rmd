@@ -96,7 +96,6 @@ gbif_download_key <- occ_download(
   paste0("year >= ", year_begin),
   paste0("year <= ", year_end),
   paste0("hasCoordinate = ", hasCoordinate),
-  curlopts = list(verbose = TRUE),
   user = rstudioapi::askForPassword("GBIF username"),
   pwd = rstudioapi::askForPassword("GBIF password"),
   email = rstudioapi::askForPassword("Email address for notification")
