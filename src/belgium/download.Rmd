@@ -103,8 +103,6 @@ gbif_download_key <- occ_download(
 )
 ```
 
-For more details, type `?occ_download` in your R console.
-
 ## Check status of download:
 
 ```{r}
