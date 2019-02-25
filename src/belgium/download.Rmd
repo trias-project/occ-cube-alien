@@ -38,7 +38,7 @@ As the list of alien species from the unified checklist is too long for a query 
 
 ## Define countries
 
-We will limit our occurrences search for specific countries. To allow better tracking, this filter will also be added to `download_output_file`:
+Only query occurrences from Belgium.
 
 ```{r define_countries}
 countries <- c("BE")
