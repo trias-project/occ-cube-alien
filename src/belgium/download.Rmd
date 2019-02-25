@@ -34,7 +34,7 @@ library(trias)          # To use functions developed for TrIAS
 
 ## Define taxa
 
-As the list of alien species from the unified checklist is too long for a query to the GBIF API, we don't define any taxa:
+As the list of alien species from the unified checklist is too long for a query to the GBIF API, we don't define any taxa.
 
 ```{r define_taxa}
 taxa_input_file <- ""
