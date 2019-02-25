@@ -23,15 +23,11 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 Load libraries:
 
 ```{r load_libraries}
-# Tidyverse packages
-library(tidyverse)
-library(lubridate)
-# to find files
-library(here)
-# GBIF package
-library(rgbif)
-# Project package
-library(trias)
+library(tidyverse)      # To do data science
+library(lubridate)      # To work with dates
+library(here)           # To find files
+library(rgbif)          # To use GBIF services
+library(trias)          # To use functions developed for TrIAS
 ```
 
 # Define download query parameters
