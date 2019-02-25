@@ -79,6 +79,8 @@ hasCoordinate <- TRUE
 
 # Download GBIF occurrences
 
+## Trigger download
+
 **Note**: GBIF credentials are required in the next step, i.e. `gbif_user`, `gbif_pwd`, `gbif_email` should be defined in your `.Renviron` file. 
 
 Trigger download:
