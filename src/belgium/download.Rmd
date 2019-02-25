@@ -99,9 +99,9 @@ gbif_download_key <- occ_download(
 )
 ```
 
-# Check status of download
+## Check status of download
 
-```{r}
+```{r check_metadata}
 metadata <- occ_download_meta(key = gbif_download_key)
 metadata$key
 metadata$status
@@ -109,7 +109,7 @@ metadata$status
 
 Write download to list of downloads and check pending downloads:
 
-```{r}
+```{r update_download_list}
 update_download_list(
   file = here("data", "processed", "gbif_downloads.tsv"), 
   download_to_add = gbif_download_key, 
