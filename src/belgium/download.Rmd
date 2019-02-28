@@ -1,0 +1,118 @@
+---
+title: "Download GBIF occurrences"
+author:
+- Damiano Oldoni
+- Peter Desmet
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+---
+
+In this document we download (alien) species occurrences for Belgium from [GBIF](https://www.gbif.org), to feed alien species indicators and emerging species assessments.
+
+# Setup
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Load libraries:
+
+```{r load_libraries}
+library(tidyverse)      # To do data science
+library(lubridate)      # To work with dates
+library(here)           # To find files
+library(rgbif)          # To use GBIF services
+library(trias)          # To use functions developed for TrIAS
+```
+
+# Define download query parameters
+
+## Taxa
+
+As the list of alien species in Belgium (defined in the [unified checklist](https://doi.org/10.15468/xoidmd)) is [too long](https://github.com/gbif/portal-feedback/issues/1768) for a query to the GBIF API, we don't filter on taxa in the download step.
+
+## Countries
+
+Occurrences from Belgium:
+
+```{r define_countries}
+countries <- c("BE")
+```
+
+## Basis of record
+
+All types of occurrences, except `FOSSIL SPECIMEN` and `LIVING SPECIMEN`, which can have misleading location information (e.g. location of captive animal).
+
+```{r define_basis_of_record}
+basis_of_record <- c(
+  "OBSERVATION", 
+  "HUMAN_OBSERVATION",
+  "MATERIAL_SAMPLE", 
+  "LITERATURE", 
+  "PRESERVED_SPECIMEN", 
+  "UNKNOWN", 
+  "MACHINE_OBSERVATION"
+)
+```
+
+## Year
+
+Occurrences with a valid year:
+
+```{r define_year}
+year_begin <- 1000
+year_end <- year(Sys.Date())
+```
+
+## Geographic coordinates
+
+Occurrences with valid geographic coordinates:
+
+```{r define_hasCoordinate}
+hasCoordinate <- TRUE
+```
+
+# Download GBIF occurrences
+
+## Trigger download
+
+**Note**: GBIF credentials are required in the next step. 
+
+Trigger download:
+
+```{r trigger_gbif_download}
+# Important: query arguments need to be pasted as strings of format "key = value"
+gbif_download_key <- occ_download(
+  paste0("country = ", paste(countries, collapse = ",")),
+  paste0("basisOfRecord = ", paste(basis_of_record, collapse = ",")),
+  paste0("year >= ", year_begin),
+  paste0("year <= ", year_end),
+  paste0("hasCoordinate = ", hasCoordinate),
+  user = rstudioapi::askForPassword("GBIF username"),
+  pwd = rstudioapi::askForPassword("GBIF password"),
+  email = rstudioapi::askForPassword("Email address for notification")
+)
+```
+
+## Check status of download
+
+```{r check_metadata}
+metadata <- occ_download_meta(key = gbif_download_key)
+metadata$key
+metadata$status
+```
+
+Write download to list of downloads and check pending downloads:
+
+```{r update_download_list}
+update_download_list(
+  file = here("data", "processed", "gbif_downloads.tsv"), 
+  download_to_add = gbif_download_key, 
+  input_checklist = ""
+)
+```
