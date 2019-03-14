@@ -85,7 +85,7 @@ length(cols_occ_file)
 
 Define name and path of `.sqlite` file:
 
-```{r}
+```{r sqlite_path}
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here("data", "interim", sqlite_file)
 ```
