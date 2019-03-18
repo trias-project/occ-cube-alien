@@ -140,7 +140,7 @@ real_fields <- c(
   names(field_types)[str_detect(names(field_types), "coordinate")],
   names(field_types)[names(field_types) == "pointRadiusSpatialFit"]
 )
-field_types[which(names(field_types) %in% names(real_fields))] <- "REAL"
+field_types[which(names(field_types) %in% real_fields)] <- "REAL"
 ```
 
 Open connection to database:
