@@ -25,9 +25,7 @@ Load libraries:
 ```{r load_libraries}
 library(tidyverse)      # To do datascience
 library(sp)             # To work with geospatial data
-library(multidplyr)     # To do multiprocessing
 library(here)           # To find files
-library(rgbif)          # To use GBIF services
 library(glue)           # To write queries
 library(RSQLite)        # To interact with SQlite databases
 ```
