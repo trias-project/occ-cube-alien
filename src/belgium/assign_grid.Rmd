@@ -45,7 +45,7 @@ sqlite_path <- here("data", "interim", sqlite_file)
 Table name:
 
 ```{r define_table_name}
-table_name_subset <- "occ_be"
+table_name <- "occ_be"
 ```
 
 Open connection to database:
@@ -61,7 +61,7 @@ query <- glue_sql("SELECT {`cols`*} FROM {table}",
               cols = c("decimalLatitude", 
                        "decimalLongitude",
                        "coordinateUncertaintyInMeters"),
-              table = table_name_subset,
+              table = table_name,
               .con = sqlite_occ
 )
 geodata_df <- 
@@ -83,20 +83,21 @@ Preview:
 geodata_df %>% head()
 ```
 
-Number of occurrences per each value of `coordinateUncertaintyInMeters`:
-
-```{r n_occ_no_uncertainty}
-geodata_df %>%
-  group_by(coordinateUncertaintyInMeters) %>%
-  count()
-```
-
 Transform character columns to numbers:
 
 ```{r transform_to_numbers}
 geodata_df <-
   geodata_df %>%
   mutate_if(is.character, as.double)
+```
+
+Number of occurrences per each value of `coordinateUncertaintyInMeters`:
+
+```{r n_occ_per_uncertainty}
+geodata_df %>%
+  group_by(coordinateUncertaintyInMeters) %>%
+  count() %>%
+  arrange(desc(n))
 ```
 
 We assign 1000 meters to occurrences without uncertainty:
@@ -110,6 +111,28 @@ geodata_df <-
               1000.0,
               coordinateUncertaintyInMeters)
 )
+```
+
+We apply the same changes in sqlite table. To speed up the process we deactivate database synchronization and wrap the execution of the query in a transaction:
+
+```{r assign_1000_as_uncertainty_on_db}
+# speed up by deactivating db synchronization
+query <- glue_sql(
+  "PRAGMA synchronous = OFF",
+  .con = sqlite_occ
+)
+dbExecute(sqlite_occ, query)
+
+# Start transaction
+dbBegin(sqlite_occ)
+query <- glue_sql(
+            "UPDATE {table} SET {`column`} = '1000' WHERE {`column`} = ''",
+            table = table_name,
+            column = "coordinateUncertaintyInMeters",
+            .con = sqlite_occ)
+dbExecute(sqlite_occ, query)
+# Commit transaction
+dbCommit(sqlite_occ)
 ```
 
 # Assign grid to occurrences
@@ -155,17 +178,17 @@ geodata_df@data <-
 
 Preview:
 
-```{r}
+```{r preview_geodata_df_data}
 geodata_df@data %>% head(n = 10)
 ```
 
 Where `x` and `y` are the new coordinates while in `@coords` we have the original coordinates:
 
-```{r}
+```{r preview_geodata_df_coords}
 geodata_df@coords[1:10,]
 ```
 
-## Assign occurrence to grid cells
+## Assign occurrences to grid cells
 
 We assign each occurrence to a grid cell. 
 
@@ -190,7 +213,7 @@ We first create the new column  `eaa_cell_code` in the table:
 ```{r add_eaa_cellcode_to_sqlite}
 new_col <- "eea_cell_code"
 query <- glue_sql("ALTER TABLE {table} ADD COLUMN {colname} {type}",
-                  table = table_name_subset,
+                  table = table_name,
                   colname = new_col,
                   type = "CHARACTER",
                   .con = sqlite_occ
@@ -198,28 +221,30 @@ query <- glue_sql("ALTER TABLE {table} ADD COLUMN {colname} {type}",
 dbExecute(sqlite_occ, query)
 ```
 
-And then we populate it with the values in `geodate_df@data$eaa_cell_code`. To do so, we deactivate synchronization and wrap the query in a transaction for speeding up the writing process:
+And then we populate it with the values in `geodate_df@data$eaa_cell_code`.
 
 ```{r add_values_cellcode}
-# speed up by deactivating db synchronization
-query <- glue_sql(
-  "PRAGMA synchronous = OFF",
-  .con = sqlite_occ
-)
-dbExecute(sqlite_occ, query)
-
 # Start transaction
 dbBegin(sqlite_occ)
-dbExecute(sqlite_occ, 
-          query <- glue_sql(
+dbExecute(sqlite_occ,
+          glue_sql(
             "UPDATE {table} SET {`column`} = :eea_cell_code WHERE _ROWID_ = :id",
-            table = table_name_subset,
+            table = table_name,
             column = new_col,
             .con = sqlite_occ),
           params = data.frame(eea_cell_code = geodata_df@data$eea_cell_code,
                               id = rownames(geodata_df@data)))
 # Commit transaction
 dbCommit(sqlite_occ)
+```
+
+Preview:
+
+```{r}
+query <- glue_sql("SELECT * FROM {table} WHERE _ROWID_ <= 10",
+                  table = table_name,
+                  .con = sqlite_occ)
+dbGetQuery(sqlite_occ, query)
 ```
 
 Close connection:
