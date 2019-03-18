@@ -1,0 +1,229 @@
+---
+title: "Assign grid to occurrences"
+author:
+- Damiano Oldoni
+- Peter Desmet
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+---
+
+In this document we assign grid to occurrences
+
+# Setup
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Load libraries:
+
+```{r load_libraries}
+library(tidyverse)      # To do datascience
+library(sp)             # To work with geospatial data
+library(multidplyr)     # To do multiprocessing
+library(here)           # To find files
+library(rgbif)          # To use GBIF services
+library(glue)           # To write queries
+library(RSQLite)        # To interact with SQlite databases
+```
+
+# Get geographic coordinates and coordinate uncertainty
+
+Name and path of `.sqlite` file:
+
+```{r name_path}
+key <- "0044021-181108115102211"
+sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
+sqlite_path <- here("data", "interim", sqlite_file)
+```
+
+Table name:
+
+```{r define_table_name}
+table_name_subset <- "occ_be"
+```
+
+Open connection to database:
+
+```{r open_connection_to_db}
+sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_path)
+```
+
+Retrieve geographic coordinates, `decimalLatitude` and `decimalLongitude` and coordinate uncertainty, `coordinateUncertaintyInMeters`:
+
+```{r get_geodata}
+query <- glue_sql("SELECT {`cols`*} FROM {table}",
+              cols = c("decimalLatitude", 
+                       "decimalLongitude",
+                       "coordinateUncertaintyInMeters"),
+              table = table_name_subset,
+              .con = sqlite_occ
+)
+geodata_df <- 
+  dbGetQuery(sqlite_occ, query) %>%
+  as_tibble()
+```
+
+Number of occurrences:
+
+```{r n_occs}
+nrow_geodata_df <- nrow(geodata_df)
+nrow_geodata_df
+```
+
+
+Preview:
+
+```{r preview_geodata}
+geodata_df %>% head()
+```
+
+Number of occurrences per each value of `coordinateUncertaintyInMeters`:
+
+```{r n_occ_no_uncertainty}
+geodata_df %>%
+  group_by(coordinateUncertaintyInMeters) %>%
+  count()
+```
+
+Transform character columns to numbers:
+
+```{r transform_to_numbers}
+geodata_df <-
+  geodata_df %>%
+  mutate_if(is.character, as.double)
+```
+
+We assign 1000 meters to occurrences without uncertainty:
+
+```{r assign_fix_uncertainty}
+geodata_df <- 
+  geodata_df %>%
+  mutate(
+    coordinateUncertaintyInMeters = 
+      if_else(is.na(coordinateUncertaintyInMeters),
+              1000.0,
+              coordinateUncertaintyInMeters)
+)
+```
+
+# Assign grid to occurrences
+
+We use the official grid of Belgium at 1x1km resolution as provided by EEA.
+
+## Project geographic coordinates
+
+We project latitude and longitude by using the projection of the grid. We transform GBIF data which have coordinate reference system equal to EPSG code 4326 to Lambert projection with EPSG code 3035:
+
+```{r transform_to_3035}
+coordinates(geodata_df) <- ~decimalLongitude+decimalLatitude
+proj4string(geodata_df) <- CRS("+init=epsg:4326")
+geodata_df <- spTransform(geodata_df, CRS("+init=epsg:3035"))
+colnames(geodata_df@coords) <- c("x", "y")
+```
+
+## Assign occurrence within uncertainty circle
+
+Assign the occurrence randomly within the circle with radius equal to `coordinateUncertaintyInMeters`:
+
+```{r assign_pts_in_circle}
+geodata_df@data <- 
+  geodata_df@data %>% 
+  mutate(random_angle = runif(nrow_geodata_df, 0, 2*pi))
+geodata_df@data <- 
+  geodata_df@data %>%
+  mutate(random_r = runif(
+    nrow_geodata_df, 0, 1) * coordinateUncertaintyInMeters)
+geodata_df@data <- 
+  geodata_df@data %>%
+  mutate(x = geodata_df@coords[, "x"],
+         y = geodata_df@coords[, "y"])
+geodata_df@data <- 
+  geodata_df@data %>%
+  mutate(x = x + random_r * cos(random_angle),
+         y = y + random_r * sin(random_angle))
+geodata_df@data <- 
+  geodata_df@data %>%
+  select(-c(random_angle, random_r)) %>%
+  select(x, y, coordinateUncertaintyInMeters)
+```
+
+Preview:
+
+```{r}
+geodata_df@data %>% head(n = 10)
+```
+
+Where `x` and `y` are the new coordinates while in `@coords` we have the original coordinates:
+
+```{r}
+geodata_df@coords[1:10,]
+```
+
+## Assign occurrence to grid cells
+
+We assign each occurrence to a grid cell. 
+
+```{r asign_grid}
+geodata_df@data <- 
+  geodata_df@data %>%
+  mutate(eea_cell_code = paste0("1km", 
+                                  "E", floor(x/1000), 
+                                  "N", floor(y/1000)))
+```
+Preview:
+
+```{r preview_gridcell}
+geodata_df@data %>% head(n = 10)
+```
+
+## Add grid cell code to sqlite file
+
+We can now add the column `eea_cell_code` to the table `occ_be` of sqlite file.
+We first create the new column  `eaa_cell_code` in the table:
+
+```{r add_eaa_cellcode_to_sqlite}
+new_col <- "eea_cell_code"
+query <- glue_sql("ALTER TABLE {table} ADD COLUMN {colname} {type}",
+                  table = table_name_subset,
+                  colname = new_col,
+                  type = "CHARACTER",
+                  .con = sqlite_occ
+)
+dbExecute(sqlite_occ, query)
+```
+
+And then we populate it with the values in `geodate_df@data$eaa_cell_code`. To do so, we deactivate synchronization and wrap the query in a transaction for speeding up the writing process:
+
+```{r add_values_cellcode}
+# speed up by deactivating db synchronization
+query <- glue_sql(
+  "PRAGMA synchronous = OFF",
+  .con = sqlite_occ
+)
+dbExecute(sqlite_occ, query)
+
+# Start transaction
+dbBegin(sqlite_occ)
+dbExecute(sqlite_occ, 
+          query <- glue_sql(
+            "UPDATE {table} SET {`column`} = :eea_cell_code WHERE _ROWID_ = :id",
+            table = table_name_subset,
+            column = new_col,
+            .con = sqlite_occ),
+          params = data.frame(eea_cell_code = geodata_df@data$eea_cell_code,
+                              id = rownames(geodata_df@data)))
+# Commit transaction
+dbCommit(sqlite_occ)
+```
+
+Close connection:
+
+```{r close_connection}
+dbDisconnect(sqlite_occ)
+```
