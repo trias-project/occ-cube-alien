@@ -126,7 +126,7 @@ dbExecute(sqlite_occ, query)
 # Start transaction
 dbBegin(sqlite_occ)
 query <- glue_sql(
-            "UPDATE {table} SET {`column`} = '1000' WHERE {`column`} = ''",
+            "UPDATE {table} SET {`column`} = 1000 WHERE {`column`} = ''",
             table = table_name,
             column = "coordinateUncertaintyInMeters",
             .con = sqlite_occ)
