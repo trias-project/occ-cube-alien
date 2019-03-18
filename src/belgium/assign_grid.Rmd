@@ -79,7 +79,7 @@ nrow_geodata_df
 Preview:
 
 ```{r preview_geodata}
-geodata_df %>% head()
+geodata_df %>% head(10)
 ```
 
 Transform character columns to numbers:
