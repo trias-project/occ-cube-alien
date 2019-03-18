@@ -76,7 +76,6 @@ nrow_geodata_df <- nrow(geodata_df)
 nrow_geodata_df
 ```
 
-
 Preview:
 
 ```{r preview_geodata}
@@ -221,7 +220,7 @@ query <- glue_sql("ALTER TABLE {table} ADD COLUMN {colname} {type}",
 dbExecute(sqlite_occ, query)
 ```
 
-And then we populate it with the values in `geodate_df@data$eaa_cell_code`.
+And then we populate it with the values in `geodata_df@data$eaa_cell_code`.
 
 ```{r add_values_cellcode}
 # Start transaction
