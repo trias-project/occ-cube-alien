@@ -38,9 +38,9 @@ Download the occurrences from GBIF, based on the download key returned in `downl
 
 ```{r get_occ_file}
 key <- "0044021-181108115102211"
-zip_filename <- paste0(key, ".zip")
-if (!file.exists(here("data", "raw", zip_filename))) {
-  occ <- occ_download_get(
+download_file <- here("data", "raw", paste0(key, ".zip"))
+if (!file.exists(download_file)) {
+  occ_download_get(
     key = "0044021-181108115102211", 
     path = here("data", "raw")
   )
@@ -50,15 +50,19 @@ if (!file.exists(here("data", "raw", zip_filename))) {
 Unzip the occurrence text file from the download file:
 
 ```{r unzip_csv}
-occ_file <- paste(key, "occurrence.txt", sep = "_")
-occ_path <- here("data", "raw", occ_file)
+occ_filename <- paste(key, "occurrence.txt", sep = "_")
+# 0044021-181108115102211_occurrence.txt
+occ_file <- here("data", "raw", occ_filename)
 
-if (!file.exists(here("data", "raw", occ_file))) {
-  unzip(zipfile = occ,
-        files = "occurrence.txt",
-        exdir = here("data", "raw"))
-  file.rename(from = here("data", "raw", "occurrence.txt"),
-              to = occ_path
+if (!file.exists(occ_file)) {
+  unzip(
+    zipfile = download_file,
+    files = "occurrence.txt",
+    exdir = here("data", "raw")
+  )
+  file.rename(
+    from = here("data", "raw", "occurrence.txt"),
+    to = occ_file
   )
 }
 ``` 
@@ -66,10 +70,7 @@ if (!file.exists(here("data", "raw", occ_file))) {
 Columns names:
 
 ```{r get_cols}
-cols_occ_file <- read_delim(
-  occ_path, "\t", n_max = 1,
-  quote = ""
-)
+cols_occ_file <- read_delim(occ_file, "\t", n_max = 1, quote = "")
 cols_occ_file <- names(cols_occ_file)
 ```
 
@@ -85,9 +86,9 @@ length(cols_occ_file)
 
 Define name and path of `.sqlite` file:
 
-```{r sqlite_path}
-sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
-sqlite_path <- here("data", "interim", sqlite_file)
+```{r sqlite_file}
+sqlite_filename <- paste(key, "occurrence.sqlite", sep = "_")
+sqlite_file <- here("data", "interim", sqlite_filename)
 ```
 
 And table name:
@@ -114,7 +115,7 @@ The following columns should be of storage class `INTEGER`:
 4. `month`
 5. `day`
 
-```{r set_to_INTEGER}
+```{r set_to_integer}
 int_fields <- names(field_types)[str_detect(names(field_types), "Key") & 
                                    names(field_types) != "datasetKey"]
 int_fields <- c(
@@ -133,7 +134,7 @@ The following columns should be of storage class `REAL`:
 2. `coordinate*`: `coordinateUncertaintyInMeters` and `coordinatePrecision`
 3. `pointRadiusSpatialFit`
 
-```{r}
+```{r set_to_real}
 real_fields <- names(field_types)[str_detect(names(field_types), "decimal")]
 real_fields <- c(
   real_fields,
@@ -146,7 +147,7 @@ field_types[which(names(field_types) %in% real_fields)] <- "REAL"
 Open connection to database:
 
 ```{r open_connection_to_db}
-sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_path)
+sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_file)
 ```
 
 Fill database with occurrences from text file. This step reads the large occurrence file in chunks and transfers them in the sqlite file. This step can take long the first time you run it:
@@ -156,7 +157,7 @@ if (!table_name %in% dbListTables(sqlite_occ)) {
   dbWriteTable(conn = sqlite_occ,
                name = table_name,
                sep = "\t",
-               value = occ_path,
+               value = occ_file,
                row.names = FALSE,
                header = TRUE,
                field.types = field_types,
