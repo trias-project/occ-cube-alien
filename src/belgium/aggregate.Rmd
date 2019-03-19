@@ -89,7 +89,8 @@ query <- glue_sql(
 )
 occ_cube_baseline <- 
   dbGetQuery(sqlite_occ, query) %>%
-  rename(n = "COUNT(_ROWID_)")
+  rename(n = "COUNT(_ROWID_)") %>%
+  mutate(kingdomKey = as.integer(kingdomKey))
 ```
 
 Preview:
@@ -122,6 +123,134 @@ Save as text file:
 write_tsv(occ_cube_baseline,
           here("data", "processed", "cube_belgium_baseline.tsv"),
           na = "")
+```
+
+# Aggregate at species level - baseline
+
+## Select occurrences related to alien species
+
+We extract taxa from unified checklist:
+
+```{r get_alien_species}
+datasetKey <- "6d9e952f-948c-4483-9807-575348147c7e"
+alien_taxa <- name_usage(
+  datasetKey = datasetKey, 
+  return = "data",
+  limit = 10000)  %>%
+  filter(origin == "SOURCE")
+```
+
+Rank present values in checklist:
+
+```{r overview_rank}
+alien_taxa %>%
+  group_by(rank) %>%
+  count()
+```
+
+Taxonomic status values present in checklist:
+
+```{r taxonStatus}
+alien_taxa %>%
+  group_by(taxonomicStatus) %>%
+  count()
+```
+
+## Select accepted species from checklist
+
+As initial step, we start by selecting occurrences linked to taxa with rank `SPECIES` and taxonomic status `ACCEPTED` and `DOUBTFUL`:
+
+```{r }
+alien_taxa_species <- 
+  alien_taxa %>%
+  filter(rank == "SPECIES", 
+         taxonomicStatus %in% c("ACCEPTED", "DOUBTFUL"))
+alien_taxa_species %>% head()
+```
+
+The `nubKey` of these taxa are the `speciesKey` we can filter on:
+
+```{r n_taxa_species_not_synonym}
+alien_taxa_species_key <-
+  alien_taxa_species %>% 
+  distinct(nubKey) %>% 
+  pull(nubKey)
+```
+
+For speeding up the search in database, we create an index on  `year`,  `eea_cell_code`, `speciesKey` if not present:
+
+```{r create_idx_kingdom}
+idx_species_year_cell <- "idx_species_year_cell"
+# get indexes on table
+query <- glue_sql(
+    "PRAGMA index_list({table_name})",
+    table_name = table_name,
+    .con = sqlite_occ
+)
+indexes_all <- dbGetQuery(sqlite_occ, query)
+
+# create index if not present
+if (!idx_species_year_cell %in% indexes_all$name) {
+  query <- glue_sql(
+  "CREATE INDEX {`idx`} ON {table_name} ({`cols_idx`*})",
+  idx = idx_species_year_cell,
+  table_name = table_name,
+  cols_idx = c("year", "eea_cell_code", "speciesKey"),
+  .con = sqlite_occ
+  )
+  dbExecute(sqlite_occ, query)
+}
+```
+
+Group by  `year`, `eea_cell_code` and `speciesKey` and count number of occurrences for each group:
+
+```{r get_datacube_kingdom}
+query <- glue_sql(
+  "SELECT {`cols`*}, COUNT(_ROWID_) 
+FROM {table}
+GROUP BY {`cols`*}",
+  cols = c("year", "eea_cell_code", "speciesKey"),
+  table = table_name,
+  .con = sqlite_occ
+)
+occ_cube_species <- 
+  dbGetQuery(sqlite_occ, query) %>%
+  rename(n = "COUNT(_ROWID_)")
+occ_cube_species <-
+  occ_cube_species %>%
+  mutate(speciesKey = as.integer(speciesKey)) %>%
+  filter(speciesKey %in% alien_taxa_species_key)
+```
+
+Preview:
+
+```{r preview_occ_species}
+occ_cube_species %>% head()
+```
+
+Number of alien species included in occurrence cube:
+
+```{r species_included}
+length(alien_taxa_species_key[
+  which(alien_taxa_species_key %in% unique(occ_cube_species$speciesKey))
+])
+```
+
+Number of alien species not included in occurrence cube:
+
+```{r species_not_included}
+length(alien_taxa_species_key[
+  which(!alien_taxa_species_key %in% unique(occ_cube_species$speciesKey))
+])
+```
+
+Save as text file:
+
+```{r save_baseline_datacube}
+write_tsv(occ_cube_species, 
+          here("data", "processed", "cube_belgium.tsv"),
+          na = ""
+)
 ```
 
 Close connection:
