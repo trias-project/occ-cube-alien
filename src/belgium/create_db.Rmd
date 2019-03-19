@@ -12,7 +12,7 @@ output:
     number_sections: true
 ---
 
-In this document we transform the text file containing the occurrences of (alien) species for Belgium into a sqlite database. Then, we filter on issues and occurrence status. This is a way to handle the critical huge amount of occurrences. Note: some of these steps could take long.
+In this document we transform the GBIF download - a csv file containing the occurrences of (alien) species for Belgium - into a sqlite database, to handle the large volume of data. Then we filter on issues and occurrence status. Note: some of these steps can take long.
 
 # Setup
 
@@ -34,7 +34,7 @@ library(RSQLite)        # To interact with SQlite databases
 
 ## Get CSV file from GBIF
 
-We download the occurrences from GBIF, based on the key got in `download.Rmd`:
+Download the occurrences from GBIF, based on the download key returned in `download.Rmd`:
 
 ```{r get_occ_file}
 key <- "0044021-181108115102211"
@@ -47,7 +47,7 @@ if (!file.exists(here("data", "raw", zip_filename))) {
 }
 ```
 
-We unzip text file with occurrences as  `key_number` + `occurrence.txt` in `./data/raw`:
+Unzip the occurrence text file from the download file:
 
 ```{r unzip_csv}
 occ_file <- paste(key, "occurrence.txt", sep = "_")
@@ -63,7 +63,7 @@ if (!file.exists(here("data", "raw", occ_file))) {
 }
 ``` 
 
-Name of columns:
+Columns names:
 
 ```{r get_cols}
 cols_occ_file <- read_delim(
@@ -90,7 +90,7 @@ sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here("data", "interim", sqlite_file)
 ```
 
-and table name:
+And table name:
 
 ```{r define_table_name}
 table_name <- "occ_be_all"
@@ -149,7 +149,7 @@ Open connection to database:
 sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_path)
 ```
 
-And fill it with occurrences from text file. This step reads the large occurrence file in chunks and transfer them in the sqlite file. This step can take long the first timeyou run it:
+Fill database with occurrences from text file. This step reads the large occurrence file in chunks and transfers them in the sqlite file. This step can take long the first time you run it:
 
 ```{r fill_sqlite_file}
 if (!table_name %in% dbListTables(sqlite_occ)) {
