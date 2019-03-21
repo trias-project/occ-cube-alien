@@ -71,26 +71,32 @@ if (!idx_baseline %in% indexes_all$name) {
   "CREATE INDEX {`idx`} ON {table_name} ({`cols_idx`*})",
   idx = idx_baseline,
   table_name = table_name,
-  cols_idx = c("year", "eea_cell_code", "kingdomKey"),
+  cols_idx = c("year", 
+               "eea_cell_code", 
+               "kingdomKey", 
+               "coordinateUncertaintyInMeters"),
   .con = sqlite_occ
   )
   dbExecute(sqlite_occ, query)
 }
 ```
 
-Group by  `year`, `eea_cell_code` and `kingdomKey` and count number of occurrences for each group:
+Group by  `year`, `eea_cell_code` and `kingdomKey` and count number of occurrences for each group. We also add the lowest value of coordinate uncertainty.
 
 ```{r get_datacube_kingdom}
 query <- glue_sql(
-  "SELECT {`cols`*}, COUNT(_ROWID_) FROM {table} GROUP BY {`cols`*}",
+  "SELECT {`cols`*}, COUNT(_ROWID_), MIN({`coord_uncertainty`}) FROM {table} GROUP BY {`cols`*}",
   cols = c("year", "eea_cell_code", "kingdomKey"),
+  coord_uncertainty = "coordinateUncertaintyInMeters",
   table = table_name,
   .con = sqlite_occ
 )
 occ_cube_baseline <- 
   dbGetQuery(sqlite_occ, query) %>%
-  rename(n = "COUNT(_ROWID_)") %>%
-  mutate(kingdomKey = as.integer(kingdomKey))
+  rename(
+    n = "COUNT(_ROWID_)",
+    min_coord_uncertainty = "MIN(`coordinateUncertaintyInMeters`)"
+)
 ```
 
 Preview:
@@ -117,7 +123,7 @@ kingdom_df <-
 kingdom_df
 ```
 
-Save as text file:
+Save as tab separated text file:
 
 ```{r save_baseline_datacube}
 write_tsv(occ_cube_baseline,
@@ -156,11 +162,11 @@ alien_taxa %>%
   count()
 ```
 
-## Select accepted species from checklist
+## Select occurrences of accepted species
 
 As initial step, we start by selecting occurrences linked to taxa with rank `SPECIES` and taxonomic status `ACCEPTED` and `DOUBTFUL`:
 
-```{r }
+```{r alien_taxa_species}
 alien_taxa_species <- 
   alien_taxa %>%
   filter(rank == "SPECIES", 
@@ -170,16 +176,16 @@ alien_taxa_species %>% head()
 
 The `nubKey` of these taxa are the `speciesKey` we can filter on:
 
-```{r n_taxa_species_not_synonym}
+```{r get_alien_taxa_species_key}
 alien_taxa_species_key <-
   alien_taxa_species %>% 
   distinct(nubKey) %>% 
   pull(nubKey)
 ```
 
-For speeding up the search in database, we create an index on  `year`,  `eea_cell_code`, `speciesKey` if not present:
+For speeding up the aggregation, we create an index on  `year`,  `eea_cell_code` and `speciesKey` if not present:
 
-```{r create_idx_kingdom}
+```{r create_idx_speciesKey}
 idx_species_year_cell <- "idx_species_year_cell"
 # get indexes on table
 query <- glue_sql(
@@ -195,37 +201,39 @@ if (!idx_species_year_cell %in% indexes_all$name) {
   "CREATE INDEX {`idx`} ON {table_name} ({`cols_idx`*})",
   idx = idx_species_year_cell,
   table_name = table_name,
-  cols_idx = c("year", "eea_cell_code", "speciesKey"),
+  cols_idx = c("year", 
+               "eea_cell_code", 
+               "speciesKey",
+               "coordinateUncertaintyInMeters"),
   .con = sqlite_occ
   )
   dbExecute(sqlite_occ, query)
 }
 ```
 
-Group by  `year`, `eea_cell_code` and `speciesKey` and count number of occurrences for each group:
+Group by `year`, `eea_cell_code` and `speciesKey`, count number of occurrences for each group and get the lowest value of coordinate uncertainty `occurrenceUncertaintyInMeters`:
 
-```{r get_datacube_kingdom}
+```{r get_datacube_species}
 query <- glue_sql(
-  "SELECT {`cols`*}, COUNT(_ROWID_) 
-FROM {table}
-GROUP BY {`cols`*}",
-  cols = c("year", "eea_cell_code", "speciesKey"),
+  "SELECT {`cols`*}, COUNT(_ROWID_), MIN({`coord_uncertainty`}) FROM {table} GROUP BY {`cols`*}",
+  cols = c("year", 
+           "eea_cell_code", 
+           "speciesKey", 
+           "coordinateUncertaintyInMeters"),
+  coord_uncertainty = "coordinateUncertaintyInMeters",
   table = table_name,
   .con = sqlite_occ
 )
 occ_cube_species <- 
   dbGetQuery(sqlite_occ, query) %>%
-  rename(n = "COUNT(_ROWID_)")
+  rename(
+    n = "COUNT(_ROWID_)",
+    min_coord_uncertainty = "MIN(`coordinateUncertaintyInMeters`)"
+)
 occ_cube_species <-
   occ_cube_species %>%
   mutate(speciesKey = as.integer(speciesKey)) %>%
-  filter(speciesKey %in% alien_taxa_species_key)
-```
-
-Preview:
-
-```{r preview_occ_species}
-occ_cube_species %>% head()
+  filter(speciesKey %in% alien_taxa_species_key) %>%
 ```
 
 Number of alien species included in occurrence cube:
@@ -244,7 +252,162 @@ length(alien_taxa_species_key[
 ])
 ```
 
-Save as text file:
+Preview:
+
+```{r preview_occ_species}
+occ_cube_species %>% head()
+```
+
+## Select occurrences related to taxa below species rank
+
+Accepted taxa in unified cheklist with rank below species:
+
+```{r alien_taxa_under_species}
+rank_under_species <- c("SUBSPECIFICAGGREGATE",
+                        "SUBSPECIES", 
+                        "VARIETY",
+                        "SUBVARIETY",
+                        "FORM",
+                        "SUBFORM"
+)
+alien_taxa_subspecies <-
+  alien_taxa %>%
+  filter(rank %in% rank_under_species, 
+         taxonomicStatus %in% c("ACCEPTED", "DOUBTFUL"))
+alien_taxa_subspecies
+```
+
+For these taxa we will search by keys from field `nubKey`, the taxon keys of taxa from the GBIF taxonomy backbone:
+
+```{r get_alien_taxa_subspecies}
+alien_taxa_subspecies_key <-
+  alien_taxa_subspecies %>% 
+  distinct(nubKey) %>% 
+  pull(nubKey)
+```
+
+Get occurrences related to these taxa and their synonyms by filtering on `acceptedTaxonKey`, group by `year`, `eea_cell_code` and `acceptedTaxonKey`, count number of occurrences and get the lowest value of coordinate uncertainty `occurrenceUncertaintyInMeters`: 
+
+```{r get_occurrences_subspecies}
+query <- glue_sql(
+  "SELECT {`cols`*} FROM {table} WHERE acceptedTaxonKey IN ({subspecies_key*})",
+  cols = c("year", 
+           "eea_cell_code", 
+           "speciesKey", 
+           "acceptedTaxonKey",
+           "coordinateUncertaintyInMeters"),
+  subspecies_key = alien_taxa_subspecies_key,
+  table = table_name,
+  .con = sqlite_occ
+)
+occ_cube_subspecies <- 
+  dbGetQuery(sqlite_occ, query) %>%
+  rename(taxonKey = acceptedTaxonKey) %>%
+  group_by(year, eea_cell_code, speciesKey, taxonKey) %>%
+  summarize(
+    n = n(),
+    min_coord_uncertainty = min(coordinateUncertaintyInMeters)
+)
+```
+
+Number of taxa below species rank included in `occ_cube_subspecies`:
+
+```{r subspecies_included}
+length(alien_taxa_subspecies_key[
+  which(alien_taxa_subspecies_key %in% 
+          unique(occ_cube_subspecies$taxonKey))])
+```
+
+Number of taxa below species rank not included in `occ_cube_subspecies`:
+
+```{r subspecies_not_included}
+length(alien_taxa_subspecies_key[
+  which(!alien_taxa_subspecies_key %in% 
+          unique(occ_cube_subspecies$taxonKey))])
+```
+
+Preview:
+
+```{r preview_occ_cube_subspecies}
+occ_cube_subspecies %>% head()
+```
+
+## Select occurrences related to synonyms
+
+Some taxa in unified checklists are synonyms. For these taxa we don't trust the link to accepted taxa provided by GBIF.
+
+Get synonyms from unified checklist:
+
+```{r alien_taxa_synonyms}
+alien_taxa_synonyms <-
+  alien_taxa %>%
+  filter(!taxonomicStatus %in% c("ACCEPTED", "DOUBTFUL"))
+alien_taxa_synonyms
+```
+
+Rank distribution:
+
+```{r rank_synonym}
+alien_taxa_synonyms %>%
+  group_by(rank) %>%
+  count() %>%
+  arrange(desc(n))
+```
+
+For these taxa we will search by keys from field `nubKey`:
+
+```{r get_alien_taxa_synonyms_key}
+alien_taxa_synonyms_key <-
+  alien_taxa_synonyms %>% 
+  distinct(nubKey) %>% 
+  pull(nubKey)
+```
+
+Get occurrences, group by `year`, `eea_cell_code` and `taxonKey`, count number of occurrences and get the lowest value of coordinate uncertainty `occurrenceUncertaintyInMeters`: 
+
+```{r get_occurrences_synonyms}
+query <- glue_sql(
+  "SELECT {`cols`*} FROM {table} WHERE taxonKey IN ({synonym_key*})",
+  cols = c("year", 
+           "eea_cell_code", 
+           "taxonKey",
+           "coordinateUncertaintyInMeters"),
+  synonym_key = alien_taxa_synonyms_key,
+  table = table_name,
+  .con = sqlite_occ
+)
+occ_cube_synonym <- 
+  dbGetQuery(sqlite_occ, query) %>%
+  group_by(year, eea_cell_code, taxonKey) %>%
+  summarize(
+    n = n(),
+    min_coord_uncertainty = min(coordinateUncertaintyInMeters)
+)
+```
+
+Number of synonyms included in `occ_cube_synonym`:
+
+```{r synonyms_included}
+length(alien_taxa_synonyms_key[
+  which(alien_taxa_synonyms_key %in% 
+          unique(occ_cube_synonym$taxonKey))])
+```
+
+Number of synonyms not included in `occ_cube_synonym`:
+
+```{r synonyms_not_included}
+length(alien_taxa_synonyms_key[
+  which(!alien_taxa_synonyms_key %in% 
+          unique(occ_cube_synonym$taxonKey))])
+```
+
+Preview:
+
+```{r preview_occ_cube_subspecies}
+occ_cube_synonym %>% head()
+```
+
+Save as tab separated text file:
 
 ```{r save_baseline_datacube}
 write_tsv(occ_cube_species, 
