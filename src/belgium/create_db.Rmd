@@ -52,9 +52,10 @@ We unzip text file with occurrences as  `key_number` + `occurrence.txt` in `./da
 ```{r unzip_csv}
 occ_file <- paste(key, "occurrence.txt", sep = "_")
 occ_path <- here("data", "raw", occ_file)
+zipped_occ_path <- here("data", "raw", paste0(key, ".zip"))
 
-if (!file.exists(here("data", "raw", occ_file))) {
-  unzip(zipfile = occ,
+if (!file.exists(occ_path)) {
+  unzip(zipfile = zipped_occ_path,
         files = "occurrence.txt",
         exdir = here("data", "raw"))
   file.rename(from = here("data", "raw", "occurrence.txt"),
