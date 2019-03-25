@@ -74,7 +74,7 @@ cols_occ_file <- read_delim(
 cols_occ_file <- names(cols_occ_file)
 ```
 
-Number of columns present:
+Number of columns:
 
 ```{r n_cols}
 length(cols_occ_file)
@@ -109,7 +109,7 @@ names(field_types) <- cols_occ_file
 
 The following columns should be of storage class `INTEGER`:
 
-1. `*Key`, e.g. `taxonKey`, `speciesKey`)
+1. `*Key`, e.g. `taxonKey`, `speciesKey`, but no `datasetKey`
 2. `*DayOfYear`: `startDayOfYear` and  `endDayOfYear`  
 3. `year`
 4. `month`
@@ -181,18 +181,17 @@ length(cols_occ_db)
 We define a subset of columns we are interested to:
 
 ```{r columns_to_use}
-cols_to_use <- c("gbifID", "scientificName", "kingdom", "phylum", "class", "order",
-             "family", "genus", "specificEpithet", "infraspecificEpithet",
-             "taxonRank", "taxonomicStatus", "datasetKey", "basisOfRecord",
-             "occurrenceStatus", "lastInterpreted", "hasCoordinate",
-             "hasGeospatialIssues", "decimalLatitude", "decimalLongitude",
-             "coordinateUncertaintyInMeters", "coordinatePrecision",
-             "pointRadiusSpatialFit", "verbatimCoordinateSystem", "verbatimSRS",
-             "eventDate", "startDayOfYear", "endDayOfYear", "year", "month",
-             "day", "verbatimEventDate", "samplingProtocol", "samplingEffort",
-             "issue", "taxonKey", "acceptedTaxonKey", "kingdomKey", "phylumKey",
-             "classKey", "orderKey", "familyKey", "genusKey", "subgenusKey",
-             "speciesKey", "species")
+cols_to_use <- c(
+  "gbifID", "scientificName", "kingdom", "phylum", "class", "order", "family",
+  "genus", "specificEpithet", "infraspecificEpithet", "taxonRank", 
+  "taxonomicStatus", "datasetKey", "basisOfRecord", "occurrenceStatus",
+  "lastInterpreted", "hasCoordinate", "hasGeospatialIssues", "decimalLatitude", "decimalLongitude", "coordinateUncertaintyInMeters",
+  "coordinatePrecision", "pointRadiusSpatialFit", "verbatimCoordinateSystem", 
+  "verbatimSRS", "eventDate", "startDayOfYear", "endDayOfYear", "year", "month",
+  "day", "verbatimEventDate", "samplingProtocol", "samplingEffort", "issue",
+  "taxonKey", "acceptedTaxonKey", "kingdomKey", "phylumKey", "classKey", 
+  "orderKey", "familyKey", "genusKey", "subgenusKey", "speciesKey", "species"
+)
 ```
 
 Columns in occurrence file not present in the subset:
