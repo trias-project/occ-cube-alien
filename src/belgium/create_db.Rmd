@@ -72,6 +72,7 @@ cols_occ_file <- read_delim(
   quote = ""
 )
 cols_occ_file <- names(cols_occ_file)
+cols_occ_file
 ```
 
 Number of columns:
@@ -178,7 +179,7 @@ length(cols_occ_db)
 
 ## Define columns to select
 
-We define a subset of columns we are interested to:
+We define a subset of columns, `cols_to_use`, we are interested to:
 
 ```{r columns_to_use}
 cols_to_use <- c(
@@ -194,7 +195,7 @@ cols_to_use <- c(
 )
 ```
 
-Columns in occurrence file not present in the subset:
+Columns in occurrence file not in `cols_to_use`:
 
 ```{r cols_in_cols_to_use_not_present_in_cols_occ_db}
 cols_to_use[which(!cols_to_use %in% cols_occ_db)]
@@ -216,6 +217,7 @@ Storage class of these columns:
 
 ```{r define_field_type_subset}
 field_types_subset <- field_types[which(names(field_types) %in% cols_to_use)]
+field_types_subset
 ```
 
 ## Define filters on occurrences
@@ -230,7 +232,7 @@ issues_to_discard <- c(
 )
 ```
 
-Or occurrences with the following occurrence status:
+Occurrences with the following occurrence status should filtered out as well:
 
 ```{r occurrenceStatus}
 occurrenceStatus_to_discard <- c(
@@ -307,7 +309,7 @@ if (!table_name_subset %in% dbListTables(sqlite_occ)) {
 
 ## Overview and control filtered data table
 
-## Strructure of `occ_be` table
+## Structure of `occ_be` table
 
 Check whether the table `occ_be` has been made:
 
