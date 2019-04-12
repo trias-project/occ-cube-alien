@@ -12,7 +12,7 @@ output:
     number_sections: true
 ---
 
-In this document we assign grid to occurrences
+In this document we assign grid to occurrences.
 
 # Setup
 
@@ -34,10 +34,10 @@ library(RSQLite)        # To interact with SQlite databases
 
 Name and path of `.sqlite` file:
 
-```{r name_path}
+```{r get_file}
 key <- "0044021-181108115102211"
-sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
-sqlite_path <- here("data", "interim", sqlite_file)
+sqlite_filename <- paste(key, "occurrence.sqlite", sep = "_")
+sqlite_file <- here("data", "interim", sqlite_filename)
 ```
 
 Table name:
@@ -49,7 +49,7 @@ table_name <- "occ_be"
 Open connection to database:
 
 ```{r open_connection_to_db}
-sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_path)
+sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_file)
 ```
 
 Retrieve geographic coordinates, `decimalLatitude` and `decimalLongitude` and coordinate uncertainty, `coordinateUncertaintyInMeters`:
@@ -102,12 +102,11 @@ We assign 1000 meters to occurrences without uncertainty:
 ```{r assign_fix_uncertainty}
 geodata_df <- 
   geodata_df %>%
-  mutate(
-    coordinateUncertaintyInMeters = 
-      if_else(is.na(coordinateUncertaintyInMeters),
-              1000.0,
-              coordinateUncertaintyInMeters)
-)
+  mutate(coordinateUncertaintyInMeters = if_else(
+    is.na(coordinateUncertaintyInMeters),
+    1000.0,
+    coordinateUncertaintyInMeters
+  ))
 ```
 
 We apply the same changes in sqlite table. To speed up the process we deactivate database synchronization and wrap the execution of the query in a transaction:
@@ -192,10 +191,13 @@ We assign each occurrence to a grid cell.
 ```{r asign_grid}
 geodata_df@data <- 
   geodata_df@data %>%
-  mutate(eea_cell_code = paste0("1km", 
-                                  "E", floor(x/1000), 
-                                  "N", floor(y/1000)))
+  mutate(eea_cell_code = paste0(
+    "1km", 
+    "E", floor(x/1000), 
+    "N", floor(y/1000)
+  ))
 ```
+
 Preview:
 
 ```{r preview_gridcell}
@@ -204,8 +206,7 @@ geodata_df@data %>% head(n = 10)
 
 ## Add grid cell code to sqlite file
 
-We can now add the column `eea_cell_code` to the table `occ_be` of sqlite file.
-We first create the new column  `eaa_cell_code` in the table:
+We can now add the column `eea_cell_code` to the table `occ_be` of sqlite file. We first create the new column `eaa_cell_code` in the table:
 
 ```{r add_eaa_cellcode_to_sqlite}
 new_col <- "eea_cell_code"
@@ -218,7 +219,7 @@ query <- glue_sql("ALTER TABLE {table} ADD COLUMN {colname} {type}",
 dbExecute(sqlite_occ, query)
 ```
 
-And then we populate it with the values in `geodata_df@data$eaa_cell_code`.
+And then we populate it with the values in `geodata_df@data$eaa_cell_code`:
 
 ```{r add_values_cellcode}
 # Start transaction
