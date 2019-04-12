@@ -50,8 +50,7 @@ if (!file.exists(download_file)) {
 Unzip the occurrence text file from the download file:
 
 ```{r unzip_csv}
-occ_filename <- paste(key, "occurrence.txt", sep = "_")
-# 0044021-181108115102211_occurrence.txt
+occ_filename <- paste(key, "occurrence.txt", sep = "_") # 0044021-181108115102211_occurrence.txt
 occ_file <- here("data", "raw", occ_filename)
 
 if (!file.exists(occ_file)) {
@@ -155,14 +154,16 @@ Fill database with occurrences from text file. This step reads the large occurre
 
 ```{r fill_sqlite_file}
 if (!table_name %in% dbListTables(sqlite_occ)) {
-  dbWriteTable(conn = sqlite_occ,
-               name = table_name,
-               sep = "\t",
-               value = occ_file,
-               row.names = FALSE,
-               header = TRUE,
-               field.types = field_types,
-               overwrite = TRUE)
+  dbWriteTable(
+    conn = sqlite_occ,
+    name = table_name,
+    sep = "\t",
+    value = occ_file,
+    row.names = FALSE,
+    header = TRUE,
+    field.types = field_types,
+    overwrite = TRUE
+  )
 }
 ```
 
