@@ -407,10 +407,32 @@ Preview:
 occ_cube_synonym %>% head()
 ```
 
+# Save occurrence cube for Belgium
+
+In previous section we created three cubes by counting number of species per:
+
+1. accepted species, `occ_cube_species`
+2. accepted taxa below species level, `occ_cube_subspecies`
+3. synonyms, `occ_cube_synonym`
+
+Overview:
+
+```{r overview_occ_cube_species}
+head(occ_cube_species)
+```
+
+```{r overview_occ_cube_subspecies}
+head(occ_cube_subspecies)
+```
+
+```{r overview_occ_cube_synonym}
+head(occ_cube_synonym)
+```
+
 Save as tab separated text file:
 
 ```{r save_baseline_datacube}
-write_tsv(occ_cube_species, 
+write_tsv(, 
           here("data", "processed", "cube_belgium.tsv"),
           na = ""
 )
