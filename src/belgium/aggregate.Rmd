@@ -131,7 +131,7 @@ write_tsv(occ_cube_baseline,
           na = "")
 ```
 
-# Aggregate at species level - baseline
+# Aggregate at species level
 
 ## Select occurrences related to alien species
 
@@ -218,8 +218,7 @@ query <- glue_sql(
   "SELECT {`cols`*}, COUNT(_ROWID_), MIN({`coord_uncertainty`}) FROM {table} GROUP BY {`cols`*}",
   cols = c("year", 
            "eea_cell_code", 
-           "speciesKey", 
-           "coordinateUncertaintyInMeters"),
+           "speciesKey"),
   coord_uncertainty = "coordinateUncertaintyInMeters",
   table = table_name,
   .con = sqlite_occ
@@ -233,7 +232,7 @@ occ_cube_species <-
 occ_cube_species <-
   occ_cube_species %>%
   mutate(speciesKey = as.integer(speciesKey)) %>%
-  filter(speciesKey %in% alien_taxa_species_key) %>%
+  filter(speciesKey %in% alien_taxa_species_key)
 ```
 
 Number of alien species included in occurrence cube:
