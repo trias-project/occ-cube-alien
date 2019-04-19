@@ -162,7 +162,9 @@ alien_taxa %>%
   count()
 ```
 
-## Select occurrences of accepted species
+## Aggregate data for accepted species
+
+### Aggregate occurrences
 
 As initial step, we start by selecting occurrences linked to taxa with rank `SPECIES` and taxonomic status `ACCEPTED` and `DOUBTFUL`:
 
@@ -182,6 +184,8 @@ alien_taxa_species_key <-
   distinct(nubKey) %>% 
   pull(nubKey)
 ```
+
+Species, synonyms of that species and infraspecific taxa of that species all share the same `speciesKey`.
 
 For speeding up the aggregation, we create an index on  `year`,  `eea_cell_code` and `speciesKey` if not present:
 
@@ -257,9 +261,102 @@ Preview:
 occ_cube_species %>% head()
 ```
 
-## Select occurrences related to taxa below species rank
+### Map taxa
 
-Accepted taxa in unified cheklist with rank below species:
+Grouping by `speciesKey`, we loose informations about which taxa share the same  `speciesKey`. This information could be sometimes helpful. We extract it in a separate data.frame, `taxa_species`.
+
+First, we get all distinct taxa:
+
+```{r get_distinct_taxa_in_occ_cube_species}
+query <- glue_sql(
+  "SELECT DISTINCT {`cols`*} FROM {table}",
+  cols = c("speciesKey",
+           "taxonKey",
+           "scientificName"),
+  table = table_name,
+  .con = sqlite_occ
+)
+occ_cube_species_taxa <- 
+  dbGetQuery(sqlite_occ, query) %>%
+  filter(speciesKey %in% alien_taxa_species_key)
+```
+
+Some species have occurrences coming from multiple taxa:
+
+```{r show_multiple_taxonKey}
+occ_cube_species_taxa %>%
+  group_by(speciesKey) %>%
+  count() %>%
+  filter(n > 1) %>%
+  select(-n) %>%
+  left_join(occ_cube_species_taxa)
+```
+
+Some species have occurrences only from taxa linked to their infraspecific taxa or synonyms. In these cases `speciesKey` is not equal to `taxonKey`:
+
+```{r show_taxa_speciesKey_not_taxonKey}
+occ_cube_species_taxa %>%
+  group_by(speciesKey) %>%
+  count() %>%
+  rename(n_taxa = n) %>%
+  left_join(occ_cube_species_taxa, by = "speciesKey") %>%
+  group_by(speciesKey, n_taxa) %>%
+  filter(taxonKey != speciesKey) %>%
+  count() %>%
+  rename(n_taxonKey_not_speciesKey = n) %>%
+  filter(n_taxonKey_not_speciesKey == n_taxa) %>%
+  left_join(occ_cube_species_taxa %>%
+              filter(speciesKey != taxonKey),
+            by = "speciesKey") %>%
+  ungroup() %>%
+  select(-c(n_taxa, n_taxonKey_not_speciesKey))
+```
+
+We create `taxa_species` by adding the taxonomic rank, `SPECIES`, and the taxonomic status of the species, one of `ACCEPTED` or  `DOUBTFUL`, and create a column called `include` which contains all taxa whose occurrences are linked to the species:
+
+```{r make_taxa_species}
+taxa_species <- 
+  occ_cube_species_taxa %>%
+  
+  # get unique 'speciesKey'
+  distinct(speciesKey) %>%
+  
+  # rename column 'speciesKey' to 'key'
+  rename(key = speciesKey) %>%
+  
+  # GBIF query via name_usage with 'key' column as input
+  pmap_dfr(name_usage, return = "data") %>%
+  
+  # select columns of interest
+  select(speciesKey, scientificName, rank, taxonomicStatus) %>%
+  
+  # rename 'scientificName' to 'species_scientificName'
+  rename(species_scientificName = scientificName) %>%
+  
+  # add these columns to original df
+  right_join(occ_cube_species_taxa, by = "speciesKey") %>%
+  
+  # group by 'speciesKey'
+  group_by(speciesKey, 
+           species_scientificName,
+           rank,
+           taxonomicStatus) %>%
+  
+  # create 'includes' column
+  summarize(includes = paste(
+    taxonKey, 
+    scientificName, 
+    sep = ": ", 
+    collapse = " | ")) %>%
+  
+  # rename 'species_scientificName' to 'scientificName'
+  rename(scientificName = species_scientificName)
+taxa_species
+```
+
+## Aggregate occurrences for infraspecific taxa
+
+Accepted infraspecific taxa in unified checklist:
 
 ```{r alien_taxa_under_species}
 rank_under_species <- c("SUBSPECIFICAGGREGATE",
@@ -276,7 +373,7 @@ alien_taxa_subspecies <-
 alien_taxa_subspecies
 ```
 
-For these taxa we will search by keys from field `nubKey`, the taxon keys of taxa from the GBIF taxonomy backbone:
+For these taxa we will search by keys from field `nubKey`, the taxon keys of taxa from the GBIF taxonomy backbone.
 
 ```{r get_alien_taxa_subspecies}
 alien_taxa_subspecies_key <-
@@ -301,28 +398,27 @@ query <- glue_sql(
 )
 occ_cube_subspecies <- 
   dbGetQuery(sqlite_occ, query) %>%
-  rename(taxonKey = acceptedTaxonKey) %>%
-  group_by(year, eea_cell_code, speciesKey, taxonKey) %>%
+  group_by(year, eea_cell_code, speciesKey, acceptedTaxonKey) %>%
   summarize(
     n = n(),
     min_coord_uncertainty = min(coordinateUncertaintyInMeters)
 )
 ```
 
-Number of taxa below species rank included in `occ_cube_subspecies`:
+Number of infraspecific taxa included in `occ_cube_subspecies`:
 
 ```{r subspecies_included}
 length(alien_taxa_subspecies_key[
   which(alien_taxa_subspecies_key %in% 
-          unique(occ_cube_subspecies$taxonKey))])
+          unique(occ_cube_subspecies$acceptedTaxonKey))])
 ```
 
-Number of taxa below species rank not included in `occ_cube_subspecies`:
+Number of infraspecific taxa not included in `occ_cube_subspecies`:
 
 ```{r subspecies_not_included}
 length(alien_taxa_subspecies_key[
   which(!alien_taxa_subspecies_key %in% 
-          unique(occ_cube_subspecies$taxonKey))])
+          unique(occ_cube_subspecies$acceptedTaxonKey))])
 ```
 
 Preview:
@@ -331,7 +427,125 @@ Preview:
 occ_cube_subspecies %>% head()
 ```
 
-## Select occurrences related to synonyms
+### Map taxa
+
+Grouping by `acceptedTaxonKey`, we loose informations about which taxa share the same  `acceptedTaxonKey`. This information could be sometimes helpful. We extract it in a separate data.frame, `taxa_subspecies`.
+
+First, we get all distinct taxa:
+
+```{r get_taxa_occ_cube_subspecies}
+query <- glue_sql(
+  "SELECT DISTINCT {`cols`*} FROM {table} 
+  WHERE acceptedTaxonKey IN ({subspecies_key*})",
+  cols = c("taxonKey", 
+           "acceptedTaxonKey",
+           "scientificName"),
+  subspecies_key = alien_taxa_subspecies_key,
+  table = table_name,
+  .con = sqlite_occ
+)
+occ_cube_subspecies_taxa <- 
+  dbGetQuery(sqlite_occ, query)
+```
+
+Some species have occurrences coming from multiple taxa:
+
+```{r show_multiple_taxonKey}
+occ_cube_subspecies_taxa %>%
+  group_by(acceptedTaxonKey) %>%
+  count() %>%
+  filter(n > 1) %>%
+  select(-n) %>%
+  left_join(occ_cube_subspecies_taxa)
+```
+
+Some infraspecific taxa have occurrences only from taxa linked to their synonyms. In these cases `acceptedTaxonKey` is not equal to `taxonKey`:
+
+```{r show_taxa_speciesKey_not_taxonKey}
+occ_cube_subspecies_taxa %>%
+  group_by(acceptedTaxonKey) %>%
+  count() %>%
+  rename(n_taxa = n) %>%
+  left_join(occ_cube_subspecies_taxa, by = "acceptedTaxonKey") %>%
+  group_by(acceptedTaxonKey, n_taxa) %>%
+  filter(taxonKey != acceptedTaxonKey) %>%
+  count() %>%
+  rename(n_taxonKey_not_acceptedKey = n) %>%
+  filter(n_taxonKey_not_acceptedKey == n_taxa) %>%
+  left_join(occ_cube_subspecies_taxa %>%
+              filter(acceptedTaxonKey != taxonKey),
+            by = "acceptedTaxonKey") %>%
+  ungroup() %>%
+  select(-c(n_taxa, n_taxonKey_not_acceptedKey))
+```
+
+We create `taxa_subspecies` by adding the taxonomic rank, one of `SUBSPECIFICAGGREGATE`, `SUBSPECIES`, `VARIETY`, `SUBVARIETY`, `FORM`, or `SUBFORM`, and the taxonomic status, one of `ACCEPTED` or  `DOUBTFUL`, and create a column called `include` which contains all taxa whose occurrences are linked to the `acceptedTaxonKey`:
+
+```{r make_taxa_species}
+taxa_subspecies <- 
+  occ_cube_subspecies_taxa %>%
+  
+  # get unique 'acceptedTaxonKey'
+  distinct(acceptedTaxonKey) %>%
+  
+  # rename column 'acceptedTaxonKey' to 'key'
+  rename(key = acceptedTaxonKey) %>%
+  
+  # GBIF query via name_usage with 'key' column as input
+  pmap_dfr(name_usage, return = "data") %>%
+  
+  # rename 'scientificName' to 'accepted_scientificName'
+  rename(accepted_scientificName = scientificName)
+
+# are synonyms present?
+if ("acceptedKey" %in% names(taxa_subspecies)) {
+  
+  taxa_subspecies <-
+    taxa_subspecies %>%
+    
+    # populate 'acceptedKey' column for not synonyms
+    mutate(acceptedKey = case_when(
+      is.na(acceptedKey) ~ key,
+      !is.na(acceptedKey) ~acceptedKey)
+  )
+} else {
+  taxa_subspecies <-
+    taxa_subspecies %>%
+    
+    # create column 'acceptedKey'
+    mutate(acceptedKey = key)
+}
+
+taxa_subspecies <-
+  taxa_subspecies %>%
+  
+  # select columns of interest
+  select(acceptedKey, accepted_scientificName, rank, taxonomicStatus) %>%
+
+  # add columns to original df
+  right_join(occ_cube_subspecies_taxa, 
+             by = c("acceptedKey" = "acceptedTaxonKey")) %>%
+  
+  # group by accepted taxon
+  group_by(acceptedKey, 
+           accepted_scientificName,
+           rank,
+           taxonomicStatus) %>%
+  
+  # create 'includes' column
+  summarize(includes = paste(
+    taxonKey, 
+    scientificName, 
+    sep = ": ", 
+    collapse = " | ")) %>%
+  
+  # rename 'accepted_scientificName' to 'scientificName'
+  rename(scientificName = accepted_scientificName)
+
+taxa_subspecies
+```
+
+## Aggregate occurrences for synonyms we want to keep
 
 Some taxa in unified checklists are synonyms. For these taxa we don't trust the link to accepted taxa provided by GBIF.
 
@@ -406,15 +620,41 @@ Preview:
 occ_cube_synonym %>% head()
 ```
 
-# Save occurrence cube for Belgium
+### Map taxa
 
-In previous section we created three cubes by counting number of species per:
+For these taxa we don't have occcurrences linked to other related taxa. We have just to retrieve scientific name, taxonomic status and rank of these taxa. We extract this information and make a data.frame called `taxa_synonym`. In this case the column `includes` is trivial:
 
-1. accepted species, `occ_cube_species`
-2. accepted taxa below species level, `occ_cube_subspecies`
-3. synonyms, `occ_cube_synonym`
+```{r taxa_synonym}
+taxa_synonym <- 
+  
+  # create a df with 'key' column
+  tibble(key = alien_taxa_synonyms_key[
+    which(!alien_taxa_synonyms_key %in% 
+            unique(occ_cube_synonym$taxonKey))]) %>%
+  
+  # GBIF query via name_usage with 'key' column as input
+  pmap_dfr(name_usage, return = "data") %>%
+  
+  # select columns of interest
+  select(key, scientificName, rank, taxonomicStatus) %>%
+  
+  # rename 'key' to 'taxonKey'
+  rename(taxonKey = key) %>%
+  
+  # create 'includes' column
+  mutate(includes = paste(
+    taxonKey, 
+    scientificName, 
+    sep = ": ")
+)
+taxa_synonym
+```
 
-Overview:
+# Save aggregated data and mapped taxa for Belgium
+
+## Merge aggregated data
+
+Overview of aggregated data:
 
 ```{r overview_occ_cube_species}
 head(occ_cube_species)
@@ -428,11 +668,94 @@ head(occ_cube_subspecies)
 head(occ_cube_synonym)
 ```
 
-Save as tab separated text file:
+Before merging the aggregated data.frames, we have to rename some columns.
+
+In `occ_cube_species`, rename `speciesKey` to `taxonKey`:
+
+```{r rename_occ_cube_species}
+occ_cube_species <-
+  occ_cube_species %>%
+  rename(taxonKey = speciesKey)
+```
+
+In `occ_cube_subspecies`, rename `acceptedTaxonKey` to `taxonKey`:
+
+```{r rename_occ_cube_subspecies}
+occ_cube_subspecies <-
+  occ_cube_subspecies %>%
+  rename(taxonKey = acceptedTaxonKey)
+```
+
+Merge the three data.frames in a single *cube*, `occ_cube_belgium`:
+
+```{r make_occ_cube_belgium}
+occ_cube_belgium <- 
+  occ_cube_species %>%
+  bind_rows(occ_cube_subspecies) %>%
+  bind_rows(occ_cube_synonym)
+```
+
+## Merge taxa
+
+Overview of the taxa contained in the aggregated data:
+
+```{r overview_taxa_species}
+head(taxa_species)
+```
+
+```{r overview_taxa_subspecies}
+head(taxa_subspecies)
+```
+
+```{r overview_taxa_synonym}
+head(taxa_synonym)
+```
+
+Before merging the data.frames with taxa information, we have to rename some columns as done before with the aggregated data.frames.
+
+In `taxa_species`, rename `speciesKey` to `taxonKey`:
+
+```{r rename_taxa_species}
+taxa_species <-
+  taxa_species %>%
+  rename(taxonKey = speciesKey)
+```
+
+In `taxa_subspecies`, rename `acceptedKey` to `taxonKey`:
+
+```{r rename_taxa_subspecies}
+taxa_subspecies <-
+  taxa_subspecies %>%
+  rename(taxonKey = acceptedKey)
+```
+
+Merge the three data.frames in a single data.frame, `occ_cube_belgium_taxa`:
+
+```{r make_occ_cube_belgium}
+taxa <- 
+  taxa_species %>%
+  bind_rows(taxa_subspecies) %>%
+  bind_rows(taxa_synonym)
+```
+
+## Save aggregated data
+
+Save the *occurrence cube* as tab separated text file:
 
 ```{r save_baseline_datacube}
-write_tsv(, 
+write_tsv(occ_cube_belgium, 
           here("data", "processed", "cube_belgium.tsv"),
+          na = ""
+)
+```
+
+## Save taxa
+
+Save the taxa as tab separated text file:
+
+```{r save_baseline_datacube}
+write_tsv(taxa, 
+          here("data", "processed", "cube_belgium_taxa.tsv"),
           na = ""
 )
 ```
