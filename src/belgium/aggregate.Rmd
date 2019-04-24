@@ -34,9 +34,9 @@ library(RSQLite)        # To interact with SQlite databases
 Name and path of `.sqlite` file:
 
 ```{r name_path}
-key <- "0044021-181108115102211"
+key <- "0003809-190415153152247"
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
-sqlite_path <- here("data", "interim", sqlite_file)
+sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
 
 Table name:
@@ -127,7 +127,7 @@ Save as tab separated text file:
 
 ```{r save_baseline_datacube}
 write_tsv(occ_cube_baseline,
-          here("data", "processed", "cube_belgium_baseline.tsv"),
+          here::here("data", "processed", "cube_belgium_baseline.tsv"),
           na = "")
 ```
 
@@ -744,7 +744,7 @@ Save the *occurrence cube* as tab separated text file:
 
 ```{r save_baseline_datacube}
 write_tsv(occ_cube_belgium, 
-          here("data", "processed", "cube_belgium.tsv"),
+          here::here("data", "processed", "cube_belgium.tsv"),
           na = ""
 )
 ```
@@ -755,7 +755,7 @@ Save the taxa as tab separated text file:
 
 ```{r save_baseline_datacube}
 write_tsv(taxa, 
-          here("data", "processed", "cube_belgium_taxa.tsv"),
+          here::here("data", "processed", "cube_belgium_taxa.tsv"),
           na = ""
 )
 ```
