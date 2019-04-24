@@ -27,6 +27,7 @@ library(tidyverse)      # To do data science
 library(here)           # To find files
 library(rgbif)          # To use GBIF services
 library(trias)          # To use functions developed for TrIAS
+library(lubridate)      # To work with dates
 ```
 
 # Define download query parameters
