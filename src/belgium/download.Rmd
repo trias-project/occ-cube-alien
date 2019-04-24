@@ -24,7 +24,6 @@ Load libraries:
 
 ```{r load_libraries}
 library(tidyverse)      # To do data science
-library(lubridate)      # To work with dates
 library(here)           # To find files
 library(rgbif)          # To use GBIF services
 library(trias)          # To use functions developed for TrIAS
