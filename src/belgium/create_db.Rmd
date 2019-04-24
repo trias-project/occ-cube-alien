@@ -41,7 +41,7 @@ key <- "0044021-181108115102211"
 zip_filename <- paste0(key, ".zip")
 if (!file.exists(here("data", "raw", zip_filename))) {
   occ <- occ_download_get(
-    key = "0044021-181108115102211", 
+    key = key, 
     path = here("data", "raw")
   )
 }
