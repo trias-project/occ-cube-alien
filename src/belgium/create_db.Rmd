@@ -39,7 +39,7 @@ We download the occurrences from GBIF, based on the key got in `download.Rmd`:
 ```{r get_occ_file}
 key <- "0044021-181108115102211"
 zip_filename <- paste0(key, ".zip")
-if (!file.exists(here("data", "raw", zip_filename))) {
+if (!file.exists(here::here("data", "raw", zip_filename))) {
   occ <- occ_download_get(
     key = key, 
     path = here("data", "raw")

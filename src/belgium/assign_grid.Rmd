@@ -37,7 +37,7 @@ Name and path of `.sqlite` file:
 ```{r name_path}
 key <- "0044021-181108115102211"
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
-sqlite_path <- here("data", "interim", sqlite_file)
+sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
 
 Table name:
