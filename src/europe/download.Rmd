@@ -1,0 +1,153 @@
+---
+title: "Download GBIF occurrences"
+author:
+- Damiano Oldoni
+- Peter Desmet
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+---
+
+In this document we download occurrences for Europe from [GBIF](https://www.gbif.org). We limit the search to the species selected for risk assessment analysis and modelling.
+
+# Setup
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Load libraries:
+
+```{r load_libraries}
+library(tidyverse)      # To do data science
+library(here)           # To find files
+library(rgbif)          # To use GBIF services
+library(trias)          # To use functions developed for TrIAS
+library(sf)             # To work with geometries
+library(leaflet)        # To make interactive maps
+```
+
+# Define download query parameters
+
+## Taxa
+
+The species selected for modelling are saved in file `modelling_species.tsv` on GitHub:
+
+```{r load_modelling_species_file}
+taxa_input_file <- "https://raw.githubusercontent.com/trias-project/occ-processing/add-aggregate-belgium-pipeline/data/raw/modelling_species.tsv"
+taxa <- read_tsv(taxa_input_file,
+                 na = "")
+```
+
+Preview file:
+
+```{r preview_taxa}
+head(taxa)
+```
+
+Retrieve the `taxonKey`s we want to use to download occurrences:
+
+```{r get_taxonkeys}
+taxon_keys <- taxa$backbone_taxonKey # Column with taxonKeys
+```
+
+## Bounding box
+
+We define a bounding box which contains the geographic Europe as defined by European Environment Agency reference grids. See image in `./references/Europe.png`.
+
+```{r define_bounding_box}
+bounding_box_europe <- "POLYGON((-27.33398 67.06055, -11.68945 34.89258, 24.3457 29.0918, 40.86914 33.83789, 45.90088 37.02393, 43.1543 48.7793, 37.79297 57.12891, 34.27734 75.76172, -15.99609 76.46484, -27.33398 67.06055))"
+bounding_box_iceland <- "POLYGON((-23.87329 67.85156,-25.27954 64.05029,-23.96118 62.44629,-15.8313 62.31445,-13.31543 63.80859,-12.7002 65.6543,-15.24902 67.58789,-23.87329 67.85156))"
+```
+
+Preview of the selected area:
+
+```{r preview_bounding_box_europe}
+sf_bounding_box_europe <- 
+  st_as_sfc(bounding_box_europe, crs = 4326) %>%
+  st_coordinates() %>%
+  as.data.frame()
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(lng = sf_bounding_box_europe$X, 
+
+                            lat = sf_bounding_box_europe$Y)
+```
+
+## Basis of record
+
+All types of occurrences, except `FOSSIL SPECIMEN` and `LIVING SPECIMEN`, which can have misleading location information (e.g. location of captive animal).
+
+```{r define_basis_of_record}
+basis_of_record <- c(
+  "OBSERVATION", 
+  "HUMAN_OBSERVATION",
+  "MATERIAL_SAMPLE", 
+  "LITERATURE", 
+  "PRESERVED_SPECIMEN", 
+  "UNKNOWN", 
+  "MACHINE_OBSERVATION"
+)
+```
+
+## Year
+
+Occurrences with a valid year:
+
+```{r define_year}
+year_begin <- 1000
+year_end <- year(Sys.Date())
+```
+
+## Geographic coordinates
+
+Occurrences with valid geographic coordinates:
+
+```{r define_hasCoordinate}
+hasCoordinate <- TRUE
+```
+
+# Download GBIF occurrences
+
+## Trigger download
+
+**Note**: GBIF credentials are required in the next step. 
+
+Trigger download:
+
+```{r trigger_gbif_download}
+# Important: query arguments need to be pasted as strings of format "key = value"
+gbif_download_key <- occ_download(
+  paste0("taxonKey = ", paste(taxon_keys, collapse = ",")), 
+  paste0("geometry within ", bounding_box_europe),
+  paste0("basisOfRecord = ", paste(basis_of_record, collapse = ",")),
+  paste0("year >= ", year_begin),
+  paste0("year <= ", year_end),
+  paste0("hasCoordinate = ", hasCoordinate),
+  user = rstudioapi::askForPassword("GBIF username"),
+  pwd = rstudioapi::askForPassword("GBIF password"),
+  email = rstudioapi::askForPassword("Email address for notification")
+)
+```
+
+## Check status of download
+
+```{r check_metadata}
+metadata <- occ_download_meta(key = gbif_download_key)
+metadata$key
+metadata$status
+```
+
+Write download to list of downloads and check pending downloads:
+
+```{r update_download_list}
+update_download_list(
+  file = here("data", "processed", "gbif_downloads.tsv"), 
+  download_to_add = gbif_download_key, 
+  input_checklist = taxa_input_file
+)
+```
