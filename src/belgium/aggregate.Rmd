@@ -123,17 +123,9 @@ kingdom_df <-
 kingdom_df
 ```
 
-Save as tab separated text file:
-
-```{r save_baseline_datacube}
-write_tsv(occ_cube_baseline,
-          here::here("data", "processed", "cube_belgium_baseline.tsv"),
-          na = "")
-```
-
 # Aggregate at species level
 
-## Select occurrences related to alien species
+## Select occurrences related to alien taxa
 
 We extract taxa from unified checklist:
 
@@ -162,7 +154,7 @@ alien_taxa %>%
   count()
 ```
 
-## Aggregate data for accepted species
+## Aggregate occurrences for accepted species
 
 ### Aggregate occurrences
 
@@ -650,9 +642,22 @@ taxa_synonym <-
 taxa_synonym
 ```
 
-# Save aggregated data and mapped taxa for Belgium
 
-## Merge aggregated data
+# Save aggregated data
+
+## Save aggregated data at kingdom level
+
+Save as tab separated text file:
+
+```{r save_baseline_datacube}
+write_tsv(occ_cube_baseline,
+          here::here("data", "processed", "cube_belgium_baseline.tsv"),
+          na = "")
+```
+
+## Save aggregated occurrences and mapped taxa for Belgium
+
+### Merge aggregated data
 
 Overview of aggregated data:
 
@@ -695,7 +700,7 @@ occ_cube_belgium <-
   bind_rows(occ_cube_synonym)
 ```
 
-## Merge taxa
+### Merge taxa
 
 Overview of the taxa contained in the aggregated data:
 
@@ -738,7 +743,7 @@ taxa <-
   bind_rows(taxa_synonym)
 ```
 
-## Save aggregated data
+### Save aggregated data
 
 Save the *occurrence cube* as tab separated text file:
 
@@ -749,7 +754,7 @@ write_tsv(occ_cube_belgium,
 )
 ```
 
-## Save taxa
+### Save taxa
 
 Save the taxa as tab separated text file:
 
