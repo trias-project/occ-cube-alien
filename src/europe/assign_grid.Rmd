@@ -1,0 +1,445 @@
+---
+title: "Assign grid to occurrences"
+author:
+- Damiano Oldoni
+- Peter Desmet
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+---
+
+In this document we transform the text file containing the occurrences of (alien) species for Europe into a sqlite database. Then, we filter on issues and occurrence status. This is a way to handle the critical huge amount of occurrences. Note: some of these steps could take long.
+
+# Setup
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Load libraries:
+
+```{r load_libraries}
+library(tidyverse)      # To do datascience
+library(here)           # To find files
+library(rgbif)          # To use GBIF services
+library(glue)           # To write queries
+library(RSQLite)        # To interact with SQlite databases
+library(sp)             # To work with geospatial data
+```
+
+# Get occurrence data
+
+## Get CSV file from GBIF
+
+We download the occurrences from GBIF, based on the key got in `download.Rmd`:
+
+```{r get_occ_file}
+key <- "0004690-190415153152247"
+zip_filename <- paste0(key, ".zip")
+if (!file.exists(here::here("data", "raw", zip_filename))) {
+  occ <- occ_download_get(
+    key = key, 
+    path = here::here("data", "raw")
+  )
+}
+```
+
+We unzip text file with occurrences as  `key_number` + `occurrence.txt` in `./data/raw`:
+
+```{r unzip_csv}
+occ_file <- paste(key, "occurrence.txt", sep = "_")
+occ_path <- here::here("data", "raw", occ_file)
+
+if (!file.exists(here::here("data", "raw", occ_file))) {
+  unzip(zipfile = occ,
+        files = "occurrence.txt",
+        exdir = here::here("data", "raw"))
+  file.rename(from = here::here("data", "raw", "occurrence.txt"),
+              to = occ_path
+  )
+}
+``` 
+
+Name of columns:
+
+```{r get_cols}
+cols_occ_file <- read_delim(
+  occ_path, "\t", n_max = 1,
+  quote = ""
+)
+cols_occ_file <- names(cols_occ_file)
+```
+
+Number of columns present:
+
+```{r n_cols}
+length(cols_occ_file)
+```
+
+## Define columns to select
+
+We define a subset of columns we are interested to:
+
+```{r columns_to_use}
+cols_to_use <- c("gbifID", "scientificName", "kingdom", "phylum", "class", "order",
+             "family", "genus", "specificEpithet", "infraspecificEpithet",
+             "taxonRank", "taxonomicStatus", "datasetKey", "basisOfRecord",
+             "occurrenceStatus", "lastInterpreted", "hasCoordinate",
+             "hasGeospatialIssues", "decimalLatitude", "decimalLongitude",
+             "coordinateUncertaintyInMeters", "coordinatePrecision",
+             "pointRadiusSpatialFit", "verbatimCoordinateSystem", "verbatimSRS",
+             "eventDate", "startDayOfYear", "endDayOfYear", "year", "month",
+             "day", "verbatimEventDate", "samplingProtocol", "samplingEffort",
+             "issue", "taxonKey", "acceptedTaxonKey", "kingdomKey", "phylumKey",
+             "classKey", "orderKey", "familyKey", "genusKey", "subgenusKey",
+             "speciesKey", "species")
+```
+
+Columns in occurrence file not present in the subset:
+
+```{r cols_in_cols_to_use_not_present_in_cols_occ_db}
+cols_to_use[which(!cols_to_use %in% cols_occ_file)]
+```
+
+will be removed from the selection:
+
+```{r remove_cols_not_in_cols_occ_db}
+cols_to_use <- cols_to_use[which(cols_to_use %in% cols_occ_file)]
+```
+
+Final number of columns to select:
+
+```{r n_cols_to_use}
+length(cols_to_use)
+```
+
+## Read occurrence data
+
+### Define column type specifications
+
+The following columns should contain integers:
+
+1. `*Key`, e.g. `taxonKey`, `speciesKey`
+2. `*DayOfYear`: `startDayOfYear` and  `endDayOfYear`  
+3. `year`
+4. `month`
+5. `day`
+
+```{r define_col_integer_for_specific_columns}
+int_colnames <- 
+  cols_to_use[str_detect(cols_to_use, "Key") & 
+                !str_detect(cols_to_use, "datasetKey")]
+int_colnames <- c(
+  int_colnames,
+  cols_to_use[str_detect(cols_to_use, "DayOfYear")],
+  cols_to_use[cols_to_use == "year"],
+  cols_to_use[cols_to_use == "month"],
+  cols_to_use[cols_to_use == "day"]
+)
+
+int_cols <- 
+  map(int_colnames, ~ col_integer()) %>% 
+  setNames(int_colnames)
+```
+
+The following columns should contain real numbers:
+
+1. `decimal*`: `decimalLatitude` and `decimalLongitude`
+2. `coordinate*`: `coordinateUncertaintyInMeters` and `coordinatePrecision`
+3. `pointRadiusSpatialFit`
+
+```{r define_col_double_for_specific_columns}
+real_colnames <- cols_to_use[str_detect(cols_to_use, "decimal")]
+real_colnames <- c(
+  real_colnames,
+  cols_to_use[str_detect(cols_to_use, "coordinate")],
+  cols_to_use[cols_to_use == "pointRadiusSpatialFit"]
+)
+
+real_cols <- 
+  map(real_colnames, ~ col_double()) %>% 
+  setNames(real_colnames)
+```
+
+The other columns to select contain text:
+
+```{r define_col_text_for_other_columns}
+char_colnames <- cols_to_use[!cols_to_use %in% real_colnames & 
+                               !cols_to_use %in% int_colnames]
+char_cols <- 
+  map(char_colnames, ~ col_character()) %>% 
+  setNames(char_colnames)
+```
+
+Final column specification:
+
+```{r cols_type_to_use}
+col_specs <- cols_only()
+col_specs$cols <- c(char_cols, int_cols, real_cols)
+col_specs
+```
+
+### Read data
+
+Import occurrence data:
+
+```{r read_occs_in}
+occ_eu <- read_tsv(
+  here::here("data", "raw", paste0(key, "_occurrence.txt")),
+  na = "",
+  quote = "",
+  col_types = col_specs)
+```
+
+Number of occurrences
+
+```{r n_occs}
+nrow(occ_eu)
+```
+
+Number of columns:
+
+```{r n_cols}
+ncol(occ_eu)
+```
+
+Preview:
+
+```{r preview_occ_eu}
+occ_eu %>% head()
+```
+
+# Filter data
+
+## Filter on issues
+
+Occurrences containing the following issues should be filtered out:
+
+```{r issues_to_discard}
+issues_to_discard <- c(
+  "ZERO_COORDINATE",
+  "COORDINATE_OUT_OF_RANGE", 
+  "COORDINATE_INVALID"
+)
+names(issues_to_discard) <- issues_to_discard
+issues_to_discard
+```
+
+Issues present in `occ_eu`:
+
+```{r issues_in_data}
+issues <-
+  occ_eu %>% 
+  distinct(issue) %>%
+  separate(issue, into = "issues", sep = ";") %>%
+  distinct() %>%
+  arrange()
+issues
+```
+
+Are there some `issues_to_discard` in `issues`?
+
+```{r any_issue_to_discard_in_data}
+any(issues_to_discard %in% issues$issues)
+```
+
+If yes, remove occurrences containing `issues_to_discard`:
+
+```{r remove_occs_issues_to_discard}
+if (any(issues_to_discard %in% issues$issues)) {
+  occ_eu <- 
+    map_dfc(issues_to_discard, 
+        function(x) {
+          str_detect(occ_eu$issue, x)
+          }) %>% 
+    mutate_all(funs(replace(., is.na(.), FALSE))) %>% 
+    bind_cols(occ_eu) %>%
+    filter_at(issues_to_discard, 
+              all_vars(. == FALSE)) %>%
+    select(-one_of(issues_to_discard))
+}
+```
+
+## Filter on occurrence status
+
+Occurrences with the following occurrence status should be filtered out:
+
+```{r occurrenceStatus_to_discard}
+occurrenceStatus_to_discard <- c(
+  "absent",
+  "excluded"
+)
+```
+
+Occurrence status present in `occ_eu`:
+
+```{r occ_status_in_data}
+occurrenceStatus <-
+  occ_eu %>% 
+  distinct(occurrenceStatus) %>%
+  distinct()
+occurrenceStatus
+```
+
+Are there some `occurrenceStatus_to_discard` in `occurrenceStatus`?
+
+```{r any_occurrenceStatus_to_discard_in_data}
+any(occurrenceStatus_to_discard %in% occurrenceStatus$occurrenceStatus)
+```
+
+If yes, remove occurrences with `occurrenceStatus` equal to one of `occurrenceStatus_to_discard`:
+
+```{r remove_occurrenceStatus_to_discard}
+if (any(
+  occurrenceStatus_to_discard %in% occurrenceStatus$occurrenceStatus)) {
+  occ_eu <- 
+    occ_eu %>%
+    filter(!occurrenceStatus %in% occurrenceStatus_to_discard)
+}
+```
+
+## Overview and control filtered data table
+
+Number of occurrences left:
+
+```{r nrow_occ_eu_after_filter}
+nrow(occ_eu)
+```
+
+Preview:
+
+```{r preview_occ_eu_after_filtering}
+occ_eu %>% head()
+```
+
+# Assign grid
+
+We assign grid to occurrences.
+
+## Get geographic coordinates and coordinate uncertainty
+
+Number of occurrences per each value of `coordinateUncertaintyInMeters`:
+
+```{r n_occ_per_uncertainty}
+occ_eu %>%
+  group_by(coordinateUncertaintyInMeters) %>%
+  count() %>%
+  arrange(desc(n))
+```
+
+We assign 1000 meters to occurrences without uncertainty:
+
+```{r assign_fix_uncertainty}
+occ_eu <- 
+  occ_eu %>%
+  mutate(
+    coordinateUncertaintyInMeters = 
+      if_else(is.na(coordinateUncertaintyInMeters),
+              1000.0,
+              coordinateUncertaintyInMeters)
+)
+```
+
+We save geographic coordinates, `decimalLatitude` and `decimalLongitude` and coordinate uncertainty, `coordinateUncertaintyInMeters` as a new data.frame, `geodata_df`:
+
+```{r geodata_df}
+geodata_df <-
+  occ_eu %>%
+  select(decimalLatitude, 
+         decimalLongitude, 
+         coordinateUncertaintyInMeters)
+nrow_geodata_df <- nrow(geodata_df)
+```
+
+
+## Project geographic coordinates
+
+We project latitude and longitude by using the projection of the grid. We transform GBIF data which have coordinate reference system equal to EPSG code 4326 to Lambert projection with EPSG code 3035:
+
+```{r transform_to_3035}
+coordinates(geodata_df) <- ~decimalLongitude+decimalLatitude
+proj4string(geodata_df) <- CRS("+init=epsg:4326")
+geodata_df <- spTransform(geodata_df, CRS("+init=epsg:3035"))
+colnames(geodata_df@coords) <- c("x", "y")
+```
+
+## Assign occurrence within uncertainty circle
+
+Assign the occurrence randomly within the circle with radius equal to `coordinateUncertaintyInMeters`:
+
+```{r assign_pts_in_circle}
+geodata_df@data <- 
+  geodata_df@data %>% 
+  mutate(random_angle = runif(nrow_geodata_df, 0, 2*pi))
+geodata_df@data <- 
+  geodata_df@data %>%
+  mutate(random_r = runif(
+    nrow_geodata_df, 0, 1) * coordinateUncertaintyInMeters)
+geodata_df@data <- 
+  geodata_df@data %>%
+  mutate(x = geodata_df@coords[, "x"],
+         y = geodata_df@coords[, "y"])
+geodata_df@data <- 
+  geodata_df@data %>%
+  mutate(x = x + random_r * cos(random_angle),
+         y = y + random_r * sin(random_angle))
+geodata_df@data <- 
+  geodata_df@data %>%
+  select(-c(random_angle, random_r)) %>%
+  select(x, y, coordinateUncertaintyInMeters)
+```
+
+Preview:
+
+```{r preview_geodata_df_data}
+geodata_df@data %>% head(n = 10)
+```
+
+Where `x` and `y` are the new coordinates while in `@coords` we have the original coordinates:
+
+```{r preview_geodata_df_coords}
+geodata_df@coords[1:10,]
+```
+
+## Assign occurrences to grid cells
+
+We assign each occurrence to a grid cell. 
+
+```{r asign_grid}
+geodata_df@data <- 
+  geodata_df@data %>%
+  mutate(eea_cell_code = paste0("1km", 
+                                  "E", floor(x/1000), 
+                                  "N", floor(y/1000)))
+```
+Preview:
+
+```{r preview_gridcell}
+geodata_df@data %>% head(n = 10)
+```
+
+We can now add the column `eea_cell_code` to `occ_eu`:
+
+```{r add_eaa_cell_code_to_occ_eu}
+occ_eu$eea_cell_code <- geodata_df@data$eea_cell_code
+```
+
+Preview:
+
+```{r preview_with_eaa_cell_code}
+occ_eu %>% head()
+```
+
+# Save data
+
+Save occurrences with added EAA cell code in  `/data/interim`:
+
+```{r save_occ_eu_after_filtering}
+write_tsv(occ_eu, 
+          here::here("data", "interim", paste0(key, "_occurrence.tsv")),
+          na = "")
+```

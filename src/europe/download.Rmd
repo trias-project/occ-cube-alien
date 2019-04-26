@@ -24,6 +24,7 @@ Load libraries:
 
 ```{r load_libraries}
 library(tidyverse)      # To do data science
+library(lubridate)      # To work with dates
 library(here)           # To find files
 library(rgbif)          # To use GBIF services
 library(trias)          # To use functions developed for TrIAS
@@ -38,7 +39,7 @@ library(leaflet)        # To make interactive maps
 The species selected for modelling are saved in file `modelling_species.tsv` on GitHub:
 
 ```{r load_modelling_species_file}
-taxa_input_file <- "https://raw.githubusercontent.com/trias-project/occ-processing/add-aggregate-belgium-pipeline/data/raw/modelling_species.tsv"
+taxa_input_file <- "https://raw.githubusercontent.com/trias-project/occ-processing/pipeline-EU/data/raw/modelling_species.tsv"
 taxa <- read_tsv(taxa_input_file,
                  na = "")
 ```
@@ -146,7 +147,7 @@ Write download to list of downloads and check pending downloads:
 
 ```{r update_download_list}
 update_download_list(
-  file = here("data", "processed", "gbif_downloads.tsv"), 
+  file = here::here("data", "processed", "gbif_downloads.tsv"), 
   download_to_add = gbif_download_key, 
   input_checklist = taxa_input_file
 )
