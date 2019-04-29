@@ -57,19 +57,16 @@ taxonKey | scientificName | numberOfOccurrences | taxonRank | taxonomicStatus
 5334355 | Pleuropterus zuccarinii Small | 1 | SPECIES | SYNONYM
 4038371 | Reynoutria henryi Nakai | 14 | SPECIES | SYNONYM
 8361333 | Fallopia compacta (Hook.fil.) G.H.Loos & P.Keil | 24 | SPECIES | SYNONYM
-7291673 | Polygonum reynoutria (Houtt.) Makino  3 | SPECIES | SYNONYM
+7291673 | Polygonum reynoutria (Houtt.) Makino | 3 | SPECIES | SYNONYM
 
 See https://doi.org/10.15468/dl.rej1cz for more details.
 
-By aggregating we would loose this information, so we provide aside the cubes, `occ_cube.tsv` and `occ_europe.tsv`, a kind of taxonomic compendium, `occ_belgium_taxa.tsv` and `occ_europe_taxa.tsv` respectively. They include for each taxa in the cube all the synonyms or infraspecies whose occurrences contribute to the total count.
+By aggregating we would loose this information, so we provide aside the cubes `occ_cube.tsv` and `occ_europe.tsv`, a kind of taxonomic compendium, `occ_belgium_taxa.tsv` and `occ_europe_taxa.tsv` respectively. For each taxa in the cubes they include all the synonyms or infraspecies whose occurrences contribute to the total count.
 
 For example, _Aedes japonicus (Theobald, 1901)_ is an accepted species present in the belgian cube: based on the information stored in `occ_belgium_taxa.tsv`, its occurrences include occurrences linked to the following taxa:
 1. [Aedes japonicus (Theobald, 1901)](https://www.gbif.org/species/1652212)
 2. [Ochlerotatus japonicus (Theobald, 1901)](https://www.gbif.org/species/4519733)
 3. [Aedes japonicus subsp. japonicus](https://www.gbif.org/species/7346173)
-
-
-
 
 ## Workflow
 

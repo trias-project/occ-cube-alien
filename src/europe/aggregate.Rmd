@@ -1,0 +1,724 @@
+---
+title: "Aggregate occurrence data"
+author:
+- Damiano Oldoni
+- Peter Desmet
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+---
+
+In this document we aggregate data. The goal is to produce a *data cube* at species level. The dimensions are:
+
+1. taxon
+2. year
+3. geographic cell code
+
+# Setup
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Load libraries:
+
+```{r load_libraries_eu}
+library(tidyverse)      # To do datascience
+library(sp)             # To work with geospatial data
+library(here)           # To find files
+library(rgbif)          # To use GBIF services
+library(glue)           # To write queries
+library(RSQLite)        # To interact with SQlite databases
+```
+
+# Read data
+
+## Read modelling species data
+
+Read taxa for modelling from  `modelling_species.tsv`:
+
+```{r read_modelling_taxa}
+modelling_taxa <- read_tsv(
+  here::here("data", "raw", "modelling_species.tsv"),
+  na = "",
+  quote = "",
+  col_types = cols(
+    default = col_character(),
+    backbone_taxonKey = col_integer()
+  ))
+```
+
+Number of taxa:
+
+```{r nrow_modelling_taxa}
+nrow(modelling_taxa)
+```
+
+Preview:
+
+```{r preview_modelling_taxa}
+modelling_taxa %>% head()
+```
+
+## Read occurrence data
+
+Name and path of occurrence data file:
+
+```{r name_path_eu}
+key <- "0004690-190415153152247"
+occ_file <- paste(key, "occurrence.tsv", sep = "_")
+occ_path <- here::here("data", "interim", occ_file)
+```
+
+### Define column type specifications
+
+Name of columns:
+
+```{r get_cols_occs_eu}
+cols_occ_file <- read_delim(
+  occ_path, "\t", n_max = 1,
+  quote = ""
+)
+cols_occ_file <- names(cols_occ_file)
+```
+
+The following columns should contain integers:
+
+1. `*Key`, e.g. `taxonKey`, `speciesKey`
+2. `*DayOfYear`: `startDayOfYear` and  `endDayOfYear`  
+3. `year`
+4. `month`
+5. `day`
+
+```{r define_col_integer_for_specific_columns_eu}
+int_colnames <- 
+  cols_occ_file[str_detect(cols_occ_file, "Key") & 
+                !str_detect(cols_occ_file, "datasetKey")]
+int_colnames <- c(
+  int_colnames,
+  cols_occ_file[str_detect(cols_occ_file, "DayOfYear")],
+  cols_occ_file[cols_occ_file == "year"],
+  cols_occ_file[cols_occ_file == "month"],
+  cols_occ_file[cols_occ_file == "day"]
+)
+
+int_cols <- 
+  map(int_colnames, ~ col_integer()) %>% 
+  setNames(int_colnames)
+```
+
+The following columns should contain real numbers:
+
+1. `decimal*`: `decimalLatitude` and `decimalLongitude`
+2. `coordinate*`: `coordinateUncertaintyInMeters` and `coordinatePrecision`
+3. `pointRadiusSpatialFit`
+
+```{r define_col_double_for_specific_columns_eu}
+real_colnames <- cols_occ_file[str_detect(cols_occ_file, "decimal")]
+real_colnames <- c(
+  real_colnames,
+  cols_occ_file[str_detect(cols_occ_file, "coordinate")],
+  cols_occ_file[cols_occ_file == "pointRadiusSpatialFit"]
+)
+
+real_cols <- 
+  map(real_colnames, ~ col_double()) %>% 
+  setNames(real_colnames)
+```
+
+The other columns contain text:
+
+```{r define_col_text_for_other_columns_eu}
+char_colnames <- cols_occ_file[!cols_occ_file %in% real_colnames & 
+                               !cols_occ_file %in% int_colnames]
+char_cols <- 
+  map(char_colnames, ~ col_character()) %>% 
+  setNames(char_colnames)
+```
+
+Final column specification:
+
+```{r cols_type_to_use_eu}
+col_specs <- cols()
+col_specs$cols <- c(char_cols, int_cols, real_cols)
+col_specs
+```
+
+### Import occurrence data with assigned cell code
+
+Import occurrence data:
+
+```{r read_occs_in_eu}
+occ_eu <- read_tsv(
+  here::here("data", 
+             "interim", 
+             paste0("0004690-190415153152247","_occurrence.tsv")),
+  na = "",
+  quote = "",
+  col_types = col_specs)
+```
+
+# Aggregate at species level
+
+## Get taxonomic status and rank of modelling species
+
+We add taxonomic status and rank to `modelling_taxa`. This information comes from GBIF Taxonomy Backbone:
+
+```{r get_status_rank_modelling_taxa}
+modelling_taxa <- 
+  modelling_taxa %>%
+  bind_cols(
+    map_dfr(modelling_taxa$backbone_taxonKey,
+        function(taxon) {
+          name_usage(taxon, 
+                     return = "data")}) %>%
+      select(key, taxonomicStatus, rank, speciesKey)
+)
+```
+
+Rank values of modelling taxa:
+
+```{r overview_rank_modelling_taxa_eu}
+modelling_taxa %>%
+  group_by(rank) %>%
+  count()
+```
+
+Taxonomic status of modelling taxa:
+
+```{r overview_taxonStatus__modelling_taxa_eu}
+modelling_taxa %>%
+  group_by(taxonomicStatus) %>%
+  count()
+```
+
+## Aggregate occurrences for accepted species
+
+Taxa with rank `SPECIES` and taxonomic status `ACCEPTED` or `DOUBTFUL`:
+
+```{r modelling_taxa_species_accepted_eu}
+modelling_taxa_species <- 
+  modelling_taxa %>%
+  filter(rank == "SPECIES", 
+         taxonomicStatus %in% c("ACCEPTED", "DOUBTFUL"))
+modelling_taxa_species
+```
+
+The `speciesKey` of these taxa will be used to filter occurrence data:
+
+```{r get_modelling_taxa_species_key}
+modelling_taxa_species_key <-
+  modelling_taxa_species %>% 
+  distinct(speciesKey) %>% 
+  pull(speciesKey)
+```
+
+### Aggregate occurrences
+
+Species, synonyms of those species and infraspecific taxa of those species all share the same `speciesKey`.
+
+Group by `year`, `eea_cell_code` and `speciesKey`, count number of occurrences for each group and get the lowest value of coordinate uncertainty `occurrenceUncertaintyInMeters`:
+
+```{r get_datacube_species_eu}
+occ_cube_eu_species <- 
+  occ_eu %>%
+  group_by(year, eea_cell_code, speciesKey) %>%
+  summarize(n = n(),
+            min_coord_uncertainty = min(coordinateUncertaintyInMeters)) %>%
+  ungroup() %>%
+  filter(speciesKey %in% modelling_taxa_species_key)
+```
+
+Number of modelling species included in `occ_cube_eu_species`:
+
+```{r species_included_eu}
+paste(length(modelling_taxa_species_key[
+  which(modelling_taxa_species_key %in% unique(occ_cube_eu_species$speciesKey))
+]), "out of", length(modelling_taxa_species_key))
+```
+
+Preview:
+
+```{r preview_occ_species_eu}
+occ_cube_eu_species %>% head()
+```
+
+### Map taxa
+
+Grouping by `speciesKey`, we loose informations about which taxa share the same  `speciesKey`. This information could be sometimes helpful. We extract it in a separate data.frame, `taxa_species_eu`.
+
+First, we get all distinct taxa:
+
+```{r get_distinct_taxa_in_occ_cube_species_eu}
+occ_cube_eu_species_taxa <- 
+  occ_eu %>%
+  distinct(speciesKey, taxonKey, scientificName) %>%
+  filter(speciesKey %in% modelling_taxa_species_key)
+```
+
+Some species have occurrences coming from multiple taxa:
+
+```{r show_multiple_taxonKey_eu}
+occ_cube_eu_species_taxa %>%
+  group_by(speciesKey) %>%
+  count() %>%
+  filter(n > 1) %>%
+  select(-n) %>%
+  left_join(occ_cube_eu_species_taxa)
+```
+
+Some species have occurrences only from taxa linked to their infraspecific taxa or synonyms. In these cases `speciesKey` is not equal to `taxonKey`:
+
+```{r show_taxa_speciesKey_not_taxonKey_eu}
+occ_cube_eu_species_taxa %>%
+  group_by(speciesKey) %>%
+  count() %>%
+  rename(n_taxa = n) %>%
+  left_join(occ_cube_eu_species_taxa, by = "speciesKey") %>%
+  group_by(speciesKey, n_taxa) %>%
+  filter(taxonKey != speciesKey) %>%
+  count() %>%
+  rename(n_taxonKey_not_speciesKey = n) %>%
+  filter(n_taxonKey_not_speciesKey == n_taxa) %>%
+  left_join(occ_cube_eu_species_taxa %>%
+              filter(speciesKey != taxonKey),
+            by = "speciesKey") %>%
+  ungroup() %>%
+  select(-c(n_taxa, n_taxonKey_not_speciesKey))
+```
+
+We create `taxa_species_eu` by adding the taxonomic rank, `SPECIES`, and the taxonomic status of the species, one of `ACCEPTED` or  `DOUBTFUL`, and create a column called `include` which contains all taxa whose occurrences are linked to the species:
+
+```{r make_taxa_species_eu}
+taxa_species_eu <- 
+  occ_cube_eu_species_taxa %>%
+  
+  # get unique 'speciesKey'
+  distinct(speciesKey) %>%
+  
+  # rename column 'speciesKey' to 'key'
+  rename(key = speciesKey) %>%
+  
+  # GBIF query via name_usage with 'key' column as input
+  pmap_dfr(name_usage, return = "data") %>%
+  
+  # select columns of interest
+  select(speciesKey, scientificName, rank, taxonomicStatus) %>%
+  
+  # rename 'scientificName' to 'species_scientificName'
+  rename(species_scientificName = scientificName) %>%
+  
+  # add these columns to original df
+  right_join(occ_cube_eu_species_taxa, by = "speciesKey") %>%
+  
+  # group by 'speciesKey'
+  group_by(speciesKey, 
+           species_scientificName,
+           rank,
+           taxonomicStatus) %>%
+  
+  # create 'includes' column
+  summarize(includes = paste(
+    taxonKey, 
+    scientificName, 
+    sep = ": ", 
+    collapse = " | ")) %>%
+  
+  # rename 'species_scientificName' to 'scientificName'
+  rename(scientificName = species_scientificName)
+taxa_species_eu
+```
+
+## Aggregate occurrences for infraspecific taxa
+
+Accepted infraspecific taxa in unified checklist:
+
+```{r modelling_taxa_under_species_eu}
+rank_under_species <- c("SUBSPECIFICAGGREGATE",
+                        "SUBSPECIES", 
+                        "VARIETY",
+                        "SUBVARIETY",
+                        "FORM",
+                        "SUBFORM"
+)
+modelling_taxa_subspecies <-
+  modelling_taxa %>%
+  filter(rank %in% rank_under_species, 
+         taxonomicStatus %in% c("ACCEPTED", "DOUBTFUL"))
+modelling_taxa_subspecies
+```
+
+For these taxa we will search by keys from field `key`, as the taxon keys come from the GBIF taxonomy backbone.
+
+```{r get_modelling_taxa_subspecies_key_eu}
+modelling_taxa_subspecies_key <-
+  modelling_taxa_subspecies %>% 
+  distinct(key) %>% 
+  pull(key)
+```
+
+Get occurrences related to these taxa and their synonyms by filtering on `acceptedTaxonKey`, group by `year`, `eea_cell_code` and `acceptedTaxonKey`, count number of occurrences and get the lowest value of coordinate uncertainty `occurrenceUncertaintyInMeters`: 
+
+```{r get_occurrences_subspecies_eu}
+occ_cube_eu_subspecies <- 
+  occ_eu %>%
+  filter(acceptedTaxonKey %in% modelling_taxa_subspecies_key) %>%
+  select(year, 
+         eea_cell_code, 
+         speciesKey, 
+         acceptedTaxonKey, 
+         coordinateUncertaintyInMeters) %>%
+  group_by(year, eea_cell_code, speciesKey, acceptedTaxonKey) %>%
+  summarize(
+    n = n(),
+    min_coord_uncertainty = min(coordinateUncertaintyInMeters)
+)
+```
+
+Number of infraspecific taxa included in `occ_cube_subspecies`:
+
+```{r subspecies_included_eu}
+paste(length(modelling_taxa_subspecies_key[
+  which(modelling_taxa_subspecies_key %in% 
+          unique(occ_cube_eu_subspecies$acceptedTaxonKey))]),
+  "out of",
+  length(modelling_taxa_subspecies_key))
+```
+
+Preview:
+
+```{r preview_occ_cube_eu_subspecies}
+occ_cube_eu_subspecies %>% head()
+```
+
+### Map taxa
+
+Grouping by `acceptedTaxonKey`, we loose informations about which taxa share the same  `acceptedTaxonKey`. This information could be sometimes helpful. We extract it in a separate data.frame, `taxa_subspecies_eu`.
+
+First, we get all distinct taxa:
+
+```{r get_taxa_occ_cube_eu_subspecies}
+occ_cube_eu_subspecies_taxa <- 
+  occ_eu %>%
+  filter(acceptedTaxonKey %in% modelling_taxa_subspecies_key) %>%
+  distinct(taxonKey,
+           acceptedTaxonKey,
+           scientificName
+)
+```
+
+Some species have occurrences coming from multiple taxa:
+
+```{r show_multiple_taxonKey_eu}
+occ_cube_eu_subspecies_taxa %>%
+  group_by(acceptedTaxonKey) %>%
+  count() %>%
+  filter(n > 1) %>%
+  select(-n) %>%
+  left_join(occ_cube_eu_subspecies_taxa)
+```
+
+Some infraspecific taxa could have occurrences only from taxa linked to their synonyms. In these cases `acceptedTaxonKey` is not equal to `taxonKey`:
+
+```{r show_taxa_speciesKey_not_taxonKey_eu}
+occ_cube_eu_subspecies_taxa %>%
+  group_by(acceptedTaxonKey) %>%
+  count() %>%
+  rename(n_taxa = n) %>%
+  left_join(occ_cube_eu_subspecies_taxa, by = "acceptedTaxonKey") %>%
+  group_by(acceptedTaxonKey, n_taxa) %>%
+  filter(taxonKey != acceptedTaxonKey) %>%
+  count() %>%
+  rename(n_taxonKey_not_acceptedKey = n) %>%
+  filter(n_taxonKey_not_acceptedKey == n_taxa) %>%
+  left_join(occ_cube_eu_subspecies_taxa %>%
+              filter(acceptedTaxonKey != taxonKey),
+            by = "acceptedTaxonKey") %>%
+  ungroup() %>%
+  select(-c(n_taxa, n_taxonKey_not_acceptedKey))
+```
+
+We create `taxa_subspecies_eu` by adding the taxonomic rank, one of `SUBSPECIFICAGGREGATE`, `SUBSPECIES`, `VARIETY`, `SUBVARIETY`, `FORM`, or `SUBFORM`, and the taxonomic status, one of `ACCEPTED` or  `DOUBTFUL`, and create a column called `include` which contains all taxa whose occurrences are linked to the `acceptedTaxonKey`:
+
+```{r make_taxa_species_eu}
+taxa_subspecies_eu <- 
+  occ_cube_eu_subspecies_taxa %>%
+  
+  # get unique 'acceptedTaxonKey'
+  distinct(acceptedTaxonKey) %>%
+  
+  # rename column 'acceptedTaxonKey' to 'key'
+  rename(key = acceptedTaxonKey) %>%
+  
+  # GBIF query via name_usage with 'key' column as input
+  pmap_dfr(name_usage, return = "data")
+
+if (ncol(taxa_subspecies_eu) > 0) {
+  taxa_subspecies_eu <-
+    taxa_subspecies_eu %>%
+
+        # rename 'scientificName' to 'accepted_scientificName'
+    rename(accepted_scientificName = scientificName)
+
+  # are synonyms present?
+  if ("acceptedKey" %in% names(taxa_subspecies_eu)) {
+    
+    taxa_subspecies_eu <-
+      taxa_subspecies_eu %>%
+      
+      # populate 'acceptedKey' column for not synonyms
+      mutate(acceptedKey = case_when(
+        is.na(acceptedKey) ~ key,
+        !is.na(acceptedKey) ~acceptedKey)
+    )
+  } else {
+    taxa_subspecies_eu <-
+      taxa_subspecies_eu %>%
+      
+      # create column 'acceptedKey'
+      mutate(acceptedKey = key)
+  }
+  taxa_subspecies_eu <-
+  taxa_subspecies_eu %>%
+  
+  # select columns of interest
+  select(acceptedKey, accepted_scientificName, rank, taxonomicStatus) %>%
+
+  # add columns to original df
+  right_join(occ_cube_eu_subspecies_taxa, 
+             by = c("acceptedKey" = "acceptedTaxonKey")) %>%
+  
+  # group by accepted taxon
+  group_by(acceptedKey, 
+           accepted_scientificName,
+           rank,
+           taxonomicStatus) %>%
+  
+  # create 'includes' column
+  summarize(includes = paste(
+    taxonKey, 
+    scientificName, 
+    sep = ": ", 
+    collapse = " | ")) %>%
+  
+  # rename 'accepted_scientificName' to 'scientificName'
+  rename(scientificName = accepted_scientificName)
+}
+
+taxa_subspecies_eu
+```
+
+## Aggregate occurrences for synonyms we want to keep
+
+Some taxa in unified checklists are synonyms. For these taxa we don't trust the link to accepted taxa provided by GBIF.
+
+Get synonyms from unified checklist:
+
+```{r modelling_taxa_synonyms_eu}
+modelling_taxa_synonyms <-
+  modelling_taxa %>%
+  filter(!taxonomicStatus %in% c("ACCEPTED", "DOUBTFUL"))
+modelling_taxa_synonyms
+```
+
+Rank distribution:
+
+```{r rank_synonym_eu}
+modelling_taxa_synonyms %>%
+  group_by(rank) %>%
+  count() %>%
+  arrange(desc(n))
+```
+
+For these taxa we will search by keys from field `key`, the key from GBIF Taxonomy Backbone:
+
+```{r get_modelling_taxa_synonyms_key_eu}
+modelling_taxa_synonyms_key <-
+  modelling_taxa_synonyms %>% 
+  distinct(key) %>% 
+  pull(key)
+```
+
+Get occurrences, group by `year`, `eea_cell_code` and `taxonKey`, count number of occurrences and get the lowest value of coordinate uncertainty `occurrenceUncertaintyInMeters`: 
+
+```{r get_occurrences_synonyms_eu}
+occ_cube_eu_synonym <- 
+  occ_eu %>%
+  filter(taxonKey %in% modelling_taxa_synonyms_key) %>%
+  select(year, 
+         eea_cell_code, 
+         taxonKey, 
+         coordinateUncertaintyInMeters) %>%
+  group_by(year, eea_cell_code, taxonKey) %>%
+  summarize(
+    n = n(),
+    min_coord_uncertainty = min(coordinateUncertaintyInMeters)
+)
+```
+
+Number of synonyms included in `occ_cube_synonym`:
+
+```{r synonyms_included_eu}
+paste(length(modelling_taxa_synonyms_key[
+  which(modelling_taxa_synonyms_key %in% 
+          unique(occ_cube_eu_synonym$taxonKey))]),
+  "out of",
+  length(modelling_taxa_synonyms_key))
+```
+
+
+Preview:
+
+```{r preview_occ_cube_eu_synonym}
+occ_cube_eu_synonym %>% head()
+```
+
+### Map taxa
+
+For these taxa we don't have occcurrences linked to other related taxa. We have just to retrieve scientific name, taxonomic status and rank. We extract this information and make a data.frame called `taxa_synonym_eu`. In this case the column `includes` is trivial:
+
+```{r taxa_synonym_eu}
+taxa_synonym_eu <- 
+  
+  # create a df with 'key' column
+  tibble(key = modelling_taxa_synonyms_key[
+    which(modelling_taxa_synonyms_key %in% 
+            unique(occ_cube_eu_synonym$taxonKey))]) %>%
+  
+  # GBIF query via name_usage with 'key' column as input
+  pmap_dfr(name_usage, return = "data") %>%
+  
+  # select columns of interest
+  select(key, scientificName, rank, taxonomicStatus) %>%
+  
+  # rename 'key' to 'taxonKey'
+  rename(taxonKey = key) %>%
+  
+  # create 'includes' column
+  mutate(includes = paste(
+    taxonKey, 
+    scientificName, 
+    sep = ": ")
+)
+taxa_synonym_eu
+```
+
+# Save aggregated data
+
+## Save aggregated occurrences and mapped taxa for Europe
+
+### Merge aggregated data
+
+Overview of aggregated data:
+
+```{r overview_occ_cube_eu_species}
+head(occ_cube_eu_species)
+```
+
+```{r overview_occ_cube_eu_subspecies}
+head(occ_cube_eu_subspecies)
+```
+
+```{r overview_occ_cube_eu_synonym}
+head(occ_cube_eu_synonym)
+```
+
+Before merging the aggregated data.frames, we have to rename some columns.
+
+In `occ_cube_eu_species`, rename `speciesKey` to `taxonKey`:
+
+```{r rename_occ_cube_eu_species}
+occ_cube_eu_species <-
+  occ_cube_eu_species %>%
+  rename(taxonKey = speciesKey)
+```
+
+In `occ_cube_eu_subspecies`, if not empty, rename `acceptedTaxonKey` to `taxonKey`:
+
+```{r rename_occ_cube_eu_subspecies}
+if (ncol(occ_cube_eu_subspecies) > 0) {
+  occ_cube_eu_subspecies <-
+    occ_cube_eu_subspecies %>%
+    rename(taxonKey = acceptedTaxonKey)
+}
+```
+
+Merge the three data.frames in a single *cube*, `occ_cube_europe`:
+
+```{r make_occ_cube_europe}
+occ_cube_europe <- 
+  occ_cube_eu_species %>%
+  bind_rows(occ_cube_eu_subspecies) %>%
+  bind_rows(occ_cube_eu_synonym)
+```
+
+### Merge taxa
+
+Overview of the taxa contained in the aggregated data:
+
+```{r overview_taxa_species_eu}
+head(taxa_species_eu)
+```
+
+```{r overview_taxa_subspecies_eu}
+head(taxa_subspecies_eu)
+```
+
+```{r overview_taxa_synonym_eu}
+head(taxa_synonym_eu)
+```
+
+Before merging the data.frames, we have to rename some columns as done before with the aggregated data.frames.
+
+In `taxa_species_eu`, rename `speciesKey` to `taxonKey`:
+
+```{r rename_taxa_species_eu}
+taxa_species_eu <-
+  taxa_species_eu %>%
+  rename(taxonKey = speciesKey)
+```
+
+In `taxa_subspecies_eu`, if not empty, rename `acceptedKey` to `taxonKey`:
+
+```{r rename_taxa_subspecies_eu}
+if (ncol(taxa_subspecies_eu) > 0) {
+  taxa_subspecies_eu <-
+    taxa_subspecies_eu %>%
+    rename(taxonKey = acceptedKey)
+}
+```
+
+Merge the three data.frames in a single data.frame, `taxa_europe`:
+
+```{r make_taxa_europe}
+taxa_europe <- 
+  taxa_species_eu %>%
+  bind_rows(taxa_subspecies_eu) %>%
+  bind_rows(taxa_synonym_eu)
+```
+
+### Save aggregated data
+
+Save the *occurrence cube* as tab separated text file:
+
+```{r save_datacube_europe}
+write_tsv(occ_cube_europe, 
+          here::here("data", "processed", "cube_europe.tsv"),
+          na = ""
+)
+```
+
+### Save taxa
+
+Save the taxa as tab separated text file:
+
+```{r save_taxa_europe}
+write_tsv(taxa_europe, 
+          here::here("data", "processed", "cube_europe_taxa.tsv"),
+          na = ""
+)
+```
