@@ -22,7 +22,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 Load libraries:
 
-```{r load_libraries}
+```{r load_libraries_assign_grid_eu}
 library(tidyverse)      # To do datascience
 library(here)           # To find files
 library(rgbif)          # To use GBIF services
@@ -37,7 +37,7 @@ library(sp)             # To work with geospatial data
 
 We download the occurrences from GBIF, based on the key got in `download.Rmd`:
 
-```{r get_occ_file}
+```{r get_occ_file_eu}
 key <- "0004690-190415153152247"
 zip_filename <- paste0(key, ".zip")
 if (!file.exists(here::here("data", "raw", zip_filename))) {
@@ -50,7 +50,7 @@ if (!file.exists(here::here("data", "raw", zip_filename))) {
 
 We unzip text file with occurrences as  `key_number` + `occurrence.txt` in `./data/raw`:
 
-```{r unzip_csv}
+```{r unzip_csv_occs_eu}
 occ_file <- paste(key, "occurrence.txt", sep = "_")
 occ_path <- here::here("data", "raw", occ_file)
 
@@ -66,7 +66,7 @@ if (!file.exists(here::here("data", "raw", occ_file))) {
 
 Name of columns:
 
-```{r get_cols}
+```{r get_cols_occsfile_eu}
 cols_occ_file <- read_delim(
   occ_path, "\t", n_max = 1,
   quote = ""
@@ -76,7 +76,7 @@ cols_occ_file <- names(cols_occ_file)
 
 Number of columns present:
 
-```{r n_cols}
+```{r n_cols_occ_file}
 length(cols_occ_file)
 ```
 
@@ -84,7 +84,7 @@ length(cols_occ_file)
 
 We define a subset of columns we are interested to:
 
-```{r columns_to_use}
+```{r columns_to_use_eu}
 cols_to_use <- c("gbifID", "scientificName", "kingdom", "phylum", "class", "order",
              "family", "genus", "specificEpithet", "infraspecificEpithet",
              "taxonRank", "taxonomicStatus", "datasetKey", "basisOfRecord",
@@ -101,19 +101,19 @@ cols_to_use <- c("gbifID", "scientificName", "kingdom", "phylum", "class", "orde
 
 Columns in occurrence file not present in the subset:
 
-```{r cols_in_cols_to_use_not_present_in_cols_occ_db}
+```{r cols_in_cols_to_use_not_present_in_cols_occ_db_eu}
 cols_to_use[which(!cols_to_use %in% cols_occ_file)]
 ```
 
 will be removed from the selection:
 
-```{r remove_cols_not_in_cols_occ_db}
+```{r remove_cols_not_in_cols_occ_db_eu}
 cols_to_use <- cols_to_use[which(cols_to_use %in% cols_occ_file)]
 ```
 
 Final number of columns to select:
 
-```{r n_cols_to_use}
+```{r n_cols_to_use_eu}
 length(cols_to_use)
 ```
 
@@ -129,7 +129,7 @@ The following columns should contain integers:
 4. `month`
 5. `day`
 
-```{r define_col_integer_for_specific_columns}
+```{r define_col_integer_for_specific_columns_eu}
 int_colnames <- 
   cols_to_use[str_detect(cols_to_use, "Key") & 
                 !str_detect(cols_to_use, "datasetKey")]
@@ -152,7 +152,7 @@ The following columns should contain real numbers:
 2. `coordinate*`: `coordinateUncertaintyInMeters` and `coordinatePrecision`
 3. `pointRadiusSpatialFit`
 
-```{r define_col_double_for_specific_columns}
+```{r define_col_double_for_specific_columns_eu}
 real_colnames <- cols_to_use[str_detect(cols_to_use, "decimal")]
 real_colnames <- c(
   real_colnames,
@@ -167,7 +167,7 @@ real_cols <-
 
 The other columns to select contain text:
 
-```{r define_col_text_for_other_columns}
+```{r define_col_text_for_other_columns_eu}
 char_colnames <- cols_to_use[!cols_to_use %in% real_colnames & 
                                !cols_to_use %in% int_colnames]
 char_cols <- 
@@ -187,7 +187,7 @@ col_specs
 
 Import occurrence data:
 
-```{r read_occs_in}
+```{r read_occs_in_occ_eu}
 occ_eu <- read_tsv(
   here::here("data", "raw", paste0(key, "_occurrence.txt")),
   na = "",
@@ -197,13 +197,13 @@ occ_eu <- read_tsv(
 
 Number of occurrences
 
-```{r n_occs}
+```{r n_occs_eu}
 nrow(occ_eu)
 ```
 
 Number of columns:
 
-```{r n_cols}
+```{r n_cols_occ_eu}
 ncol(occ_eu)
 ```
 
@@ -219,7 +219,7 @@ occ_eu %>% head()
 
 Occurrences containing the following issues should be filtered out:
 
-```{r issues_to_discard}
+```{r issues_to_discard_occs_eu}
 issues_to_discard <- c(
   "ZERO_COORDINATE",
   "COORDINATE_OUT_OF_RANGE", 
@@ -231,7 +231,7 @@ issues_to_discard
 
 Issues present in `occ_eu`:
 
-```{r issues_in_data}
+```{r issues_in_data_occs_eu}
 issues <-
   occ_eu %>% 
   distinct(issue) %>%
@@ -243,13 +243,13 @@ issues
 
 Are there some `issues_to_discard` in `issues`?
 
-```{r any_issue_to_discard_in_data}
+```{r any_issue_to_discard_in_data_occs_eu}
 any(issues_to_discard %in% issues$issues)
 ```
 
 If yes, remove occurrences containing `issues_to_discard`:
 
-```{r remove_occs_issues_to_discard}
+```{r remove_occs_issues_to_discard_occs_eu}
 if (any(issues_to_discard %in% issues$issues)) {
   occ_eu <- 
     map_dfc(issues_to_discard, 
@@ -268,7 +268,7 @@ if (any(issues_to_discard %in% issues$issues)) {
 
 Occurrences with the following occurrence status should be filtered out:
 
-```{r occurrenceStatus_to_discard}
+```{r occurrenceStatus_to_discard_occs_eu}
 occurrenceStatus_to_discard <- c(
   "absent",
   "excluded"
@@ -277,7 +277,7 @@ occurrenceStatus_to_discard <- c(
 
 Occurrence status present in `occ_eu`:
 
-```{r occ_status_in_data}
+```{r occ_status_in_data_occs_eu}
 occurrenceStatus <-
   occ_eu %>% 
   distinct(occurrenceStatus) %>%
@@ -287,13 +287,13 @@ occurrenceStatus
 
 Are there some `occurrenceStatus_to_discard` in `occurrenceStatus`?
 
-```{r any_occurrenceStatus_to_discard_in_data}
+```{r any_occurrenceStatus_to_discard_in_data_occs_eu}
 any(occurrenceStatus_to_discard %in% occurrenceStatus$occurrenceStatus)
 ```
 
 If yes, remove occurrences with `occurrenceStatus` equal to one of `occurrenceStatus_to_discard`:
 
-```{r remove_occurrenceStatus_to_discard}
+```{r remove_occurrenceStatus_to_discard_occs_eu}
 if (any(
   occurrenceStatus_to_discard %in% occurrenceStatus$occurrenceStatus)) {
   occ_eu <- 
@@ -324,7 +324,7 @@ We assign grid to occurrences.
 
 Number of occurrences per each value of `coordinateUncertaintyInMeters`:
 
-```{r n_occ_per_uncertainty}
+```{r n_occ_per_uncertainty_occs_eu}
 occ_eu %>%
   group_by(coordinateUncertaintyInMeters) %>%
   count() %>%
@@ -333,7 +333,7 @@ occ_eu %>%
 
 We assign 1000 meters to occurrences without uncertainty:
 
-```{r assign_fix_uncertainty}
+```{r assign_fix_uncertainty_occs_eu}
 occ_eu <- 
   occ_eu %>%
   mutate(
@@ -346,7 +346,7 @@ occ_eu <-
 
 We save geographic coordinates, `decimalLatitude` and `decimalLongitude` and coordinate uncertainty, `coordinateUncertaintyInMeters` as a new data.frame, `geodata_df`:
 
-```{r geodata_df}
+```{r geodata_df_occs_eu}
 geodata_df <-
   occ_eu %>%
   select(decimalLatitude, 
@@ -360,7 +360,7 @@ nrow_geodata_df <- nrow(geodata_df)
 
 We project latitude and longitude by using the projection of the grid. We transform GBIF data which have coordinate reference system equal to EPSG code 4326 to Lambert projection with EPSG code 3035:
 
-```{r transform_to_3035}
+```{r transform_to_3035_occs_eu}
 coordinates(geodata_df) <- ~decimalLongitude+decimalLatitude
 proj4string(geodata_df) <- CRS("+init=epsg:4326")
 geodata_df <- spTransform(geodata_df, CRS("+init=epsg:3035"))
@@ -371,7 +371,7 @@ colnames(geodata_df@coords) <- c("x", "y")
 
 Assign the occurrence randomly within the circle with radius equal to `coordinateUncertaintyInMeters`:
 
-```{r assign_pts_in_circle}
+```{r assign_pts_in_circle_occs_eu}
 geodata_df@data <- 
   geodata_df@data %>% 
   mutate(random_angle = runif(nrow_geodata_df, 0, 2*pi))
@@ -395,13 +395,13 @@ geodata_df@data <-
 
 Preview:
 
-```{r preview_geodata_df_data}
+```{r preview_geodata_df_data_occs_eu}
 geodata_df@data %>% head(n = 10)
 ```
 
 Where `x` and `y` are the new coordinates while in `@coords` we have the original coordinates:
 
-```{r preview_geodata_df_coords}
+```{r preview_geodata_df_coords_occs_eu}
 geodata_df@coords[1:10,]
 ```
 
@@ -409,7 +409,7 @@ geodata_df@coords[1:10,]
 
 We assign each occurrence to a grid cell. 
 
-```{r asign_grid}
+```{r assign_grid_occs_eu}
 geodata_df@data <- 
   geodata_df@data %>%
   mutate(eea_cell_code = paste0("1km", 
@@ -418,7 +418,7 @@ geodata_df@data <-
 ```
 Preview:
 
-```{r preview_gridcell}
+```{r preview_gridcell_occs_eu}
 geodata_df@data %>% head(n = 10)
 ```
 
@@ -430,7 +430,7 @@ occ_eu$eea_cell_code <- geodata_df@data$eea_cell_code
 
 Preview:
 
-```{r preview_with_eaa_cell_code}
+```{r preview_with_eaa_cell_code_occs_eu}
 occ_eu %>% head()
 ```
 

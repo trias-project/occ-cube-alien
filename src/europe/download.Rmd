@@ -22,7 +22,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 Load libraries:
 
-```{r load_libraries}
+```{r load_libraries_download_eu}
 library(tidyverse)      # To do data science
 library(lubridate)      # To work with dates
 library(here)           # To find files
@@ -38,7 +38,7 @@ library(leaflet)        # To make interactive maps
 
 The species selected for modelling are saved in file `modelling_species.tsv` on GitHub:
 
-```{r load_modelling_species_file}
+```{r load_modelling_species_file_eu}
 taxa_input_file <- "https://raw.githubusercontent.com/trias-project/occ-processing/pipeline-EU/data/raw/modelling_species.tsv"
 taxa <- read_tsv(taxa_input_file,
                  na = "")
@@ -46,13 +46,13 @@ taxa <- read_tsv(taxa_input_file,
 
 Preview file:
 
-```{r preview_taxa}
+```{r preview_taxa_modelling}
 head(taxa)
 ```
 
 Retrieve the `taxonKey`s we want to use to download occurrences:
 
-```{r get_taxonkeys}
+```{r get_taxonkeys_modelling}
 taxon_keys <- taxa$backbone_taxonKey # Column with taxonKeys
 ```
 
@@ -60,7 +60,7 @@ taxon_keys <- taxa$backbone_taxonKey # Column with taxonKeys
 
 We define a bounding box which contains the geographic Europe as defined by European Environment Agency reference grids. See image in `./references/Europe.png`.
 
-```{r define_bounding_box}
+```{r define_bounding_box_modelling}
 bounding_box_europe <- "POLYGON((-27.33398 67.06055, -11.68945 34.89258, 24.3457 29.0918, 40.86914 33.83789, 45.90088 37.02393, 43.1543 48.7793, 37.79297 57.12891, 34.27734 75.76172, -15.99609 76.46484, -27.33398 67.06055))"
 bounding_box_iceland <- "POLYGON((-23.87329 67.85156,-25.27954 64.05029,-23.96118 62.44629,-15.8313 62.31445,-13.31543 63.80859,-12.7002 65.6543,-15.24902 67.58789,-23.87329 67.85156))"
 ```
@@ -83,7 +83,7 @@ leaflet() %>%
 
 All types of occurrences, except `FOSSIL SPECIMEN` and `LIVING SPECIMEN`, which can have misleading location information (e.g. location of captive animal).
 
-```{r define_basis_of_record}
+```{r define_basis_of_record_eu}
 basis_of_record <- c(
   "OBSERVATION", 
   "HUMAN_OBSERVATION",
@@ -99,7 +99,7 @@ basis_of_record <- c(
 
 Occurrences with a valid year:
 
-```{r define_year}
+```{r define_year_eu}
 year_begin <- 1000
 year_end <- year(Sys.Date())
 ```
@@ -108,7 +108,7 @@ year_end <- year(Sys.Date())
 
 Occurrences with valid geographic coordinates:
 
-```{r define_hasCoordinate}
+```{r define_hasCoordinate_eu}
 hasCoordinate <- TRUE
 ```
 
@@ -120,7 +120,7 @@ hasCoordinate <- TRUE
 
 Trigger download:
 
-```{r trigger_gbif_download}
+```{r trigger_gbif_download_eu}
 # Important: query arguments need to be pasted as strings of format "key = value"
 gbif_download_key <- occ_download(
   paste0("taxonKey = ", paste(taxon_keys, collapse = ",")), 
@@ -137,7 +137,7 @@ gbif_download_key <- occ_download(
 
 ## Check status of download
 
-```{r check_metadata}
+```{r check_metadata_eu}
 metadata <- occ_download_meta(key = gbif_download_key)
 metadata$key
 metadata$status
@@ -145,9 +145,9 @@ metadata$status
 
 Write download to list of downloads and check pending downloads:
 
-```{r update_download_list}
+```{r update_download_list_eu}
 update_download_list(
-  file = here::here("data", "processed", "gbif_downloads.tsv"), 
+  file = here::here("data", "raw", "gbif_downloads.tsv"), 
   download_to_add = gbif_download_key, 
   input_checklist = taxa_input_file
 )

@@ -26,7 +26,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 Load libraries:
 
-```{r load_libraries}
+```{r load_libraries_eu}
 library(tidyverse)      # To do datascience
 library(sp)             # To work with geospatial data
 library(here)           # To find files
@@ -54,7 +54,7 @@ modelling_taxa <- read_tsv(
 
 Number of taxa:
 
-```{r}
+```{r nrow_modelling_taxa}
 nrow(modelling_taxa)
 ```
 
@@ -68,7 +68,7 @@ modelling_taxa %>% head()
 
 Name and path of occurrence data file:
 
-```{r name_path}
+```{r name_path_eu}
 key <- "0004690-190415153152247"
 occ_file <- paste(key, "occurrence.tsv", sep = "_")
 occ_path <- here::here("data", "interim", occ_file)
@@ -78,7 +78,7 @@ occ_path <- here::here("data", "interim", occ_file)
 
 Name of columns:
 
-```{r get_cols}
+```{r get_cols_occs_eu}
 cols_occ_file <- read_delim(
   occ_path, "\t", n_max = 1,
   quote = ""
@@ -94,7 +94,7 @@ The following columns should contain integers:
 4. `month`
 5. `day`
 
-```{r define_col_integer_for_specific_columns}
+```{r define_col_integer_for_specific_columns_eu}
 int_colnames <- 
   cols_occ_file[str_detect(cols_occ_file, "Key") & 
                 !str_detect(cols_occ_file, "datasetKey")]
@@ -117,7 +117,7 @@ The following columns should contain real numbers:
 2. `coordinate*`: `coordinateUncertaintyInMeters` and `coordinatePrecision`
 3. `pointRadiusSpatialFit`
 
-```{r define_col_double_for_specific_columns}
+```{r define_col_double_for_specific_columns_eu}
 real_colnames <- cols_occ_file[str_detect(cols_occ_file, "decimal")]
 real_colnames <- c(
   real_colnames,
@@ -132,7 +132,7 @@ real_cols <-
 
 The other columns contain text:
 
-```{r define_col_text_for_other_columns}
+```{r define_col_text_for_other_columns_eu}
 char_colnames <- cols_occ_file[!cols_occ_file %in% real_colnames & 
                                !cols_occ_file %in% int_colnames]
 char_cols <- 
@@ -142,7 +142,7 @@ char_cols <-
 
 Final column specification:
 
-```{r cols_type_to_use}
+```{r cols_type_to_use_eu}
 col_specs <- cols()
 col_specs$cols <- c(char_cols, int_cols, real_cols)
 col_specs
@@ -152,7 +152,7 @@ col_specs
 
 Import occurrence data:
 
-```{r read_occs_in}
+```{r read_occs_in_eu}
 occ_eu <- read_tsv(
   here::here("data", 
              "interim", 
@@ -168,7 +168,7 @@ occ_eu <- read_tsv(
 
 We add taxonomic status and rank to `modelling_taxa`. This information comes from GBIF Taxonomy Backbone:
 
-```{r get_alien_species}
+```{r get_status_rank_modelling_taxa}
 modelling_taxa <- 
   modelling_taxa %>%
   bind_cols(
@@ -182,7 +182,7 @@ modelling_taxa <-
 
 Rank values of modelling taxa:
 
-```{r overview_rank}
+```{r overview_rank_modelling_taxa_eu}
 modelling_taxa %>%
   group_by(rank) %>%
   count()
@@ -190,7 +190,7 @@ modelling_taxa %>%
 
 Taxonomic status of modelling taxa:
 
-```{r taxonStatus}
+```{r overview_taxonStatus__modelling_taxa_eu}
 modelling_taxa %>%
   group_by(taxonomicStatus) %>%
   count()
@@ -200,7 +200,7 @@ modelling_taxa %>%
 
 Taxa with rank `SPECIES` and taxonomic status `ACCEPTED` or `DOUBTFUL`:
 
-```{r modelling_taxa_species_accepted}
+```{r modelling_taxa_species_accepted_eu}
 modelling_taxa_species <- 
   modelling_taxa %>%
   filter(rank == "SPECIES", 
@@ -223,7 +223,7 @@ Species, synonyms of those species and infraspecific taxa of those species all s
 
 Group by `year`, `eea_cell_code` and `speciesKey`, count number of occurrences for each group and get the lowest value of coordinate uncertainty `occurrenceUncertaintyInMeters`:
 
-```{r get_datacube_species}
+```{r get_datacube_species_eu}
 occ_cube_eu_species <- 
   occ_eu %>%
   group_by(year, eea_cell_code, speciesKey) %>%
@@ -235,7 +235,7 @@ occ_cube_eu_species <-
 
 Number of modelling species included in `occ_cube_eu_species`:
 
-```{r species_included}
+```{r species_included_eu}
 paste(length(modelling_taxa_species_key[
   which(modelling_taxa_species_key %in% unique(occ_cube_eu_species$speciesKey))
 ]), "out of", length(modelling_taxa_species_key))
@@ -243,7 +243,7 @@ paste(length(modelling_taxa_species_key[
 
 Preview:
 
-```{r preview_occ_species}
+```{r preview_occ_species_eu}
 occ_cube_eu_species %>% head()
 ```
 
@@ -253,7 +253,7 @@ Grouping by `speciesKey`, we loose informations about which taxa share the same 
 
 First, we get all distinct taxa:
 
-```{r get_distinct_taxa_in_occ_cube_species}
+```{r get_distinct_taxa_in_occ_cube_species_eu}
 occ_cube_eu_species_taxa <- 
   occ_eu %>%
   distinct(speciesKey, taxonKey, scientificName) %>%
@@ -262,7 +262,7 @@ occ_cube_eu_species_taxa <-
 
 Some species have occurrences coming from multiple taxa:
 
-```{r show_multiple_taxonKey}
+```{r show_multiple_taxonKey_eu}
 occ_cube_eu_species_taxa %>%
   group_by(speciesKey) %>%
   count() %>%
@@ -273,7 +273,7 @@ occ_cube_eu_species_taxa %>%
 
 Some species have occurrences only from taxa linked to their infraspecific taxa or synonyms. In these cases `speciesKey` is not equal to `taxonKey`:
 
-```{r show_taxa_speciesKey_not_taxonKey}
+```{r show_taxa_speciesKey_not_taxonKey_eu}
 occ_cube_eu_species_taxa %>%
   group_by(speciesKey) %>%
   count() %>%
@@ -337,7 +337,7 @@ taxa_species_eu
 
 Accepted infraspecific taxa in unified checklist:
 
-```{r modelling_taxa_under_species}
+```{r modelling_taxa_under_species_eu}
 rank_under_species <- c("SUBSPECIFICAGGREGATE",
                         "SUBSPECIES", 
                         "VARIETY",
@@ -354,7 +354,7 @@ modelling_taxa_subspecies
 
 For these taxa we will search by keys from field `key`, as the taxon keys come from the GBIF taxonomy backbone.
 
-```{r get_modelling_taxa_subspecies_key}
+```{r get_modelling_taxa_subspecies_key_eu}
 modelling_taxa_subspecies_key <-
   modelling_taxa_subspecies %>% 
   distinct(key) %>% 
@@ -518,7 +518,7 @@ Some taxa in unified checklists are synonyms. For these taxa we don't trust the 
 
 Get synonyms from unified checklist:
 
-```{r modelling_taxa_synonyms}
+```{r modelling_taxa_synonyms_eu}
 modelling_taxa_synonyms <-
   modelling_taxa %>%
   filter(!taxonomicStatus %in% c("ACCEPTED", "DOUBTFUL"))
@@ -536,7 +536,7 @@ modelling_taxa_synonyms %>%
 
 For these taxa we will search by keys from field `key`, the key from GBIF Taxonomy Backbone:
 
-```{r get_modelling_taxa_synonyms_key}
+```{r get_modelling_taxa_synonyms_key_eu}
 modelling_taxa_synonyms_key <-
   modelling_taxa_synonyms %>% 
   distinct(key) %>% 
@@ -684,7 +684,7 @@ taxa_species_eu <-
 
 In `taxa_subspecies_eu`, if not empty, rename `acceptedKey` to `taxonKey`:
 
-```{r rename_taxa_subspecies}
+```{r rename_taxa_subspecies_eu}
 if (ncol(taxa_subspecies_eu) > 0) {
   taxa_subspecies_eu <-
     taxa_subspecies_eu %>%
