@@ -39,7 +39,7 @@ As example, consider the species [_Reynoutria japonica Houtt._`](https://www.gbi
 
 taxonKey | scientificName | numberOfOccurrences | taxonRank | taxonomicStatus
 --- | --- | --- | --- | ---
-5652243 | Fallopia japonica f. colorans (Makino) Yonek. 41 | FORM | SYNONYM
+5652243 | Fallopia japonica f. colorans (Makino) Yonek. | 41 | FORM | SYNONYM
 5652241 | Fallopia japonica var. compacta (Hook.fil.) J.P.Bailey | 52 | VARIETY | SYNONYM
 2889173 | Reynoutria japonica Houtt. | 39576 | SPECIES | ACCEPTED
 4038356 | Reynoutria japonica var. compacta (Hook.fil.) Buchheim | 19 | VARIETY | SYNONYM
