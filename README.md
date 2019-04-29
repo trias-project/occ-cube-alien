@@ -49,7 +49,7 @@ taxonKey | scientificName | numberOfOccurrences | taxonRank | taxonomicStatus
 7291566 | Polygonum japonicum (Houttuyn) S.L.Welsh | 2 | SPECIES | SYNONYM
 5334357 | Fallopia japonica (Houtt.) Ronse Decraene | 110742 | SPECIES | SYNONYM
 7291912 | Reynoutria japonica var. japonica | 2199 | VARIETY | ACCEPTED
-6709291 | Reynoutria compacta (Hook.fil.) Nakai 1 SPECIES | SYNONYM
+6709291 | Reynoutria compacta (Hook.fil.) Nakai | 1 | SPECIES | SYNONYM
 7413860 | Reynoutria japonica var. terminalis (Honda) Kitag. | 13 | VARIETY | SYNONYM
 8170870 | Reynoutria japonica var. uzenensis Honda | 32 | VARIETY | SYNONYM
 7128523 | Fallopia japonica var. japonica | 1560 | VARIETY | DOUBTFUL
@@ -63,40 +63,15 @@ See https://doi.org/10.15468/dl.rej1cz for more details.
 
 By aggregating we would loose this information, so we provide aside the final cubes, [`cube_belgium.tsv`](./data/processed/cube_belgium.tsv) and [`cube_europe.tsv`](./data/processed/cube_europe.tsv), a taxonomic compendium, [`cube_belgium_taxa.tsv`](./data/processed/cube_belgium_taxa.tsv) and [`cube_europe_taxa.tsv`](./data/processed/cube_europe_taxa.tsv) respectively. For each taxon of the cubes the compendiums include all taxa (synonyms and/or infraspecies) whose occurrences contribute to the total count. This information is saved in last column called `includes`. Here below the taxon *Reynoutria japonica Houtt.* as example:
 
-taxonKey| scientificName| rank| taxonomicStatus| includes
-
+taxonKey | scientificName | rank| taxonomicStatus | includes
 --- | --- | --- | --- | ---
-
 2889173 | Reynoutria japonica Houtt. | SPECIES | ACCEPTED | 5334357: Fallopia japonica (Houtt.) Ronse Decraene \| 7128523: Fallopia japonica var. japonica \| 8361333: Fallopia compacta (Hook.fil.) G.H.Loos & P.Keil \| 2889173: Reynoutria japonica Houtt. \| 5334352: Polygonum cuspidatum Sieb. & Zucc.
-
-
 
 Another example from `cube_belgium_taxa.tsv`: _Aedes japonicus (Theobald, 1901)_ is an accepted species present in the Belgian cube and its occurrences include occurrences linked to the following taxa:
 
-
-
-taxonKey| scientificName| rank| taxonomicStatus| includes
-
+taxonKey | scientificName | rank| taxonomicStatus | includes
 --- | --- | --- | --- | ---
-
 1652212 | Aedes japonicus (Theobald, 1901) | SPECIES | ACCEPTED | 4519733: Ochlerotatus japonicus (Theobald, 1901) \| 7346173: Aedes japonicus japonicus \| 1652212: Aedes japonicus (Theobald, 1901)
-
-
-
-## Workflow
-
-To create a Belgian data cube, its taxonomic compendium and data cube at kingdom level (baseline), run the pipelines in `src/belgium` following this order:
-
-1. `download.Rmd`
-2. `create_db.Rmd`
-3. `assign_grid.Rmd`
-4. `aggregate.Rmd`
-
-To create the European data cube and its taxonomic compendium, run the pipelines in `src/europe` following this order:
-
-1. `download.Rmd`
-2. `create_db.Rmd`
-3. `aggregate.Rmd`
 
 ## Repo structure
 
@@ -129,7 +104,7 @@ The repository structure is based on [Cookiecutter Data Science](http://drivenda
         ├── aggregate.Rmd   : Script to aggregate data and make the Belgian data cube    
 ```
 
-## Installation
+## Workflow
 
 Clone this repository to your computer and open the RStudio project file,  `occ-processing.Rproj`.
 
@@ -140,9 +115,9 @@ You can generate the Belgian occurrence data cube by running the [R Markdown fil
 1. `download.Rmd`: trigger a GBIF download and add it to the list of triggered downloads
 2. `create_db.Rmd`: create a sqlite database and perform basic data cleaning
 3. `assign_grid.Rmd`: assign geographic cell code to occurrence data
-4. `aggregate.Rmd`: aggregate occurrences per taxon, year and cell code, the _Belgian occurrence data cube_
+4. `aggregate.Rmd`: aggregate occurrences per taxon, year and cell code to create the _Belgian occurrence data cube_, its taxonomic compendium and data cube at kingdom level (baseline)
 
-In the aggregation step, we also create a data cube at kingdom level. The data subes are authomatically generated in  folder `/data/output/`.
+The output files, `cube_belgium.tsv`, `cube_belgium_taxa.tsv` and `cube_baseline.tsv` are automatically generated in  folder `/data/output/`.
 
 ### Generate occurrence data cube for Europe
 
@@ -154,8 +129,7 @@ You can generate the European occurrence data cube by running the [R Markdown fi
 3. `assign_grid.Rmd`: assign geographic cell code to occurrence data
 4. `aggregate.Rmd`: aggregate occurrences per taxa, year and cell code, the European _occurrence data cube_.
 
-4. Install any required packages
-6. Click `Build > Build Book` to generate the processed data and build the website in `docs/`
+The output files, `cube_europe.tsv` and `cube_europe_taxa.tsv` are automatically generated in  folder `/data/output/`.
 
 ## Contributors
 
