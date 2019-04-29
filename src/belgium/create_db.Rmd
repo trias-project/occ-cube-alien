@@ -37,12 +37,12 @@ library(RSQLite)        # To interact with SQlite databases
 Download the occurrences from GBIF, based on the download key returned in `download.Rmd`:
 
 ```{r get_occ_file}
-key <- "0044021-181108115102211"
-download_file <- here("data", "raw", paste0(key, ".zip"))
-if (!file.exists(download_file)) {
-  occ_download_get(
-    key = "0044021-181108115102211", 
-    path = here("data", "raw")
+key <- "0003809-190415153152247"
+zip_filename <- paste0(key, ".zip")
+if (!file.exists(here::here("data", "raw", zip_filename))) {
+  occ <- occ_download_get(
+    key = key, 
+    path = here::here("data", "raw")
   )
 }
 ```
@@ -50,18 +50,15 @@ if (!file.exists(download_file)) {
 Unzip the occurrence text file from the download file:
 
 ```{r unzip_csv}
-occ_filename <- paste(key, "occurrence.txt", sep = "_") # 0044021-181108115102211_occurrence.txt
-occ_file <- here("data", "raw", occ_filename)
+occ_file <- paste(key, "occurrence.txt", sep = "_")
+occ_path <- here::here("data", "raw", occ_file)
 
-if (!file.exists(occ_file)) {
-  unzip(
-    zipfile = download_file,
-    files = "occurrence.txt",
-    exdir = here("data", "raw")
-  )
-  file.rename(
-    from = here("data", "raw", "occurrence.txt"),
-    to = occ_file
+if (!file.exists(here::here("data", "raw", occ_file))) {
+  unzip(zipfile = occ,
+        files = "occurrence.txt",
+        exdir = here::here("data", "raw"))
+  file.rename(from = here::here("data", "raw", "occurrence.txt"),
+              to = occ_path
   )
 }
 ``` 
@@ -86,9 +83,9 @@ length(cols_occ_file)
 
 Define name and path of `.sqlite` file:
 
-```{r sqlite_file}
-sqlite_filename <- paste(key, "occurrence.sqlite", sep = "_")
-sqlite_file <- here("data", "interim", sqlite_filename)
+```{r sqlite_path}
+sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
+sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
 
 And table name:

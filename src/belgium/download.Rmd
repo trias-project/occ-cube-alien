@@ -24,10 +24,10 @@ Load libraries:
 
 ```{r load_libraries}
 library(tidyverse)      # To do data science
-library(lubridate)      # To work with dates
 library(here)           # To find files
 library(rgbif)          # To use GBIF services
 library(trias)          # To use functions developed for TrIAS
+library(lubridate)      # To work with dates
 ```
 
 # Define download query parameters
@@ -111,7 +111,7 @@ Write download to list of downloads and check pending downloads:
 
 ```{r update_download_list}
 update_download_list(
-  file = here("data", "processed", "gbif_downloads.tsv"), 
+  file = here::here("data", "raw", "gbif_downloads.tsv"), 
   download_to_add = gbif_download_key, 
   input_checklist = ""
 )
