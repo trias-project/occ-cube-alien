@@ -137,4 +137,4 @@ The output files, `cube_europe.tsv` and `cube_europe_taxa.tsv` are automatically
 
 ## License
 
-[MIT License](https://github.com/trias-project/unified-checklist/blob/master/LICENSE) for the code and documentation in this repository.
+[MIT License](https://github.com/trias-project/occ-processing/blob/master/LICENSE) for the code and documentation in this repository.
