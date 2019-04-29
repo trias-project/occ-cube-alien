@@ -12,7 +12,7 @@ output:
     number_sections: true
 ---
 
-In this document we transform the text file containing the occurrences of (alien) species for Belgium into a sqlite database. Then, we filter on issues and occurrence status. This is a way to handle the critical huge amount of occurrences. Note: some of these steps could take long.
+In this document we transform the GBIF download - a csv file containing the occurrences of (alien) species for Belgium - into a sqlite database, to handle the large volume of data. Then we filter on issues and occurrence status. Note: some of these steps can take long.
 
 # Setup
 
@@ -34,7 +34,7 @@ library(RSQLite)        # To interact with SQlite databases
 
 ## Get CSV file from GBIF
 
-We download the occurrences from GBIF, based on the key got in `download.Rmd`:
+Download the occurrences from GBIF, based on the download key returned in `download.Rmd`:
 
 ```{r get_occ_file}
 key <- "0003809-190415153152247"
@@ -47,7 +47,7 @@ if (!file.exists(here::here("data", "raw", zip_filename))) {
 }
 ```
 
-We unzip text file with occurrences as  `key_number` + `occurrence.txt` in `./data/raw`:
+Unzip the occurrence text file from the download file:
 
 ```{r unzip_csv}
 occ_file <- paste(key, "occurrence.txt", sep = "_")
@@ -63,17 +63,15 @@ if (!file.exists(here::here("data", "raw", occ_file))) {
 }
 ``` 
 
-Name of columns:
+Columns names:
 
 ```{r get_cols}
-cols_occ_file <- read_delim(
-  occ_path, "\t", n_max = 1,
-  quote = ""
-)
+cols_occ_file <- read_delim(occ_file, "\t", n_max = 1, quote = "")
 cols_occ_file <- names(cols_occ_file)
+cols_occ_file
 ```
 
-Number of columns present:
+Number of columns:
 
 ```{r n_cols}
 length(cols_occ_file)
@@ -90,7 +88,7 @@ sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
 
-and table name:
+And table name:
 
 ```{r define_table_name}
 table_name <- "occ_be_all"
@@ -108,13 +106,13 @@ names(field_types) <- cols_occ_file
 
 The following columns should be of storage class `INTEGER`:
 
-1. `*Key`, e.g. `taxonKey`, `speciesKey`)
+1. `*Key`, e.g. `taxonKey`, `speciesKey`, but no `datasetKey`
 2. `*DayOfYear`: `startDayOfYear` and  `endDayOfYear`  
 3. `year`
 4. `month`
 5. `day`
 
-```{r set_to_INTEGER}
+```{r set_to_integer}
 int_fields <- names(field_types)[str_detect(names(field_types), "Key") & 
                                    names(field_types) != "datasetKey"]
 int_fields <- c(
@@ -133,7 +131,7 @@ The following columns should be of storage class `REAL`:
 2. `coordinate*`: `coordinateUncertaintyInMeters` and `coordinatePrecision`
 3. `pointRadiusSpatialFit`
 
-```{r}
+```{r set_to_real}
 real_fields <- names(field_types)[str_detect(names(field_types), "decimal")]
 real_fields <- c(
   real_fields,
@@ -146,21 +144,23 @@ field_types[which(names(field_types) %in% real_fields)] <- "REAL"
 Open connection to database:
 
 ```{r open_connection_to_db}
-sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_path)
+sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_file)
 ```
 
-And fill it with occurrences from text file. This step reads the large occurrence file in chunks and transfer them in the sqlite file. This step can take long the first timeyou run it:
+Fill database with occurrences from text file. This step reads the large occurrence file in chunks and transfers them in the sqlite file. This step can take long the first time you run it:
 
 ```{r fill_sqlite_file}
 if (!table_name %in% dbListTables(sqlite_occ)) {
-  dbWriteTable(conn = sqlite_occ,
-               name = table_name,
-               sep = "\t",
-               value = occ_path,
-               row.names = FALSE,
-               header = TRUE,
-               field.types = field_types,
-               overwrite = TRUE)
+  dbWriteTable(
+    conn = sqlite_occ,
+    name = table_name,
+    sep = "\t",
+    value = occ_file,
+    row.names = FALSE,
+    header = TRUE,
+    field.types = field_types,
+    overwrite = TRUE
+  )
 }
 ```
 
@@ -177,24 +177,23 @@ length(cols_occ_db)
 
 ## Define columns to select
 
-We define a subset of columns we are interested to:
+We define a subset of columns, `cols_to_use`, we are interested to:
 
 ```{r columns_to_use}
-cols_to_use <- c("gbifID", "scientificName", "kingdom", "phylum", "class", "order",
-             "family", "genus", "specificEpithet", "infraspecificEpithet",
-             "taxonRank", "taxonomicStatus", "datasetKey", "basisOfRecord",
-             "occurrenceStatus", "lastInterpreted", "hasCoordinate",
-             "hasGeospatialIssues", "decimalLatitude", "decimalLongitude",
-             "coordinateUncertaintyInMeters", "coordinatePrecision",
-             "pointRadiusSpatialFit", "verbatimCoordinateSystem", "verbatimSRS",
-             "eventDate", "startDayOfYear", "endDayOfYear", "year", "month",
-             "day", "verbatimEventDate", "samplingProtocol", "samplingEffort",
-             "issue", "taxonKey", "acceptedTaxonKey", "kingdomKey", "phylumKey",
-             "classKey", "orderKey", "familyKey", "genusKey", "subgenusKey",
-             "speciesKey", "species")
+cols_to_use <- c(
+  "gbifID", "scientificName", "kingdom", "phylum", "class", "order", "family",
+  "genus", "specificEpithet", "infraspecificEpithet", "taxonRank", 
+  "taxonomicStatus", "datasetKey", "basisOfRecord", "occurrenceStatus",
+  "lastInterpreted", "hasCoordinate", "hasGeospatialIssues", "decimalLatitude", "decimalLongitude", "coordinateUncertaintyInMeters",
+  "coordinatePrecision", "pointRadiusSpatialFit", "verbatimCoordinateSystem", 
+  "verbatimSRS", "eventDate", "startDayOfYear", "endDayOfYear", "year", "month",
+  "day", "verbatimEventDate", "samplingProtocol", "samplingEffort", "issue",
+  "taxonKey", "acceptedTaxonKey", "kingdomKey", "phylumKey", "classKey", 
+  "orderKey", "familyKey", "genusKey", "subgenusKey", "speciesKey", "species"
+)
 ```
 
-Columns in occurrence file not present in the subset:
+Columns in occurrence file not in `cols_to_use`:
 
 ```{r cols_in_cols_to_use_not_present_in_cols_occ_db}
 cols_to_use[which(!cols_to_use %in% cols_occ_db)]
@@ -216,6 +215,7 @@ Storage class of these columns:
 
 ```{r define_field_type_subset}
 field_types_subset <- field_types[which(names(field_types) %in% cols_to_use)]
+field_types_subset
 ```
 
 ## Define filters on occurrences
@@ -230,7 +230,7 @@ issues_to_discard <- c(
 )
 ```
 
-Or occurrences with the following occurrence status:
+Occurrences with the following occurrence status should filtered out as well:
 
 ```{r occurrenceStatus}
 occurrenceStatus_to_discard <- c(
@@ -307,7 +307,7 @@ if (!table_name_subset %in% dbListTables(sqlite_occ)) {
 
 ## Overview and control filtered data table
 
-## Strructure of `occ_be` table
+## Structure of `occ_be` table
 
 Check whether the table `occ_be` has been made:
 
