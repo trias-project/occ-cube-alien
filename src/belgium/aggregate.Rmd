@@ -24,7 +24,6 @@ Load libraries:
 
 ```{r load_libraries}
 library(tidyverse)      # To do datascience
-library(sp)             # To work with geospatial data
 library(here)           # To find files
 library(rgbif)          # To use GBIF services
 library(glue)           # To write queries
@@ -234,17 +233,12 @@ occ_cube_species <-
 Number of alien species included in occurrence cube:
 
 ```{r species_included}
-length(alien_taxa_species_key[
-  which(alien_taxa_species_key %in% unique(occ_cube_species$speciesKey))
-])
-```
-
-Number of alien species not included in occurrence cube:
-
-```{r species_not_included}
-length(alien_taxa_species_key[
-  which(!alien_taxa_species_key %in% unique(occ_cube_species$speciesKey))
-])
+paste(
+  length(alien_taxa_species_key[
+  which(alien_taxa_species_key %in% unique(occ_cube_species$speciesKey))]),
+  "out of",
+  length(alien_taxa_species_key)
+)
 ```
 
 Preview:
@@ -380,8 +374,7 @@ Get occurrences related to these taxa and their synonyms by filtering on `accept
 query <- glue_sql(
   "SELECT {`cols`*} FROM {table} WHERE acceptedTaxonKey IN ({subspecies_key*})",
   cols = c("year", 
-           "eea_cell_code", 
-           "speciesKey", 
+           "eea_cell_code",
            "acceptedTaxonKey",
            "coordinateUncertaintyInMeters"),
   subspecies_key = alien_taxa_subspecies_key,
@@ -390,7 +383,7 @@ query <- glue_sql(
 )
 occ_cube_subspecies <- 
   dbGetQuery(sqlite_occ, query) %>%
-  group_by(year, eea_cell_code, speciesKey, acceptedTaxonKey) %>%
+  group_by(year, eea_cell_code, acceptedTaxonKey) %>%
   summarize(
     n = n(),
     min_coord_uncertainty = min(coordinateUncertaintyInMeters)
@@ -400,17 +393,13 @@ occ_cube_subspecies <-
 Number of infraspecific taxa included in `occ_cube_subspecies`:
 
 ```{r subspecies_included}
-length(alien_taxa_subspecies_key[
+paste(
+  length(alien_taxa_subspecies_key[
   which(alien_taxa_subspecies_key %in% 
-          unique(occ_cube_subspecies$acceptedTaxonKey))])
-```
-
-Number of infraspecific taxa not included in `occ_cube_subspecies`:
-
-```{r subspecies_not_included}
-length(alien_taxa_subspecies_key[
-  which(!alien_taxa_subspecies_key %in% 
-          unique(occ_cube_subspecies$acceptedTaxonKey))])
+          unique(occ_cube_subspecies$acceptedTaxonKey))]),
+  "out of",
+  length(alien_taxa_subspecies_key)
+)
 ```
 
 Preview:
@@ -442,7 +431,7 @@ occ_cube_subspecies_taxa <-
 
 Some species have occurrences coming from multiple taxa:
 
-```{r show_multiple_taxonKey}
+```{r show_multiple_taxonKey_in_occ_cube_subspecies}
 occ_cube_subspecies_taxa %>%
   group_by(acceptedTaxonKey) %>%
   count() %>%
@@ -453,7 +442,7 @@ occ_cube_subspecies_taxa %>%
 
 Some infraspecific taxa have occurrences only from taxa linked to their synonyms. In these cases `acceptedTaxonKey` is not equal to `taxonKey`:
 
-```{r show_taxa_speciesKey_not_taxonKey}
+```{r show_taxa_acceptedTaxonKey_not_taxonKey}
 occ_cube_subspecies_taxa %>%
   group_by(acceptedTaxonKey) %>%
   count() %>%
@@ -471,7 +460,11 @@ occ_cube_subspecies_taxa %>%
   select(-c(n_taxa, n_taxonKey_not_acceptedKey))
 ```
 
-We create `taxa_subspecies` by adding the taxonomic rank, one of `SUBSPECIFICAGGREGATE`, `SUBSPECIES`, `VARIETY`, `SUBVARIETY`, `FORM`, or `SUBFORM`, and the taxonomic status, one of `ACCEPTED` or  `DOUBTFUL`, and create a column called `include` which contains all taxa whose occurrences are linked to the `acceptedTaxonKey`:
+We create `taxa_subspecies` by adding:
+1. taxonomic rank, one of `SUBSPECIFICAGGREGATE`, `SUBSPECIES`, `VARIETY`, `SUBVARIETY`, `FORM`, or `SUBFORM`, 
+2. taxonomic status, one of `ACCEPTED` or  `DOUBTFUL`
+
+We also create a column called `include` which contains all taxa whose occurrences are linked to the `acceptedTaxonKey`:
 
 ```{r make_taxa_species}
 taxa_subspecies <- 
@@ -593,17 +586,13 @@ occ_cube_synonym <-
 Number of synonyms included in `occ_cube_synonym`:
 
 ```{r synonyms_included}
-length(alien_taxa_synonyms_key[
+paste(
+  length(alien_taxa_synonyms_key[
   which(alien_taxa_synonyms_key %in% 
-          unique(occ_cube_synonym$taxonKey))])
-```
-
-Number of synonyms not included in `occ_cube_synonym`:
-
-```{r synonyms_not_included}
-length(alien_taxa_synonyms_key[
-  which(!alien_taxa_synonyms_key %in% 
-          unique(occ_cube_synonym$taxonKey))])
+          unique(occ_cube_synonym$taxonKey))]),
+  "out of",
+  length(alien_taxa_synonyms_key)
+)
 ```
 
 Preview:
@@ -614,14 +603,14 @@ occ_cube_synonym %>% head()
 
 ### Map taxa
 
-For these taxa we don't have occcurrences linked to other related taxa. We have just to retrieve scientific name, taxonomic status and rank of these taxa. We extract this information and make a data.frame called `taxa_synonym`. In this case the column `includes` is trivial:
+For these taxa we don't have occcurrences linked to other related taxa. We have just to retrieve scientific name, taxonomic status and rank and make a data.frame called `taxa_synonym`. In this case the column `includes` is trivial:
 
 ```{r taxa_synonym}
 taxa_synonym <- 
   
   # create a df with 'key' column
   tibble(key = alien_taxa_synonyms_key[
-    which(!alien_taxa_synonyms_key %in% 
+    which(alien_taxa_synonyms_key %in% 
             unique(occ_cube_synonym$taxonKey))]) %>%
   
   # GBIF query via name_usage with 'key' column as input
@@ -734,9 +723,9 @@ taxa_subspecies <-
   rename(taxonKey = acceptedKey)
 ```
 
-Merge the three data.frames in a single data.frame, `occ_cube_belgium_taxa`:
+Merge the three data.frames in a single data.frame, `taxa`:
 
-```{r make_occ_cube_belgium}
+```{r make_taxa}
 taxa <- 
   taxa_species %>%
   bind_rows(taxa_subspecies) %>%
@@ -747,7 +736,7 @@ taxa <-
 
 Save the *occurrence cube* as tab separated text file:
 
-```{r save_baseline_datacube}
+```{r save_cube_belgium}
 write_tsv(occ_cube_belgium, 
           here::here("data", "processed", "cube_belgium.tsv"),
           na = ""
@@ -758,7 +747,7 @@ write_tsv(occ_cube_belgium,
 
 Save the taxa as tab separated text file:
 
-```{r save_baseline_datacube}
+```{r save_cube_belgium_taxa}
 write_tsv(taxa, 
           here::here("data", "processed", "cube_belgium_taxa.tsv"),
           na = ""

@@ -1699,7 +1699,12 @@ taxonKey	scientificName	rank	taxonomicStatus	includes
 9288303	Solanum triflorum var. triflorum	VARIETY	ACCEPTED	9288303: Solanum triflorum var. triflorum
 9448191	Carduus nutans subsp. leiophyllus (Petrovic) Arènes	SUBSPECIES	ACCEPTED	9448191: Carduus nutans subsp. leiophyllus (Petrovic) Arènes
 9567226	Oxybasis glauca var. salina (Standl.) Verloove	VARIETY	ACCEPTED	6285650: Chenopodium glaucum var. salinum (Standl.) B.Boivin
-5386028	Cyanus triumfettii (All.) Dostal ex A. & D.Love	SPECIES	SYNONYM	5386028: Cyanus triumfettii (All.) Dostal ex A. & D.Love
-5567657	Bergenia schmidtii (Regel) Silva Tarouca	SPECIES	SYNONYM	5567657: Bergenia schmidtii (Regel) Silva Tarouca
-5356481	Lathyrus cicera L.	SPECIES	SYNONYM	5356481: Lathyrus cicera L.
-2891666	Oxalis stricta L.	SPECIES	PROPARTE_SYNONYM	2891666: Oxalis stricta L.
+3138230	Carthamus lanatus L.	SPECIES	SYNONYM	3138230: Carthamus lanatus L.
+3021922	Prunus cerasus L.	SPECIES	SYNONYM	3021922: Prunus cerasus L.
+3022668	Prunus virginiana L.	SPECIES	SYNONYM	3022668: Prunus virginiana L.
+2929710	Solanum chenopodioides Lam.	SPECIES	SYNONYM	2929710: Solanum chenopodioides Lam.
+5415100	Proboscidea louisianica Thell.	SPECIES	SYNONYM	5415100: Proboscidea louisianica Thell.
+7270761	Actinidia deliciosa (Chev.) C.F.Liang & A.R.Ferguson	SPECIES	SYNONYM	7270761: Actinidia deliciosa (Chev.) C.F.Liang & A.R.Ferguson
+5621983	Echinopsis silvestrii Speg.	SPECIES	SYNONYM	5621983: Echinopsis silvestrii Speg.
+7136543	Armeria arenaria Schult.	SPECIES	SYNONYM	7136543: Armeria arenaria Schult.
+3922770	Aconitum napellus var. giganteum (Dumort. ex Thielens) J.Duvigneaud	VARIETY	SYNONYM	3922770: Aconitum napellus var. giganteum (Dumort. ex Thielens) J.Duvigneaud
