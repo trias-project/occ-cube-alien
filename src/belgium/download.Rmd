@@ -86,17 +86,20 @@ hasCoordinate <- TRUE
 Trigger download:
 
 ```{r trigger_gbif_download}
-# Important: query arguments need to be pasted as strings of format "key = value"
-gbif_download_key <- occ_download(
-  paste0("country = ", paste(countries, collapse = ",")),
-  paste0("basisOfRecord = ", paste(basis_of_record, collapse = ",")),
-  paste0("year >= ", year_begin),
-  paste0("year <= ", year_end),
-  paste0("hasCoordinate = ", hasCoordinate),
-  user = rstudioapi::askForPassword("GBIF username"),
-  pwd = rstudioapi::askForPassword("GBIF password"),
-  email = rstudioapi::askForPassword("Email address for notification")
-)
+# Reuse existing download (comment to trigger new download)
+gbif_download_key <- "30003809-190415153152247"
+
+# Trigger new download (commented by default)
+# gbif_download_key <- occ_download(
+#   paste0("country = ", paste(countries, collapse = ",")),
+#   paste0("basisOfRecord = ", paste(basis_of_record, collapse = ",")),
+#   paste0("year >= ", year_begin),
+#   paste0("year <= ", year_end),
+#   paste0("hasCoordinate = ", hasCoordinate),
+#   user = rstudioapi::askForPassword("GBIF username"),
+#   pwd = rstudioapi::askForPassword("GBIF password"),
+#   email = rstudioapi::askForPassword("Email address for notification")
+# )
 ```
 
 ## Check status of download
