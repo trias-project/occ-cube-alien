@@ -31,7 +31,14 @@ One of the main output of TrIAS project is delivering a global, unified checklis
 
 The TrIAS project aims to assess risk of invasion by applying distribution modeling and other modeling techniques for a subset of taxa of the unified checklist. The list is saved in file [`/references/modelling_species.tsv`](./references/modelling_species.tsv). For these species we build a specific occurrence data cube which takes into account all occurrences in Europe. The region we define as Europe is described by the European Environmental Agency, see image [here](https://github.com/trias-project/occ-processing/blob/master/references/Europe.png). Similarly to the _Belgian cube_, we first download the occurrences of these species following the workflow described in [`/src/europe/download.Rmd`](./src/europe/download.Rmd). Then, we assign the occurrences randomly within their uncertainty circles in order to calculate the 1km x 1km cell they belong to, see [`/src/europe/assign_grid.Rmd`](./src/europe/assign_grid.Rmd) and finally we aggregate as described in [/src/europe/aggregate.Rmd](./src/europe/aggregate.Rmd) in order to produce the final occurrence data cube at European level.
 
-### Occurrences of accepeted taxa, synonyms or infraspecific taxa
+### Number of occurrences: how is it calculated? 
+
+We distinguish three different situations while aggregating:
+1. accepeted taxa at species rank or higher, 
+2. accepeted infraspecific taxa
+3. synonyms
+
+#### Accepted taxa at species level or higher
 
 If a taxon has taxonomic status `ACCEPTED`  or  `DOUBTFUL`, i.e. it's not a synonym, then GBIF returns not only the occurrences linked directly to it, but also the occurrences linked to its synonyms, its infraspecific taxa and their synonyms as well.
 
@@ -72,6 +79,34 @@ Another example from `cube_belgium_taxa.tsv`: _Aedes japonicus (Theobald, 1901)_
 taxonKey | scientificName | rank| taxonomicStatus | includes
 --- | --- | --- | --- | ---
 1652212 | Aedes japonicus (Theobald, 1901) | SPECIES | ACCEPTED | 4519733: Ochlerotatus japonicus (Theobald, 1901) \| 7346173: Aedes japonicus japonicus \| 1652212: Aedes japonicus (Theobald, 1901)
+
+#### Accepted infraspecific taxa
+
+Similarly to the previous case, GBIF returns all occurrences not only linked to the accepted taxon, but also the occurrences linked to its synonyms as well. The only difference with previous case is that infraspecific taxa have no children, so there are no occurrences coming from them.
+
+An example from `cube_belgium_taxa.tsv`: the subspecies [_Raphanus raphanistrum subsp. landra (Moretti ex DC.) Bonnier & Layens_](https://www.gbif.org/species/3040999) is an accepted subspecies present in the Belgian cube. Its occurrences are linked to the following taxa:
+
+taxonKey | scientificName | rank| taxonomicStatus | includes
+--- | --- | --- | --- | ---
+3040999 | Raphanus raphanistrum subsp. landra (Moretti ex DC.) Bonnier & Layens | SUBSPECIES | ACCEPTED | 3041004: Raphanus raphanistrum subsp. maritimus (Sm.) Thell. | 3040999: Raphanus raphanistrum subsp. landra (Moretti ex DC.) Bonnier & Layens
+
+where [_Raphanus raphanistrum subsp. maritimus (Sm.) Thell._](https://www.gbif.org/species/3041004) is a synonym.
+
+Something more _edgy_ can also happen: only occurrences linked to the synonym of a subspecies are found in Belgium. Example: no occurrences are found in Belgium of accepted subspecies [Diplachne fusca subsp. uninervia (J.Presl) P.M.Peterson & N.Snow](https://www.gbif.org/species/8369366). However, occurrences are found of its synonym: [_Diplachne uninervia (J.Presl) Parodi_](https://www.gbif.org/species/4122460)
+
+taxonKey | scientificName | rank| taxonomicStatus | includes
+--- | --- | --- | --- | ---
+8369366 | Diplachne fusca subsp. uninervia (J.Presl) P.M.Peterson & N.Snow | SUBSPECIES | ACCEPTED | 4122460: Diplachne uninervia (J.Presl) Parodi
+
+#### Synonyms
+
+Synonyms in unified checklists are taxa whose link to their correspondent accepted taxa is considered wrong. For these taxa we will search only the occurrences linked to this specific taxa. Examples: 
+
+taxonKey | scientificName | rank| taxonomicStatus | includes
+--- | --- | --- | --- | ---
+3138230 | Carthamus lanatus L. | SPECIES | SYNONYM | 3138230: Carthamus lanatus L.
+3021922 | Prunus cerasus L. | SPECIES | SYNONYM | 3021922: Prunus cerasus L.
+
 
 ## Repo structure
 
