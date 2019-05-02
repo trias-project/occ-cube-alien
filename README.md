@@ -88,7 +88,7 @@ An example from `cube_belgium_taxa.tsv`: the subspecies [_Raphanus raphanistrum 
 
 taxonKey | scientificName | rank| taxonomicStatus | includes
 --- | --- | --- | --- | ---
-3040999 | Raphanus raphanistrum subsp. landra (Moretti ex DC.) Bonnier & Layens | SUBSPECIES | ACCEPTED | 3041004: Raphanus raphanistrum subsp. maritimus (Sm.) Thell. | 3040999: Raphanus raphanistrum subsp. landra (Moretti ex DC.) Bonnier & Layens
+3040999 | Raphanus raphanistrum subsp. landra (Moretti ex DC.) Bonnier & Layens | SUBSPECIES | ACCEPTED | 3041004: Raphanus raphanistrum subsp. maritimus (Sm.) Thell. \| 3040999: Raphanus raphanistrum subsp. landra (Moretti ex DC.) Bonnier & Layens
 
 where [_Raphanus raphanistrum subsp. maritimus (Sm.) Thell._](https://www.gbif.org/species/3041004) is a synonym.
 
@@ -100,7 +100,7 @@ taxonKey | scientificName | rank| taxonomicStatus | includes
 
 #### Synonyms
 
-Synonyms in unified checklists are taxa whose link to their correspondent accepted taxa is considered wrong. For these taxa we will search only the occurrences linked to this specific taxa. Examples: 
+Synonyms in unified checklist are taxa whose link to their correspondent accepted taxa is considered wrong. For these taxa we will search only the occurrences linked to this specific taxa. Examples: 
 
 taxonKey | scientificName | rank| taxonomicStatus | includes
 --- | --- | --- | --- | ---
