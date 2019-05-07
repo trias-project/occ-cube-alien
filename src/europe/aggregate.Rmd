@@ -43,11 +43,11 @@ Read taxa for modelling from  `modelling_species.tsv`:
 
 ```{r read_modelling_taxa}
 modelling_taxa <- read_tsv(
-  here::here("data", "raw", "modelling_species.tsv"),
+  here::here("references", "modelling_species.tsv"),
   na = "",
   quote = "",
   col_types = cols(
-    default = col_character(),
+    .default = col_character(),
     backbone_taxonKey = col_integer()
   ))
 ```
