@@ -35,7 +35,7 @@ library(RSQLite)        # To interact with SQlite databases
 Name and path of `.sqlite` file:
 
 ```{r name_path}
-key <- "0003809-190415153152247"
+key <- "0008507-190621201848488"
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
@@ -49,7 +49,7 @@ table_name <- "occ_be"
 Open connection to database:
 
 ```{r open_connection_to_db}
-sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_file)
+sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_path)
 ```
 
 Retrieve geographic coordinates, `decimalLatitude` and `decimalLongitude` and coordinate uncertainty, `coordinateUncertaintyInMeters`:

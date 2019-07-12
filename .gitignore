@@ -43,3 +43,6 @@ rsconnect/
 data/raw/*
 !data/raw/modelling_species.tsv
 !data/raw/gbif_downloads.tsv
+
+# Interim data (the big sqlite database)
+data/interim/*.sqlite

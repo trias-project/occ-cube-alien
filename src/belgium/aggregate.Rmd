@@ -12,7 +12,7 @@ output:
     number_sections: true
 ---
 
-In this document we aggregate data. The goal is to produce two *data cubes*, one at kingdom level (baseline for future corrections of research effort bias) and one at species level for taxa in the unfied checklist.
+In this document we aggregate data. The goal is to produce two *data cubes*, one at class level (baseline for future corrections of research effort bias) and one at species level for taxa in the unfied checklist.
 
 # Setup
 
@@ -33,7 +33,7 @@ library(RSQLite)        # To interact with SQlite databases
 Name and path of `.sqlite` file:
 
 ```{r name_path}
-key <- "0003809-190415153152247"
+key <- "0008507-190621201848488"
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
@@ -50,12 +50,12 @@ Open connection to database:
 sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_path)
 ```
 
-# Aggregate at kingdom level - baseline
+# Aggregate at class level - baseline
 
-In this section we will calculate how many occurrences have been recorded for each year, EEA cell code and kingdom. For speeding up the search in database, we create an index on these rows if not present:
+In this section we will calculate how many occurrences have been recorded for each year, EEA cell code and class For speeding up the search in database, we create an index on these rows if not present:
 
-```{r create_idx_kingdom}
-idx_baseline <- "idx_year_cell_kingdom"
+```{r create_idx_class}
+idx_baseline <- "idx_year_cell_class"
 # get indexes on table
 query <- glue_sql(
     "PRAGMA index_list({table_name})",
@@ -72,7 +72,7 @@ if (!idx_baseline %in% indexes_all$name) {
   table_name = table_name,
   cols_idx = c("year", 
                "eea_cell_code", 
-               "kingdomKey", 
+               "classKey", 
                "coordinateUncertaintyInMeters"),
   .con = sqlite_occ
   )
@@ -80,12 +80,12 @@ if (!idx_baseline %in% indexes_all$name) {
 }
 ```
 
-Group by  `year`, `eea_cell_code` and `kingdomKey` and count number of occurrences for each group. We also add the lowest value of coordinate uncertainty.
+Group by  `year`, `eea_cell_code` and `classKey` and count number of occurrences for each group. We also add the lowest value of coordinate uncertainty.
 
-```{r get_datacube_kingdom}
+```{r get_datacube_class}
 query <- glue_sql(
   "SELECT {`cols`*}, COUNT(_ROWID_), MIN({`coord_uncertainty`}) FROM {table} GROUP BY {`cols`*}",
-  cols = c("year", "eea_cell_code", "kingdomKey"),
+  cols = c("year", "eea_cell_code", "classKey"),
   coord_uncertainty = "coordinateUncertaintyInMeters",
   table = table_name,
   .con = sqlite_occ
@@ -105,21 +105,21 @@ occ_cube_baseline %>%
   head()
 ```
 
-The kingdom names can be retrieved easily by GBIF:
+The class names can be retrieved easily by GBIF:
 
-```{r get_kingdom}
-kingdom_df <- tibble(
-  kingdomKey = unique(occ_cube_baseline$kingdomKey))
-kingdom_df <- 
-  kingdom_df %>%
-  mutate(kingdom = map_chr(
-    kingdomKey, 
+```{r get_class}
+class_df <- tibble(
+  classKey = unique(occ_cube_baseline$classKey))
+class_df <- 
+  class_df %>%
+  mutate(class = map_chr(
+    classKey, 
     function(x) {
       name_usage(x, return = "data") %>%
         pull(scientificName)
       })
   )
-kingdom_df
+class_df
 ```
 
 # Aggregate at species level
@@ -631,10 +631,9 @@ taxa_synonym <-
 taxa_synonym
 ```
 
-
 # Save aggregated data
 
-## Save aggregated data at kingdom level
+## Save aggregated data at class level
 
 Save as tab separated text file:
 

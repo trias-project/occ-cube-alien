@@ -37,11 +37,11 @@ library(RSQLite)        # To interact with SQlite databases
 Download the occurrences from GBIF, based on the download key returned in `download.Rmd`:
 
 ```{r get_occ_file}
-key <- "0003809-190415153152247"
+key <- "0008507-190621201848488"
 zip_filename <- paste0(key, ".zip")
 if (!file.exists(here::here("data", "raw", zip_filename))) {
   occ <- occ_download_get(
-    key = key, 
+    key = key,
     path = here::here("data", "raw")
   )
 }
@@ -66,7 +66,7 @@ if (!file.exists(here::here("data", "raw", occ_file))) {
 Columns names:
 
 ```{r get_cols}
-cols_occ_file <- read_delim(occ_file, "\t", n_max = 1, quote = "")
+cols_occ_file <- read_delim(occ_path, "\t", n_max = 1, quote = "")
 cols_occ_file <- names(cols_occ_file)
 cols_occ_file
 ```
@@ -144,7 +144,7 @@ field_types[which(names(field_types) %in% real_fields)] <- "REAL"
 Open connection to database:
 
 ```{r open_connection_to_db}
-sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_file)
+sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_path)
 ```
 
 Fill database with occurrences from text file. This step reads the large occurrence file in chunks and transfers them in the sqlite file. This step can take long the first time you run it:
@@ -155,7 +155,7 @@ if (!table_name %in% dbListTables(sqlite_occ)) {
     conn = sqlite_occ,
     name = table_name,
     sep = "\t",
-    value = occ_file,
+    value = occ_path,
     row.names = FALSE,
     header = TRUE,
     field.types = field_types,
