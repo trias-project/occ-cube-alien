@@ -226,7 +226,8 @@ Occurrences containing the following issues should be filtered out:
 issues_to_discard <- c(
   "ZERO_COORDINATE",
   "COORDINATE_OUT_OF_RANGE", 
-  "COORDINATE_INVALID"
+  "COORDINATE_INVALID",
+  "COUNTRY_COORDINATE_MISMATCH"
 )
 ```
 
