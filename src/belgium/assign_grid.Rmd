@@ -156,8 +156,8 @@ geodata_df@data <-
   mutate(random_angle = runif(nrow_geodata_df, 0, 2*pi))
 geodata_df@data <- 
   geodata_df@data %>%
-  mutate(random_r = runif(
-    nrow_geodata_df, 0, 1) * coordinateUncertaintyInMeters)
+  mutate(random_r = sqrt(runif(
+    nrow_geodata_df, 0, 1)) * coordinateUncertaintyInMeters)
 geodata_df@data <- 
   geodata_df@data %>%
   mutate(x = geodata_df@coords[, "x"],
