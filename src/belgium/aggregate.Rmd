@@ -33,7 +33,7 @@ library(RSQLite)        # To interact with SQlite databases
 Name and path of `.sqlite` file:
 
 ```{r name_path}
-key <- "0008507-190621201848488"
+key <- "0030713-190918142434337"
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
@@ -275,7 +275,7 @@ occ_cube_species_taxa %>%
   count() %>%
   filter(n > 1) %>%
   select(-n) %>%
-  left_join(occ_cube_species_taxa)
+  left_join(occ_cube_species_taxa, by = "speciesKey")
 ```
 
 Some species have occurrences only from taxa linked to their infraspecific taxa or synonyms. In these cases `speciesKey` is not equal to `taxonKey`:
