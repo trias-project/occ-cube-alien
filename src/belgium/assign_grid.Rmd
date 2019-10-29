@@ -80,14 +80,6 @@ Preview:
 geodata_df %>% head(10)
 ```
 
-Transform character columns to numbers:
-
-```{r transform_to_numbers}
-geodata_df <-
-  geodata_df %>%
-  mutate_if(is.character, as.double)
-```
-
 Number of occurrences per each value of `coordinateUncertaintyInMeters`:
 
 ```{r n_occ_per_uncertainty}
