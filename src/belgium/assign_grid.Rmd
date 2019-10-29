@@ -89,6 +89,14 @@ geodata_df %>%
   arrange(desc(n))
 ```
 
+Number of occurrences without coordinate uncertainty:
+
+```{r n_occs_without_uncertainty}
+geodata_df %>%
+  filter(is.na(coordinateUncertaintyInMeters)) %>%
+  count()
+```
+
 We assign 1000 meters to occurrences without uncertainty:
 
 ```{r assign_fix_uncertainty}
