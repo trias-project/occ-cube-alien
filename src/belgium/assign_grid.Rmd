@@ -245,14 +245,17 @@ And then we populate it with the values in `geodata_df$eaa_cell_code`. This step
 ```{r add_values_cellcode}
 # Start transaction
 dbBegin(sqlite_occ)
-dbExecute(sqlite_occ,
-          glue_sql(
-            "UPDATE {table} SET {`column`} = :eea_cell_code WHERE _ROWID_ = :id",
-            table = table_name,
-            column = new_col,
-            .con = sqlite_occ),
-          params = data.frame(eea_cell_code = geodata_df$eea_cell_code,
-                              id = rownames(geodata_df)))
+dbExecute(
+  sqlite_occ,
+  glue_sql(
+    "UPDATE {table} SET {`column`} = :eea_cell_code WHERE _ROWID_ = :id",
+    table = table_name,
+    column = new_col,
+    .con = sqlite_occ),
+  params = data.frame(
+  eea_cell_code = geodata_df$eea_cell_code,
+  id = rownames(geodata_df))
+)
 # Commit transaction
 dbCommit(sqlite_occ)
 ```
