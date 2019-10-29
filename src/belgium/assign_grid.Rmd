@@ -161,11 +161,15 @@ We define the function to apply to each chunk:
 
 ```{r transform_to_3035_assign_pts_in_circle}
 reproject_assign <- function(df, pos){
+  
+  # Step 1: reprojection
   nrow_df <- nrow(df)
   coordinates(df) <- ~decimalLongitude+decimalLatitude
   proj4string(df) <- CRS("+init=epsg:4326")
   df <- spTransform(df, CRS("+init=epsg:3035"))
   colnames(df@coords) <- c("x", "y")
+  
+  # Step 2: aissgn occurrence within uncertainty circle
   df@data <-
     df@data %>%
     mutate(random_angle = runif(nrow_df, 0, 2*pi))
@@ -182,6 +186,8 @@ reproject_assign <- function(df, pos){
     mutate(x = x + random_r * cos(random_angle),
            y = y + random_r * sin(random_angle)) %>%
     select(-c(random_angle, random_r))
+  
+  # Step 3: Find grid cell the occurrence belongs to
   df@data <-
     df@data %>%
     mutate(eea_cell_code = paste0(
