@@ -210,10 +210,6 @@ geodata_df <- read_tsv_chunked(
   col_types = cols(.default = col_double()),
   na = ""
 )
-
-geodata_df <- 
-  geodata_df %>%
-  as_tibble()
 ```
 
 Preview:
