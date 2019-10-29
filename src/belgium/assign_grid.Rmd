@@ -240,7 +240,7 @@ query <- glue_sql("ALTER TABLE {table} ADD COLUMN {colname} {type}",
 dbExecute(sqlite_occ, query)
 ```
 
-And then we populate it with the values in `geodata_df$eaa_cell_code`:
+And then we populate it with the values in `geodata_df$eaa_cell_code`. This step can take long:
 
 ```{r add_values_cellcode}
 # Start transaction
