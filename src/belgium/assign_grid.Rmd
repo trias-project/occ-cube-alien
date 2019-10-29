@@ -135,73 +135,85 @@ dbCommit(sqlite_occ)
 
 We use the official grid of Belgium at 1x1km resolution as provided by EEA.
 
-## Project geographic coordinates
+## Project geographic coordinates, assign occurrence within uncertainty circle and assign grid cell
 
-We project latitude and longitude by using the projection of the grid. We transform GBIF data which have coordinate reference system equal to EPSG code 4326 to Lambert projection with EPSG code 3035:
+In this section we do the following:
+1. Project latitude and longitude by using the projection of the grid. We transform GBIF data which have coordinate reference system equal to EPSG code 4326 to Lambert projection with EPSG code 3035.
+2. Assign the occurrences randomly within the circle with radius equal to `coordinateUncertaintyInMeters`
+3. Define the grid cell the occurrence belongs to. 
 
-```{r transform_to_3035}
-coordinates(geodata_df) <- ~decimalLongitude+decimalLatitude
-proj4string(geodata_df) <- CRS("+init=epsg:4326")
-geodata_df <- spTransform(geodata_df, CRS("+init=epsg:3035"))
-colnames(geodata_df@coords) <- c("x", "y")
+Due to memory issues, we perform this three operations in chunks on a temporary tsv file containing coordinates and coordinate uncertainties.
+
+First, we create such file:
+
+```{r create_temp_file}
+temp_file_coords <- here(
+  "data", 
+  "interim", 
+  paste0(key, "_coordinates_and_uncertainty_epsg_4326.tsv")
+)
+col_names_geodata_df <- names(geodata_df)
+write_tsv(geodata_df, temp_file_coords, na = "", col_names = FALSE)
+remove(geodata_df)
 ```
 
-## Assign occurrence within uncertainty circle
+We define the function to apply to each chunk:
 
-Assign the occurrence randomly within the circle with radius equal to `coordinateUncertaintyInMeters`:
+```{r transform_to_3035_assign_pts_in_circle}
+reproject_assign <- function(df, pos){
+  nrow_df <- nrow(df)
+  coordinates(df) <- ~decimalLongitude+decimalLatitude
+  proj4string(df) <- CRS("+init=epsg:4326")
+  df <- spTransform(df, CRS("+init=epsg:3035"))
+  colnames(df@coords) <- c("x", "y")
+  df@data <-
+    df@data %>%
+    mutate(random_angle = runif(nrow_df, 0, 2*pi))
+  df@data <-
+    df@data %>%
+    mutate(random_r = sqrt(runif(
+      nrow_df, 0, 1)) * coordinateUncertaintyInMeters)
+  df@data <-
+  df@data %>%
+    mutate(x = df@coords[, "x"],
+           y = df@coords[, "y"])
+  df@data <-
+    df@data %>%
+    mutate(x = x + random_r * cos(random_angle),
+           y = y + random_r * sin(random_angle)) %>%
+    select(-c(random_angle, random_r))
+  df@data <-
+    df@data %>%
+    mutate(eea_cell_code = paste0(
+    "1km", 
+    "E", floor(x/1000), 
+    "N", floor(y/1000))) %>%
+    select(x, y, coordinateUncertaintyInMeters, eea_cell_code)
+  return(df@data)
+}
+```
 
-```{r assign_pts_in_circle}
-geodata_df@data <- 
-  geodata_df@data %>% 
-  mutate(random_angle = runif(nrow_geodata_df, 0, 2*pi))
-geodata_df@data <- 
-  geodata_df@data %>%
-  mutate(random_r = sqrt(runif(
-    nrow_geodata_df, 0, 1)) * coordinateUncertaintyInMeters)
-geodata_df@data <- 
-  geodata_df@data %>%
-  mutate(x = geodata_df@coords[, "x"],
-         y = geodata_df@coords[, "y"])
-geodata_df@data <- 
-  geodata_df@data %>%
-  mutate(x = x + random_r * cos(random_angle),
-         y = y + random_r * sin(random_angle))
-geodata_df@data <- 
-  geodata_df@data %>%
-  select(-c(random_angle, random_r)) %>%
-  select(x, y, coordinateUncertaintyInMeters)
+And finally we apply reprojection and to all occurrences:
+
+```{r reproject_assign_coords_by_chunk}
+chunk_size <- 1000000
+geodata_df <- read_tsv_chunked(
+  file = temp_file_coords, 
+  callback = DataFrameCallback$new(reproject_assign), 
+  chunk_size = chunk_size,
+  col_types = cols(.default = col_double()),
+  na = ""
+)
+
+geodata_df <- 
+  geodata_df %>%
+  as_tibble()
 ```
 
 Preview:
 
 ```{r preview_geodata_df_data}
-geodata_df@data %>% head(n = 10)
-```
-
-Where `x` and `y` are the new coordinates while in `@coords` we have the original coordinates:
-
-```{r preview_geodata_df_coords}
-geodata_df@coords[1:10,]
-```
-
-## Assign occurrences to grid cells
-
-We assign each occurrence to a grid cell. 
-
-```{r asign_grid}
-geodata_df@data <- 
-  geodata_df@data %>%
-  mutate(eea_cell_code = paste0(
-    "1km", 
-    "E", floor(x/1000), 
-    "N", floor(y/1000)
-  ))
-```
-
-Preview:
-
-```{r preview_gridcell}
-geodata_df@data %>% head(n = 10)
+geodata_df %>% head(n = 10)
 ```
 
 ## Add grid cell code to sqlite file
@@ -219,7 +231,7 @@ query <- glue_sql("ALTER TABLE {table} ADD COLUMN {colname} {type}",
 dbExecute(sqlite_occ, query)
 ```
 
-And then we populate it with the values in `geodata_df@data$eaa_cell_code`:
+And then we populate it with the values in `geodata_df$eaa_cell_code`:
 
 ```{r add_values_cellcode}
 # Start transaction
@@ -230,8 +242,8 @@ dbExecute(sqlite_occ,
             table = table_name,
             column = new_col,
             .con = sqlite_occ),
-          params = data.frame(eea_cell_code = geodata_df@data$eea_cell_code,
-                              id = rownames(geodata_df@data)))
+          params = data.frame(eea_cell_code = geodata_df$eea_cell_code,
+                              id = rownames(geodata_df)))
 # Commit transaction
 dbCommit(sqlite_occ)
 ```
