@@ -10,9 +10,9 @@ This repository contains the functionality to process occurrence data and create
 
 For each triplet the stored value represent the number of occurrences found in [GBIF](www.gbif.org/occurrence).
 
-As the data cubes are used as input for modeling and risk assessment, we store the lowest geographic coordinate uncertainty of the occurrences assigned to a certain cell code as value as well. The occurrences are first reassigned randomly within their uncertainty circle before assigning them to the cell they belong to. If uncertainty is not available, a default 1000 m radius is assigned. Due, to the random assignment, same occurrence data could result in different data cubes if iterated. This aspect will be one of the subjects of study [here](https://github.com/trias-project/aoo-paper).
+As the data cubes are used as input for modelling and risk assessment, we store the smallest geographic coordinate uncertainty of the occurrences assigned to a certain cell code as value as well. The occurrences are first reassigned randomly within their uncertainty circle before assigning them to a cell. If uncertainty is not available, a default 1000m radius is assigned. Due, to the random assignment, the same occurrence data could result in different data cubes if iterated. This aspect will be soon subject of study [here](https://github.com/trias-project/aoo-paper).
 
-Using a tabular structure (typical of R data.frames), an occurrence data cube would look like this:
+Using a tabular structure (typical of R data.frames), a cube would look like this:
 
 taxon | year | cell code | number of occurrences | minimal coordinate uncertainty
 --- | --- | --- | --- | ---
@@ -25,28 +25,21 @@ where number of columns is equal to number of dimensions, ``N``, plus number of 
 
 ### Occurrence data cube of alien species in Belgium
 
-One of the main output of TrIAS project is delivering a global, unified checklist of alien species in Belgium. This checklist is published on GBIF as [_Global Register of Introduced and Invasive Species - Belgium_](https://www.gbif.org/dataset/6d9e952f-948c-4483-9807-575348147c7e). More information can be found [here](https://trias-project.github.io/unified-checklist/). In this repository we produce an occurrence data cube of all taxa of the unified checklist linked to at least whose at least one occurrence have been found in Belgium. As it is impossible to retrieve occurrences of thousands of taxa from GBIF at once (query is limited to 12000 characters), we harvest all occurrences in Belgium. This first step is documented in [/src/belgium/download.Rmd](./src/belgium/download.Rmd). At the moment of writing, the GBIF download counts almost 20 millions of occurrences. In order to handle such huge amount of data, we decided to work using a [SQLite](https://sqlite.org/index.html) file, see second step: [/src/belgium/create_db.Rmd](./src/belgium/create_db.Rmd). Handling occurrence geographic uncertainty and assigning the correspondent cell codes to occurrences is the third step, documented in [/src/belgium/assign_grid.Rmd](./src/belgium/assign_grid.Rmd). Finally, we select the alien species belonging to the [_Global Register of Introduced and Invasive Species - Belgium_](https://www.gbif.org/dataset/6d9e952f-948c-4483-9807-575348147c7e) and aggregate the occurrences by year, cell code and taxon as described in the fourth and last pipeline: [/src/belgium/aggregate.Rmd](./src/belgium/aggregate.Rmd). The resulting occurrence data cube is saved in file [`/data/output/cube_belgium.tsv`](./data/output/cube_belgium.tsv). We also produce a data cube at kingdom level, [`/data/belgium/cube_baseline.tsv`](/data/belgium/cube_baseline.tsv), which can be used as baseline to tackle the research bias effort while calculating occurrence-based indicators.
+One of the main output of TrIAS project is delivering a global, unified checklist of alien species in Belgium. This checklist is published on GBIF as [_Global Register of Introduced and Invasive Species - Belgium_](https://www.gbif.org/dataset/6d9e952f-948c-4483-9807-575348147c7e). More information can be found [here](https://trias-project.github.io/unified-checklist/). In this repository we produce an occurrence data cube of all taxa of the unified checklist that have at least one occurrence in Belgium. As we need to make a data cube at class level (baseline), we harvested ALL occurrences in Belgium. This first step is documented in [/src/belgium/1_download.Rmd](). At the moment of writing, the GBIF download counts around 35 million occurrences. In order to handling such huge amount of data, we decided to work using a [SQLite](https://sqlite.org/index.html) file, see second step: [/src/belgium/2_create_db.Rmd](). Handling occurrence geographic uncertainty and assigning the correspondent cell codes to occurrences is the third step, documented in [/src/belgium/3_assign_grid.Rmd](). Finally, we select the alien species belonging to the [_Global Register of Introduced and Invasive Species - Belgium_](https://www.gbif.org/dataset/6d9e952f-948c-4483-9807-575348147c7e) and aggregate the occurrences by year, cell code and taxon as described in the fourth and last pipeline: [/src/belgium/4_aggregate.Rmd](). The resulting occurrence data cube is saved in file [`/data/output/cube_belgium.tsv`](). We also produce a data cube at class level: [`/data/belgium/cube_baseline.tsv`](). which can be used as baseline to tackle the research bias effort while calculating occurrence-based indicators.
 
-### Occurrence data cube of selected modeling species in Europe
+### Occurrence data cube of selected modelling species in Europe
 
-The TrIAS project aims to assess risk of invasion by applying distribution modeling and other modeling techniques for a subset of taxa of the unified checklist. The list is saved in file [`/references/modelling_species.tsv`](./references/modelling_species.tsv). For these species we build a specific occurrence data cube which takes into account all occurrences in Europe. The region we define as Europe is described by the European Environmental Agency, see image [here](https://github.com/trias-project/occ-processing/blob/master/references/Europe.png). Similarly to the _Belgian cube_, we first download the occurrences of these species following the workflow described in [`/src/europe/download.Rmd`](./src/europe/download.Rmd). Then, we assign the occurrences randomly within their uncertainty circles in order to calculate the 1km x 1km cell they belong to, see [`/src/europe/assign_grid.Rmd`](./src/europe/assign_grid.Rmd) and finally we aggregate as described in [/src/europe/aggregate.Rmd](./src/europe/aggregate.Rmd) in order to produce the final occurrence data cube at European level.
+The TrIAS project aims to assess risk of invasion by applying distribution modelling and other modelling techniques for a subset of taxa of the unified checklist. The list is saved in file [`/data/reference/modelling_species.tsv`](). For these species we build a specific occurrence data cube which takes into account all occurrences in Europe. The region we define as Europe is described by the European Environmental Agency, see image [here](https://github.com/trias-project/occ-processing/blob/master/references/Europe.png). Similarly to the _Belgian cube_, we first download the occurrences of these species following the workflow described in [`src/europe/1_download.Rmd`](). Then, we assign the occurrences randomly within their uncertainty circles in order to calculate the 1kmx1km cell they belong to, see [`/src/europe/2_assign_grid.Rmd`]() and finally we aggregate as described in [/src/europe/3_aggregate.Rmd]() in order to produce the final occurrence data cube at European level.
 
-### Number of occurrences: how is it calculated? 
+### Occurrences of accepeted taxa, synonyms or infraspecific taxa
 
-We distinguish three different situations while aggregating:
-1. accepeted taxa at species rank or higher, 
-2. accepeted infraspecific taxa
-3. synonyms
+If a taxon has taxonomic status `ACCEPTED`  or  `DOUBTFUL`, i.e. it's not a synonym, then GBIF returns not only the occurrences linked directly to it, but also the occurrences linked to its synonyms and its infraspecific taxa.
 
-#### Accepted taxa at species level or higher
-
-If a taxon has taxonomic status `ACCEPTED`  or  `DOUBTFUL`, i.e. it's not a synonym, then GBIF returns not only the occurrences linked directly to it, but also the occurrences linked to its synonyms, its infraspecific taxa and their synonyms as well.
-
-As example, consider the species [_Reynoutria japonica Houtt._`](https://www.gbif.org/species/2889173). If you search for its occurrences worldwide you will get all the occurrences from the synonyms and infraspecies too.
+As example, consider the species [_Reynoutria japonica Houtt._`](https://www.gbif.org/species/2889173). If you search for its occurrrences wordwide you will get all the occurrences from the synonyms and infraspecies too.
 
 taxonKey | scientificName | numberOfOccurrences | taxonRank | taxonomicStatus
 --- | --- | --- | --- | ---
-5652243 | Fallopia japonica f. colorans (Makino) Yonek. | 41 | FORM | SYNONYM
+5652243 | Fallopia japonica f. colorans (Makino) Yonek. 41 | FORM | SYNONYM
 5652241 | Fallopia japonica var. compacta (Hook.fil.) J.P.Bailey | 52 | VARIETY | SYNONYM
 2889173 | Reynoutria japonica Houtt. | 39576 | SPECIES | ACCEPTED
 4038356 | Reynoutria japonica var. compacta (Hook.fil.) Buchheim | 19 | VARIETY | SYNONYM
@@ -66,47 +59,14 @@ taxonKey | scientificName | numberOfOccurrences | taxonRank | taxonomicStatus
 8361333 | Fallopia compacta (Hook.fil.) G.H.Loos & P.Keil | 24 | SPECIES | SYNONYM
 7291673 | Polygonum reynoutria (Houtt.) Makino | 3 | SPECIES | SYNONYM
 
-See https://doi.org/10.15468/dl.rej1cz for more details.
+See https://doi.org/10.15468/dl.rej1cz for more details. Note: the table above is just an example and can be outdated.
 
-By aggregating we would loose this information, so we provide aside the final cubes, [`cube_belgium.tsv`](./data/processed/cube_belgium.tsv) and [`cube_europe.tsv`](./data/processed/cube_europe.tsv), a taxonomic compendium, [`cube_belgium_taxa.tsv`](./data/processed/cube_belgium_taxa.tsv) and [`cube_europe_taxa.tsv`](./data/processed/cube_europe_taxa.tsv) respectively. For each taxon of the cubes the compendiums include all taxa (synonyms and/or infraspecies) whose occurrences contribute to the total count. This information is saved in last column called `includes`. Here below the taxon *Reynoutria japonica Houtt.* as example:
+By aggregating we would loose this information, so we provide aside the cubes, `occ_cube.tsv` and `occ_europe.tsv`, a kind of taxonomic compendium, `occ_belgium_taxa.tsv` and `occ_europe_taxa.tsv` respectively. They include for each taxa in the cube all the synonyms or infraspecies whose occurrences contribute to the total count.
 
-taxonKey | scientificName | rank| taxonomicStatus | includes
---- | --- | --- | --- | ---
-2889173 | Reynoutria japonica Houtt. | SPECIES | ACCEPTED | 5334357: Fallopia japonica (Houtt.) Ronse Decraene \| 7128523: Fallopia japonica var. japonica \| 8361333: Fallopia compacta (Hook.fil.) G.H.Loos & P.Keil \| 2889173: Reynoutria japonica Houtt. \| 5334352: Polygonum cuspidatum Sieb. & Zucc.
-
-Another example from `cube_belgium_taxa.tsv`: _Aedes japonicus (Theobald, 1901)_ is an accepted species present in the Belgian cube and its occurrences include occurrences linked to the following taxa:
-
-taxonKey | scientificName | rank| taxonomicStatus | includes
---- | --- | --- | --- | ---
-1652212 | Aedes japonicus (Theobald, 1901) | SPECIES | ACCEPTED | 4519733: Ochlerotatus japonicus (Theobald, 1901) \| 7346173: Aedes japonicus japonicus \| 1652212: Aedes japonicus (Theobald, 1901)
-
-#### Accepted infraspecific taxa
-
-Similarly to the previous case, GBIF returns all occurrences not only linked to the accepted taxon, but also the occurrences linked to its synonyms as well. The only difference with previous case is that infraspecific taxa have no children, so there are no occurrences coming from them.
-
-An example from `cube_belgium_taxa.tsv`: the subspecies [_Raphanus raphanistrum subsp. landra (Moretti ex DC.) Bonnier & Layens_](https://www.gbif.org/species/3040999) is an accepted subspecies present in the Belgian cube. Its occurrences are linked to the following taxa:
-
-taxonKey | scientificName | rank| taxonomicStatus | includes
---- | --- | --- | --- | ---
-3040999 | Raphanus raphanistrum subsp. landra (Moretti ex DC.) Bonnier & Layens | SUBSPECIES | ACCEPTED | 3041004: Raphanus raphanistrum subsp. maritimus (Sm.) Thell. \| 3040999: Raphanus raphanistrum subsp. landra (Moretti ex DC.) Bonnier & Layens
-
-where [_Raphanus raphanistrum subsp. maritimus (Sm.) Thell._](https://www.gbif.org/species/3041004) is a synonym.
-
-Something more _edgy_ can also happen: only occurrences linked to the synonym of a subspecies are found in Belgium. Example: no occurrences are found in Belgium of accepted subspecies [Diplachne fusca subsp. uninervia (J.Presl) P.M.Peterson & N.Snow](https://www.gbif.org/species/8369366). However, occurrences are found of its synonym: [_Diplachne uninervia (J.Presl) Parodi_](https://www.gbif.org/species/4122460)
-
-taxonKey | scientificName | rank| taxonomicStatus | includes
---- | --- | --- | --- | ---
-8369366 | Diplachne fusca subsp. uninervia (J.Presl) P.M.Peterson & N.Snow | SUBSPECIES | ACCEPTED | 4122460: Diplachne uninervia (J.Presl) Parodi
-
-#### Synonyms
-
-Synonyms in unified checklist are taxa whose link to their correspondent accepted taxa is considered wrong. For these taxa we will search only the occurrences linked to this specific taxa. Examples: 
-
-taxonKey | scientificName | rank| taxonomicStatus | includes
---- | --- | --- | --- | ---
-3138230 | Carthamus lanatus L. | SPECIES | SYNONYM | 3138230: Carthamus lanatus L.
-3021922 | Prunus cerasus L. | SPECIES | SYNONYM | 3021922: Prunus cerasus L.
-
+For example, _Aedes japonicus (Theobald, 1901)_ is an accepted species present in the belgian cube: based on the information stored in `occ_belgium_taxa.tsv`, its occurrences include occurrences linked to the following taxa:
+1. [Aedes japonicus (Theobald, 1901)](https://www.gbif.org/species/1652212)
+2. [Ochlerotatus japonicus (Theobald, 1901)](https://www.gbif.org/species/4519733)
+3. [Aedes japonicus subsp. japonicus](https://www.gbif.org/species/7346173)
 
 ## Repo structure
 
@@ -120,14 +80,17 @@ The repository structure is based on [Cookiecutter Data Science](http://drivenda
 │
 ├── references
 │   ├── Europe.png       : Map of Europe
-│   ├── modelling_species.tsv: List of species whose occurrences are queried from GBIF at European level
+│   ├── modelling_species.tsv: List of species whos occurrences are queried from GBIF at European level
 │
 ├── data
 │   ├── raw              : Occurrence data as downloaded from GBIF GENERATED
-│   ├── interim          : big sqlite and intermediate text file, stored locally  GENERATED
-│   └── processed        : occurrence data cubes and correspondent taxonomic compendiums GENERATED
+│   ├── interim          : big sqlite and text files, stored locally  GENERATED
+│   └── processed        : occurrence data cubes and related taxa informations GENERATED
+│
+├── docs                 : Repository website (not implemented yet) GENERATED
 │
 └── src
+    ├── index.Rmd           : Website homepage
     ├── belgium
         ├── 1_download.Rmd    : Script to trigger a download of occurrences in Belgium
         ├── 2_create_db.Rmd   : Script to genereate a sqlite file and perform basic filtering
@@ -139,7 +102,7 @@ The repository structure is based on [Cookiecutter Data Science](http://drivenda
         ├── 3_aggregate.Rmd   : Script to aggregate data and make the Belgian data cube    
 ```
 
-## Workflow
+## Installation
 
 Clone this repository to your computer and open the RStudio project file,  `occ-processing.Rproj`.
 
@@ -150,9 +113,9 @@ You can generate the Belgian occurrence data cube by running the [R Markdown fil
 1. `1_download.Rmd`: trigger a GBIF download and add it to the list of triggered downloads
 2. `2_create_db.Rmd`: create a sqlite database and perform basic data cleaning
 3. `3_assign_grid.Rmd`: assign geographic cell code to occurrence data
-4. `4_aggregate.Rmd`: aggregate occurrences per taxon, year and cell code to create the _Belgian occurrence data cube_, its taxonomic compendium and data cube at kingdom level (baseline)
+4. `4_aggregate.Rmd`: aggregate occurrences per taxon, year and cell code, the _Belgian occurrence data cube_
 
-The output files, `cube_belgium.tsv`, `cube_belgium_taxa.tsv` and `cube_baseline.tsv` are automatically generated in  folder `/data/output/`.
+In the aggregation step, we also create a data cube at class level. The data subes are authomatically generated in  folder `/data/output/`.
 
 ### Generate occurrence data cube for Europe
 
@@ -164,7 +127,7 @@ You can generate the European occurrence data cube by running the [R Markdown fi
 3. `2_assign_grid.Rmd`: assign geographic cell code to occurrence data
 4. `3_aggregate.Rmd`: aggregate occurrences per taxa, year and cell code, the European _occurrence data cube_.
 
-The output files, `cube_europe.tsv` and `cube_europe_taxa.tsv` are automatically generated in  folder `/data/output/`.
+Install any required packages.
 
 ## Contributors
 
@@ -172,4 +135,4 @@ The output files, `cube_europe.tsv` and `cube_europe_taxa.tsv` are automatically
 
 ## License
 
-[MIT License](https://github.com/trias-project/occ-processing/blob/master/LICENSE) for the code and documentation in this repository.
+[MIT License](https://github.com/trias-project/unified-checklist/blob/master/LICENSE) for the code and documentation in this repository.
