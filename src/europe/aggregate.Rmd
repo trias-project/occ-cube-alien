@@ -156,7 +156,7 @@ Import occurrence data:
 occ_eu <- read_tsv(
   here::here("data", 
              "interim", 
-             paste0("0004690-190415153152247","_occurrence.tsv")),
+             paste0(key,"_occurrence.tsv")),
   na = "",
   quote = "",
   col_types = col_specs)
