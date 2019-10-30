@@ -275,7 +275,8 @@ occ_cube_species_taxa %>%
   count() %>%
   filter(n > 1) %>%
   select(-n) %>%
-  left_join(occ_cube_species_taxa, by = "speciesKey")
+  left_join(occ_cube_species_taxa, by = "speciesKey") %>%
+  arrange(speciesKey, taxonKey)
 ```
 
 Some species have occurrences only from taxa linked to their infraspecific taxa or synonyms. In these cases `speciesKey` is not equal to `taxonKey`:
@@ -295,7 +296,8 @@ occ_cube_species_taxa %>%
               filter(speciesKey != taxonKey),
             by = "speciesKey") %>%
   ungroup() %>%
-  select(-c(n_taxa, n_taxonKey_not_speciesKey))
+  select(-c(n_taxa, n_taxonKey_not_speciesKey)) %>%
+  arrange(speciesKey, taxonKey)
 ```
 
 We create `taxa_species` by adding the taxonomic rank, `SPECIES`, and the taxonomic status of the species, one of `ACCEPTED` or  `DOUBTFUL`, and create a column called `include` which contains all taxa whose occurrences are linked to the species:
@@ -323,7 +325,7 @@ taxa_species <-
   right_join(occ_cube_species_taxa, by = "speciesKey") %>%
   
   # group by 'speciesKey'
-  group_by(speciesKey, 
+  group_by(speciesKey,
            species_scientificName,
            rank,
            taxonomicStatus) %>%
