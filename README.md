@@ -120,7 +120,7 @@ The repository structure is based on [Cookiecutter Data Science](http://drivenda
 │
 ├── references
 │   ├── Europe.png       : Map of Europe
-│   ├── modelling_species.tsv: List of species whos occurrences are queried from GBIF at European level
+│   ├── modelling_species.tsv: List of species whose occurrences are queried from GBIF at European level
 │
 ├── data
 │   ├── raw              : Occurrence data as downloaded from GBIF GENERATED
