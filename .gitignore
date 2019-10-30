@@ -43,5 +43,6 @@ rsconnect/
 data/raw/*
 !data/raw/gbif_downloads.tsv
 
-# Interim data (the big sqlite database)
+# Interim data: the big sqlite database and occurrence text file for Europe
 data/interim/*.sqlite
+data/interim/*.tsv
