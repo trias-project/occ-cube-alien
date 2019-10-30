@@ -122,11 +122,11 @@ Trigger download:
 
 ```{r trigger_gbif_download_eu}
 # Reuse existing download (comment to trigger new download)
-gbif_download_key <- "0004690-190415153152247"
+gbif_download_key <- "0032154-190918142434337"
 
 # Trigger new download (commented by default)
 # gbif_download_key <- occ_download(
-#   paste0("taxonKey = ", paste(taxon_keys, collapse = ",")), 
+#   paste0("taxonKey = ", paste(taxon_keys, collapse = ",")),
 #   paste0("geometry within ", bounding_box_europe),
 #   paste0("basisOfRecord = ", paste(basis_of_record, collapse = ",")),
 #   paste0("year >= ", year_begin),
