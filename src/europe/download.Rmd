@@ -39,7 +39,7 @@ library(leaflet)        # To make interactive maps
 The species selected for modelling are saved in file `modelling_species.tsv` on GitHub:
 
 ```{r load_modelling_species_file_eu}
-taxa_input_file <- "https://raw.githubusercontent.com/trias-project/occ-processing/pipeline-EU/data/raw/modelling_species.tsv"
+taxa_input_file <- "https://raw.githubusercontent.com/trias-project/occ-processing/master/references/modelling_species.tsv"
 taxa <- read_tsv(taxa_input_file,
                  na = "")
 ```
