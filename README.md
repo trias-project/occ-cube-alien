@@ -129,14 +129,14 @@ The repository structure is based on [Cookiecutter Data Science](http://drivenda
 │
 └── src
     ├── belgium
-        ├── download.Rmd    : Script to trigger a download of occurrences in Belgium
-        ├── create_db.Rmd   : Script to genereate a sqlite file and perform basic filtering
-        ├── assign_grid.Rmd : Script to assign cell code to occurrences
-        ├── aggregate.Rmd   : Script to aggregate data and make the Belgian data cube
+        ├── 1_download.Rmd    : Script to trigger a download of occurrences in Belgium
+        ├── 2_create_db.Rmd   : Script to genereate a sqlite file and perform basic filtering
+        ├── 3_assign_grid.Rmd : Script to assign cell code to occurrences
+        ├── 4_aggregate.Rmd   : Script to aggregate data and make the Belgian data cube
     ├── europe
-        ├── download.Rmd    : Script to trigger a download of occurrences in Belgium
-        ├── assign_grid.Rmd : Script to perform basic filtering and assign cell code to occurrences
-        ├── aggregate.Rmd   : Script to aggregate data and make the Belgian data cube    
+        ├── 1_download.Rmd    : Script to trigger a download of occurrences in Belgium
+        ├── 2_assign_grid.Rmd : Script to perform basic filtering and assign cell code to occurrences
+        ├── 3_aggregate.Rmd   : Script to aggregate data and make the Belgian data cube    
 ```
 
 ## Workflow
@@ -147,10 +147,10 @@ Clone this repository to your computer and open the RStudio project file,  `occ-
 
 You can generate the Belgian occurrence data cube by running the [R Markdown files](https://rmarkdown.rstudio.com/) in `src/belgium` following the order shown here below:
 
-1. `download.Rmd`: trigger a GBIF download and add it to the list of triggered downloads
-2. `create_db.Rmd`: create a sqlite database and perform basic data cleaning
-3. `assign_grid.Rmd`: assign geographic cell code to occurrence data
-4. `aggregate.Rmd`: aggregate occurrences per taxon, year and cell code to create the _Belgian occurrence data cube_, its taxonomic compendium and data cube at kingdom level (baseline)
+1. `1_download.Rmd`: trigger a GBIF download and add it to the list of triggered downloads
+2. `2_create_db.Rmd`: create a sqlite database and perform basic data cleaning
+3. `3_assign_grid.Rmd`: assign geographic cell code to occurrence data
+4. `4_aggregate.Rmd`: aggregate occurrences per taxon, year and cell code to create the _Belgian occurrence data cube_, its taxonomic compendium and data cube at kingdom level (baseline)
 
 The output files, `cube_belgium.tsv`, `cube_belgium_taxa.tsv` and `cube_baseline.tsv` are automatically generated in  folder `/data/output/`.
 
@@ -160,9 +160,9 @@ At European level we are interested in occurrences of a list of taxa, which will
 
 You can generate the European occurrence data cube by running the [R Markdown files](https://rmarkdown.rstudio.com/) in `src/europe` following the order shown here below:
 
-1. `download.Rmd`: trigger a GBIF download and adding it to the list of triggered downloads
-3. `assign_grid.Rmd`: assign geographic cell code to occurrence data
-4. `aggregate.Rmd`: aggregate occurrences per taxa, year and cell code, the European _occurrence data cube_.
+1. `1_download.Rmd`: trigger a GBIF download and adding it to the list of triggered downloads
+3. `2_assign_grid.Rmd`: assign geographic cell code to occurrence data
+4. `3_aggregate.Rmd`: aggregate occurrences per taxa, year and cell code, the European _occurrence data cube_.
 
 The output files, `cube_europe.tsv` and `cube_europe_taxa.tsv` are automatically generated in  folder `/data/output/`.
 
