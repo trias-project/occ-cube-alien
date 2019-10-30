@@ -37,7 +37,7 @@ library(RSQLite)        # To interact with SQlite databases
 Download the occurrences from GBIF, based on the download key returned in `download.Rmd`:
 
 ```{r get_occ_file}
-key <- "0008507-190621201848488"
+key <- "0030713-190918142434337"
 zip_filename <- paste0(key, ".zip")
 if (!file.exists(here::here("data", "raw", zip_filename))) {
   occ <- occ_download_get(
@@ -324,7 +324,7 @@ dbListFields(sqlite_occ, name = table_name_subset)
 
 ### Check filtered data
 
-We create an index on occurrences in order to retrieve occurrence status values faster:
+We create an index on `occurrenceStatus` to retrieve occurrence status values faster:
 
 ```{r create_idx_occStatus}
 idx_occStatus <- "idx_occStatus"
