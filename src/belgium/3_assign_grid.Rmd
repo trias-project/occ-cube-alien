@@ -147,7 +147,7 @@ Due to memory issues, we perform this three operations in chunks on a temporary 
 First, we create such file:
 
 ```{r create_temp_file}
-temp_file_coords <- here(
+temp_file_coords <- here::here(
   "data", 
   "interim", 
   paste0(key, "_coordinates_and_uncertainty_epsg_4326.tsv")
