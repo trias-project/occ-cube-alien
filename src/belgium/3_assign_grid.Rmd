@@ -153,7 +153,7 @@ temp_file_coords <- here::here(
   paste0(key, "_coordinates_and_uncertainty_epsg_4326.tsv")
 )
 col_names_geodata_df <- names(geodata_df)
-write_tsv(geodata_df, temp_file_coords, na = "", col_names = FALSE)
+write_tsv(geodata_df, temp_file_coords, na = "")
 remove(geodata_df)
 ```
 
@@ -199,7 +199,7 @@ reproject_assign <- function(df, pos){
 }
 ```
 
-And finally we apply reprojection and to all occurrences:
+And finally we apply reprojection to all occurrences:
 
 ```{r reproject_assign_coords_by_chunk}
 chunk_size <- 1000000
@@ -223,7 +223,6 @@ Before proceeding, we can delete the temporary file created at the beginning of 
 ```{r delete_temp_file}
 file.remove(temp_file_coords)
 ```
-
 
 ## Add grid cell code to sqlite file
 
