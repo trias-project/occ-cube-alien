@@ -1,4 +1,4 @@
-# Occurrence processing
+# Data cube of alien species
 
 ## Rationale
 
@@ -31,7 +31,7 @@ One of the main output of TrIAS project is delivering a global, unified checklis
 
 The TrIAS project aims to assess risk of invasion by applying distribution modelling and other modelling techniques for a subset of taxa of the unified checklist. The list is saved in file [`/data/reference/modelling_species.tsv`](). For these species we build a specific occurrence data cube which takes into account all occurrences in Europe. The region we define as Europe is described by the European Environmental Agency, see image [here](https://github.com/trias-project/occ-processing/blob/master/references/Europe.png). Similarly to the _Belgian cube_, we first download the occurrences of these species following the workflow described in [`src/europe/1_download.Rmd`](https://github.com/trias-project/occ-processing/blob/master/src/europe/1_download.Rmd). Then, we assign the occurrences randomly within their uncertainty circles in order to calculate the 1kmx1km cell they belong to, see [`/src/europe/2_assign_grid.Rmd`](https://github.com/trias-project/occ-processing/blob/master/src/europe/2_assign_grid.Rmd) and finally we aggregate as described in [/src/europe/3_aggregate.Rmd](https://github.com/trias-project/occ-processing/blob/master/src/europe/3_aggregate.Rmd) in order to produce the final occurrence data cube at European level, [cube_europe.tsv](https://github.com/trias-project/occ-processing/blob/master/data/processed/cube_europe.tsv), saved in  `data/processed`.
 
-### Occurrences of accepeted taxa, synonyms or infraspecific taxa
+### Occurrences of accepted taxa, synonyms or infraspecific taxa
 
 If a taxon has taxonomic status `ACCEPTED`  or  `DOUBTFUL`, i.e. it's not a synonym, then GBIF returns not only the occurrences linked directly to it, but also the occurrences linked to its synonyms and its infraspecific taxa.
 
