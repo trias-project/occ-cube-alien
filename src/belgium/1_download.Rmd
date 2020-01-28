@@ -87,7 +87,7 @@ Trigger download:
 
 ```{r trigger_gbif_download}
 # Reuse existing download (comment to trigger new download)
-gbif_download_key <- "0030713-190918142434337"
+gbif_download_key <- "0000537-200127171203522"
 
 # Trigger new download (commented by default)
 # gbif_download_key <- occ_download(

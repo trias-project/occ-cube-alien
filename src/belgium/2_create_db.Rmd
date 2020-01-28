@@ -12,7 +12,7 @@ output:
     number_sections: true
 ---
 
-In this document we transform the GBIF download - a csv file containing the occurrences of (alien) species for Belgium - into a sqlite database, to handle the large volume of data. Then we filter on issues and occurrence status. Note: some of these steps can take long.
+In this document we transform the GBIF download - a csv file containing the occurrences of species for Belgium - into a sqlite database, to handle the large volume of data. Then we filter on issues and occurrence status. Note: some of these steps can take long.
 
 # Setup
 
@@ -37,7 +37,7 @@ library(RSQLite)        # To interact with SQlite databases
 Download the occurrences from GBIF, based on the download key returned in `download.Rmd`:
 
 ```{r get_occ_file}
-key <- "0030713-190918142434337"
+key <- "0000537-200127171203522"
 zip_filename <- paste0(key, ".zip")
 if (!file.exists(here::here("data", "raw", zip_filename))) {
   occ <- occ_download_get(
