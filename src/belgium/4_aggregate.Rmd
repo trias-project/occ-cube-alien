@@ -640,7 +640,7 @@ taxa_synonym
 Save as tab separated text file:
 
 ```{r save_baseline_datacube}
-write_tsv(occ_cube_baseline,
+write_csv(occ_cube_baseline,
           here::here("data", "processed", "be_classes_cube.tsv"),
           na = "")
 ```
@@ -738,7 +738,7 @@ taxa <-
 Save the *occurrence cube* as tab separated text file:
 
 ```{r save_cube_belgium}
-write_tsv(be_alientaxa_cube,
+write_csv(be_alientaxa_cube,
           here::here("data", "processed", "be_alientaxa_cube.tsv"),
           na = ""
 )
@@ -749,7 +749,7 @@ write_tsv(be_alientaxa_cube,
 Save the taxa as tab separated text file:
 
 ```{r save_be_alientaxa_info}
-write_tsv(taxa, 
+write_csv(taxa, 
           here::here("data", "processed", "be_alientaxa_info.tsv"),
           na = ""
 )
