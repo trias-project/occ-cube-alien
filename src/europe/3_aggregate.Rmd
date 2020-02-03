@@ -706,8 +706,8 @@ taxa_europe <-
 Save the *occurrence cube* as tab separated text file:
 
 ```{r save_datacube_europe}
-write_tsv(occ_cube_europe, 
-          here::here("data", "processed", "cube_europe.tsv"),
+write_csv(occ_cube_europe, 
+          here::here("data", "processed", "eu_modellingtaxa_cube.csv"),
           na = ""
 )
 ```
@@ -717,8 +717,8 @@ write_tsv(occ_cube_europe,
 Save the taxa as tab separated text file:
 
 ```{r save_taxa_europe}
-write_tsv(taxa_europe, 
-          here::here("data", "processed", "cube_europe_taxa.tsv"),
+write_csv(taxa_europe, 
+          here::here("data", "processed", "eu_modellingtaxa_info.csv"),
           na = ""
 )
 ```
