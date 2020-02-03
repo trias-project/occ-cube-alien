@@ -33,15 +33,15 @@ library(RSQLite)        # To interact with SQlite databases
 Name and path of `.sqlite` file:
 
 ```{r name_path}
-sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 key <- "0000537-200127171203522"
+sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
 
 Table name:
 
 ```{r define_table_name}
-table_name <- "occ_be"
+table_name <- "occ"
 ```
 
 Open connection to database:

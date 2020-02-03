@@ -43,7 +43,7 @@ sqlite_path <- here::here("data", "interim", sqlite_file)
 Table name:
 
 ```{r define_table_name}
-table_name <- "occ_be"
+table_name <- "occ"
 ```
 
 Open connection to database:
@@ -226,7 +226,7 @@ file.remove(temp_file_coords)
 
 ## Add grid cell code to sqlite file
 
-We can now add the column `eea_cell_code` to the table `occ_be` of sqlite file. We first create the new column `eaa_cell_code` in the table:
+We can now add the column `eea_cell_code` to the table `occ` of sqlite file. We first create the new column `eaa_cell_code` in the table:
 
 ```{r add_eaa_cellcode_to_sqlite}
 new_col <- "eea_cell_code"
