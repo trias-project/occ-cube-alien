@@ -89,21 +89,22 @@ geodata_df %>%
   arrange(desc(n))
 ```
 
-Number of occurrences without coordinate uncertainty:
+Number of occurrences without coordinate uncertainty or set to zero:
 
 ```{r n_occs_without_uncertainty}
 geodata_df %>%
-  filter(is.na(coordinateUncertaintyInMeters)) %>%
+  filter(is.na(coordinateUncertaintyInMeters) | 
+           coordinateUncertaintyInMeters == 0) %>%
   count()
 ```
 
-We assign 1000 meters to occurrences without uncertainty:
+We assign 1000 meters to these occurrences:
 
 ```{r assign_fix_uncertainty}
 geodata_df <- 
   geodata_df %>%
   mutate(coordinateUncertaintyInMeters = if_else(
-    is.na(coordinateUncertaintyInMeters),
+    is.na(coordinateUncertaintyInMeters) | coordinateUncertaintyInMeters == 0,
     1000.0,
     coordinateUncertaintyInMeters
   ))
@@ -122,13 +123,31 @@ dbExecute(sqlite_occ, query)
 # Start transaction
 dbBegin(sqlite_occ)
 query <- glue_sql(
-            "UPDATE {table} SET {`column`} = 1000 WHERE {`column`} = ''",
+            "UPDATE {table} SET {`column`} = 1000 WHERE 
+            {`column`} = '' OR {`column`} = '0.0'",
             table = table_name,
             column = "coordinateUncertaintyInMeters",
             .con = sqlite_occ)
 dbExecute(sqlite_occ, query)
 # Commit transaction
 dbCommit(sqlite_occ)
+```
+
+Check whether coordinate uncertainty is always present and is always other than 0:
+
+```{r get_geodata}
+query <- glue_sql("SELECT {`column`} FROM {table}",
+              table = table_name,
+              column = "coordinateUncertaintyInMeters",
+              .con = sqlite_occ
+)
+uncertainty_df <- 
+  dbGetQuery(sqlite_occ, query) %>%
+  as_tibble()
+uncertainty_df %>%
+  filter(is.na(coordinateUncertaintyInMeters) | 
+           coordinateUncertaintyInMeters == 0) %>%
+  count()
 ```
 
 # Assign grid to occurrences
