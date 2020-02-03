@@ -641,7 +641,7 @@ Save as tab separated text file:
 
 ```{r save_baseline_datacube}
 write_tsv(occ_cube_baseline,
-          here::here("data", "processed", "cube_belgium_baseline.tsv"),
+          here::here("data", "processed", "be_classes_cube.tsv"),
           na = "")
 ```
 
@@ -681,10 +681,10 @@ occ_cube_subspecies <-
   rename(taxonKey = acceptedTaxonKey)
 ```
 
-Merge the three data.frames in a single *cube*, `occ_cube_belgium`:
+Merge the three data.frames in a single *cube*, `be_alientaxa_cube`:
 
 ```{r make_occ_cube_belgium}
-occ_cube_belgium <- 
+be_alientaxa_cube <- 
   occ_cube_species %>%
   bind_rows(occ_cube_subspecies) %>%
   bind_rows(occ_cube_synonym)
@@ -738,8 +738,8 @@ taxa <-
 Save the *occurrence cube* as tab separated text file:
 
 ```{r save_cube_belgium}
-write_tsv(occ_cube_belgium, 
-          here::here("data", "processed", "cube_belgium.tsv"),
+write_tsv(be_alientaxa_cube,
+          here::here("data", "processed", "be_alientaxa_cube.tsv"),
           na = ""
 )
 ```
@@ -748,9 +748,9 @@ write_tsv(occ_cube_belgium,
 
 Save the taxa as tab separated text file:
 
-```{r save_cube_belgium_taxa}
+```{r save_be_alientaxa_info}
 write_tsv(taxa, 
-          here::here("data", "processed", "cube_belgium_taxa.tsv"),
+          here::here("data", "processed", "be_alientaxa_info.tsv"),
           na = ""
 )
 ```
