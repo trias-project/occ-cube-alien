@@ -91,7 +91,6 @@ The repository structure is based on [Cookiecutter Data Science](http://drivenda
 ├── docs                 : Repository website (not implemented yet) GENERATED
 │
 └── src
-    ├── index.Rmd           : Website homepage
     ├── belgium
         ├── 1_download.Rmd    : Script to trigger a download of occurrences in Belgium
         ├── 2_create_db.Rmd   : Script to genereate a sqlite file and perform basic filtering
@@ -100,7 +99,7 @@ The repository structure is based on [Cookiecutter Data Science](http://drivenda
     ├── europe
         ├── 1_download.Rmd    : Script to trigger a download of occurrences in Belgium
         ├── 2_assign_grid.Rmd : Script to perform basic filtering and assign cell code to occurrences
-        ├── 3_aggregate.Rmd   : Script to aggregate data and make the Belgian data cube    
+        ├── 3_aggregate.Rmd   : Script to aggregate data and make the modelling data cube at European level  
 ```
 
 ## Installation
