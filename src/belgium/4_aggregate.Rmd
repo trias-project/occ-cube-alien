@@ -230,7 +230,7 @@ occ_cube_species <-
   filter(speciesKey %in% alien_taxa_species_key)
 ```
 
-Number of alien species included in occurrence cube:
+Number of alien species included in the occurrence cube:
 
 ```{r species_included}
 paste(
@@ -681,7 +681,7 @@ occ_cube_subspecies <-
   rename(taxonKey = acceptedTaxonKey)
 ```
 
-Merge the three data.frames in a single *cube*, `be_alientaxa_cube`:
+Merge the three data.frames in a single *occurrence cube*, `be_alientaxa_cube`:
 
 ```{r make_occ_cube_belgium}
 be_alientaxa_cube <- 

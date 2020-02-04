@@ -12,7 +12,7 @@ output:
     number_sections: true
 ---
 
-In this document we aggregate data. The goal is to produce a *data cube* at species level. The dimensions are:
+In this document we aggregate data. The goal is to produce an *occurrence cube* at species level. The dimensions are:
 
 1. taxon
 2. year
@@ -643,7 +643,7 @@ occ_cube_eu_subspecies <-
     rename(taxonKey = acceptedTaxonKey)
 ```
 
-Merge the three data.frames in a single *cube*, ` eu_modellingtaxa_cube`:
+Merge the three data.frames in a single *occurrence cube*, ` eu_modellingtaxa_cube`:
 
 ```{r make_ eu_modellingtaxa_cube}
 eu_modellingtaxa_cube <- 
