@@ -368,10 +368,9 @@ occ_cube_eu_subspecies <-
   filter(acceptedTaxonKey %in% modelling_taxa_subspecies_key) %>%
   select(year, 
          eea_cell_code, 
-         speciesKey, 
          acceptedTaxonKey, 
          coordinateUncertaintyInMeters) %>%
-  group_by(year, eea_cell_code, speciesKey, acceptedTaxonKey) %>%
+  group_by(year, eea_cell_code, acceptedTaxonKey) %>%
   summarize(
     n = n(),
     min_coord_uncertainty = min(coordinateUncertaintyInMeters)
