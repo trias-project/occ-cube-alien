@@ -364,14 +364,15 @@ occ_eu %>%
   arrange(desc(n))
 ```
 
-We assign 1000 meters to occurrences without uncertainty:
+We assign 1000 meters to occurrences without uncertainty or occurrences with zero uncertainty:
 
 ```{r assign_fix_uncertainty_occs_eu}
 occ_eu <- 
   occ_eu %>%
   mutate(
     coordinateUncertaintyInMeters = 
-      if_else(is.na(coordinateUncertaintyInMeters),
+      if_else(is.na(coordinateUncertaintyInMeters) | 
+                coordinateUncertaintyInMeters == 0.0,
               1000.0,
               coordinateUncertaintyInMeters)
 )
