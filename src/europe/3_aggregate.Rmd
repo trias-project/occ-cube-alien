@@ -646,10 +646,10 @@ if (ncol(occ_cube_eu_subspecies) > 0) {
 }
 ```
 
-Merge the three data.frames in a single *cube*, `occ_cube_europe`:
+Merge the three data.frames in a single *cube*, ` eu_modellingtaxa_cube`:
 
-```{r make_occ_cube_europe}
-occ_cube_europe <- 
+```{r make_ eu_modellingtaxa_cube}
+eu_modellingtaxa_cube <- 
   occ_cube_eu_species %>%
   bind_rows(occ_cube_eu_subspecies) %>%
   bind_rows(occ_cube_eu_synonym)
@@ -691,10 +691,10 @@ if (ncol(taxa_subspecies_eu) > 0) {
 }
 ```
 
-Merge the three data.frames in a single data.frame, `taxa_europe`:
+Merge the three data.frames in a single data.frame, ` eu_modellingtaxa_info`:
 
-```{r make_taxa_europe}
-taxa_europe <- 
+```{r make_eu_modellingtaxa_cube}
+eu_modellingtaxa_info <- 
   taxa_species_eu %>%
   bind_rows(taxa_subspecies_eu) %>%
   bind_rows(taxa_synonym_eu)
@@ -702,10 +702,10 @@ taxa_europe <-
 
 ### Save aggregated data
 
-Save the *occurrence cube* as tab separated text file:
+Save the *occurrence cube* as comma separated text file:
 
-```{r save_datacube_europe}
-write_csv(occ_cube_europe, 
+```{r save_eu_modellingtaxa_cube}
+write_csv(eu_modellingtaxa_cube, 
           here::here("data", "processed", "eu_modellingtaxa_cube.csv"),
           na = ""
 )
@@ -713,10 +713,10 @@ write_csv(occ_cube_europe,
 
 ### Save taxa
 
-Save the taxa as tab separated text file:
+Save the taxa as comma separated text file:
 
-```{r save_taxa_europe}
-write_csv(taxa_europe, 
+```{r save_eu_modellingtaxa_info}
+write_csv(eu_modellingtaxa_info, 
           here::here("data", "processed", "eu_modellingtaxa_info.csv"),
           na = ""
 )
