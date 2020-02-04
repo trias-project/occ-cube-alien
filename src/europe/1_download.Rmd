@@ -62,7 +62,6 @@ We define a bounding box which contains the geographic Europe as defined by Euro
 
 ```{r define_bounding_box_modelling}
 bounding_box_europe <- "POLYGON((-27.33398 67.06055, -11.68945 34.89258, 24.3457 29.0918, 40.86914 33.83789, 45.90088 37.02393, 43.1543 48.7793, 37.79297 57.12891, 34.27734 75.76172, -15.99609 76.46484, -27.33398 67.06055))"
-bounding_box_iceland <- "POLYGON((-23.87329 67.85156,-25.27954 64.05029,-23.96118 62.44629,-15.8313 62.31445,-13.31543 63.80859,-12.7002 65.6543,-15.24902 67.58789,-23.87329 67.85156))"
 ```
 
 Preview of the selected area:
