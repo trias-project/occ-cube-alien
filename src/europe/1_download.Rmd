@@ -121,16 +121,16 @@ Trigger download:
 
 ```{r trigger_gbif_download_eu}
 # Reuse existing download (comment to trigger new download)
-gbif_download_key <- "0032154-190918142434337"
+gbif_download_key <- "0004487-200127171203522"
 
 # Trigger new download (commented by default)
 # gbif_download_key <- occ_download(
-#   paste0("taxonKey = ", paste(taxon_keys, collapse = ",")),
-#   paste0("geometry within ", bounding_box_europe),
-#   paste0("basisOfRecord = ", paste(basis_of_record, collapse = ",")),
-#   paste0("year >= ", year_begin),
-#   paste0("year <= ", year_end),
-#   paste0("hasCoordinate = ", hasCoordinate),
+#   pred_in("taxonKey", taxon_keys),
+#   pred_within(bounding_box_europe),
+#   pred_in("basisOfRecord", basis_of_record),
+#   pred_gte("year", year_begin),
+#   pred_lte("year", year_end),
+#   pred("hasCoordinate", hasCoordinate),
 #   user = rstudioapi::askForPassword("GBIF username"),
 #   pwd = rstudioapi::askForPassword("GBIF password"),
 #   email = rstudioapi::askForPassword("Email address for notification")
