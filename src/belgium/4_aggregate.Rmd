@@ -735,22 +735,22 @@ taxa <-
 
 ### Save aggregated data
 
-Save the *occurrence cube* as tab separated text file:
+Save the *occurrence cube* as comma separated text file:
 
 ```{r save_cube_belgium}
 write_csv(be_alientaxa_cube,
-          here::here("data", "processed", "be_alientaxa_cube.tsv"),
+          here::here("data", "processed", "be_alientaxa_cube.csv"),
           na = ""
 )
 ```
 
 ### Save taxa
 
-Save the taxa as tab separated text file:
+Save the taxa as comma separated text file:
 
 ```{r save_be_alientaxa_info}
 write_csv(taxa, 
-          here::here("data", "processed", "be_alientaxa_info.tsv"),
+          here::here("data", "processed", "be_alientaxa_info.csv"),
           na = ""
 )
 ```
