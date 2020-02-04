@@ -37,7 +37,7 @@ library(sp)             # To work with geospatial data
 We download the occurrences from GBIF, based on the key got in `download.Rmd`:
 
 ```{r get_occ_file_eu}
-key <- "0032154-190918142434337"
+key <- "0004487-200127171203522"
 zip_filename <- paste0(key, ".zip")
 if (!file.exists(here::here("data", "raw", zip_filename))) {
   occ <- occ_download_get(
