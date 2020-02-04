@@ -32,7 +32,6 @@ library(sp)             # To work with geospatial data
 library(here)           # To find files
 library(rgbif)          # To use GBIF services
 library(glue)           # To write queries
-library(RSQLite)        # To interact with SQlite databases
 ```
 
 # Read data
@@ -69,7 +68,7 @@ modelling_taxa %>% head()
 Name and path of occurrence data file:
 
 ```{r name_path_eu}
-key <- "0032154-190918142434337"
+key <- "0004487-200127171203522"
 occ_file <- paste(key, "occurrence.tsv", sep = "_")
 occ_path <- here::here("data", "interim", occ_file)
 ```
@@ -369,10 +368,9 @@ occ_cube_eu_subspecies <-
   filter(acceptedTaxonKey %in% modelling_taxa_subspecies_key) %>%
   select(year, 
          eea_cell_code, 
-         speciesKey, 
          acceptedTaxonKey, 
          coordinateUncertaintyInMeters) %>%
-  group_by(year, eea_cell_code, speciesKey, acceptedTaxonKey) %>%
+  group_by(year, eea_cell_code, acceptedTaxonKey) %>%
   summarize(
     n = n(),
     min_coord_uncertainty = min(coordinateUncertaintyInMeters)
@@ -637,20 +635,18 @@ occ_cube_eu_species <-
   rename(taxonKey = speciesKey)
 ```
 
-In `occ_cube_eu_subspecies`, if not empty, rename `acceptedTaxonKey` to `taxonKey`:
+In `occ_cube_eu_subspecies`, rename `acceptedTaxonKey` to `taxonKey`:
 
 ```{r rename_occ_cube_eu_subspecies}
-if (ncol(occ_cube_eu_subspecies) > 0) {
-  occ_cube_eu_subspecies <-
+occ_cube_eu_subspecies <-
     occ_cube_eu_subspecies %>%
     rename(taxonKey = acceptedTaxonKey)
-}
 ```
 
-Merge the three data.frames in a single *cube*, `occ_cube_europe`:
+Merge the three data.frames in a single *cube*, ` eu_modellingtaxa_cube`:
 
-```{r make_occ_cube_europe}
-occ_cube_europe <- 
+```{r make_ eu_modellingtaxa_cube}
+eu_modellingtaxa_cube <- 
   occ_cube_eu_species %>%
   bind_rows(occ_cube_eu_subspecies) %>%
   bind_rows(occ_cube_eu_synonym)
@@ -692,10 +688,10 @@ if (ncol(taxa_subspecies_eu) > 0) {
 }
 ```
 
-Merge the three data.frames in a single data.frame, `taxa_europe`:
+Merge the three data.frames in a single data.frame, ` eu_modellingtaxa_info`:
 
-```{r make_taxa_europe}
-taxa_europe <- 
+```{r make_eu_modellingtaxa_cube}
+eu_modellingtaxa_info <- 
   taxa_species_eu %>%
   bind_rows(taxa_subspecies_eu) %>%
   bind_rows(taxa_synonym_eu)
@@ -703,22 +699,22 @@ taxa_europe <-
 
 ### Save aggregated data
 
-Save the *occurrence cube* as tab separated text file:
+Save the *occurrence cube* as comma separated text file:
 
-```{r save_datacube_europe}
-write_tsv(occ_cube_europe, 
-          here::here("data", "processed", "cube_europe.tsv"),
+```{r save_eu_modellingtaxa_cube}
+write_csv(eu_modellingtaxa_cube, 
+          here::here("data", "processed", "eu_modellingtaxa_cube.csv"),
           na = ""
 )
 ```
 
 ### Save taxa
 
-Save the taxa as tab separated text file:
+Save the taxa as comma separated text file:
 
-```{r save_taxa_europe}
-write_tsv(taxa_europe, 
-          here::here("data", "processed", "cube_europe_taxa.tsv"),
+```{r save_eu_modellingtaxa_info}
+write_csv(eu_modellingtaxa_info, 
+          here::here("data", "processed", "eu_modellingtaxa_info.csv"),
           na = ""
 )
 ```

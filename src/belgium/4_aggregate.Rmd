@@ -33,7 +33,7 @@ library(RSQLite)        # To interact with SQlite databases
 Name and path of `.sqlite` file:
 
 ```{r name_path}
-key <- "0030713-190918142434337"
+key <- "0000537-200127171203522"
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
@@ -41,7 +41,7 @@ sqlite_path <- here::here("data", "interim", sqlite_file)
 Table name:
 
 ```{r define_table_name}
-table_name <- "occ_be"
+table_name <- "occ"
 ```
 
 Open connection to database:
@@ -640,8 +640,8 @@ taxa_synonym
 Save as tab separated text file:
 
 ```{r save_baseline_datacube}
-write_tsv(occ_cube_baseline,
-          here::here("data", "processed", "cube_belgium_baseline.tsv"),
+write_csv(occ_cube_baseline,
+          here::here("data", "processed", "be_classes_cube.tsv"),
           na = "")
 ```
 
@@ -681,10 +681,10 @@ occ_cube_subspecies <-
   rename(taxonKey = acceptedTaxonKey)
 ```
 
-Merge the three data.frames in a single *cube*, `occ_cube_belgium`:
+Merge the three data.frames in a single *cube*, `be_alientaxa_cube`:
 
 ```{r make_occ_cube_belgium}
-occ_cube_belgium <- 
+be_alientaxa_cube <- 
   occ_cube_species %>%
   bind_rows(occ_cube_subspecies) %>%
   bind_rows(occ_cube_synonym)
@@ -735,22 +735,22 @@ taxa <-
 
 ### Save aggregated data
 
-Save the *occurrence cube* as tab separated text file:
+Save the *occurrence cube* as comma separated text file:
 
 ```{r save_cube_belgium}
-write_tsv(occ_cube_belgium, 
-          here::here("data", "processed", "cube_belgium.tsv"),
+write_csv(be_alientaxa_cube,
+          here::here("data", "processed", "be_alientaxa_cube.csv"),
           na = ""
 )
 ```
 
 ### Save taxa
 
-Save the taxa as tab separated text file:
+Save the taxa as comma separated text file:
 
-```{r save_cube_belgium_taxa}
-write_tsv(taxa, 
-          here::here("data", "processed", "cube_belgium_taxa.tsv"),
+```{r save_be_alientaxa_info}
+write_csv(taxa, 
+          here::here("data", "processed", "be_alientaxa_info.csv"),
           na = ""
 )
 ```

@@ -27,7 +27,6 @@ library(tidyverse)      # To do datascience
 library(here)           # To find files
 library(rgbif)          # To use GBIF services
 library(glue)           # To write queries
-library(RSQLite)        # To interact with SQlite databases
 library(sp)             # To work with geospatial data
 ```
 
@@ -38,7 +37,7 @@ library(sp)             # To work with geospatial data
 We download the occurrences from GBIF, based on the key got in `download.Rmd`:
 
 ```{r get_occ_file_eu}
-key <- "0032154-190918142434337"
+key <- "0004487-200127171203522"
 zip_filename <- paste0(key, ".zip")
 if (!file.exists(here::here("data", "raw", zip_filename))) {
   occ <- occ_download_get(
@@ -85,18 +84,52 @@ length(cols_occ_file)
 We define a subset of columns we are interested to:
 
 ```{r columns_to_use_eu}
-cols_to_use <- c("gbifID", "scientificName", "kingdom", "phylum", "class", "order",
-             "family", "genus", "specificEpithet", "infraspecificEpithet",
-             "taxonRank", "taxonomicStatus", "datasetKey", "basisOfRecord",
-             "occurrenceStatus", "lastInterpreted", "hasCoordinate",
-             "hasGeospatialIssues", "decimalLatitude", "decimalLongitude",
-             "coordinateUncertaintyInMeters", "coordinatePrecision",
-             "pointRadiusSpatialFit", "verbatimCoordinateSystem", "verbatimSRS",
-             "eventDate", "startDayOfYear", "endDayOfYear", "year", "month",
-             "day", "verbatimEventDate", "samplingProtocol", "samplingEffort",
-             "issue", "taxonKey", "acceptedTaxonKey", "kingdomKey", "phylumKey",
-             "classKey", "orderKey", "familyKey", "genusKey", "subgenusKey",
-             "speciesKey", "species")
+cols_to_use <- c("gbifID", 
+                 "scientificName",
+                 "kingdom",
+                 "phylum",
+                 "class",
+                 "order",
+                 "family",
+                 "genus",
+                 "specificEpithet",
+                 "infraspecificEpithet",
+                 "taxonRank",
+                 "taxonomicStatus",
+                 "datasetKey",
+                 "basisOfRecord",
+                 "occurrenceStatus",
+                 "lastInterpreted",
+                 "hasCoordinate",
+                 "hasGeospatialIssues",
+                 "decimalLatitude",
+                 "decimalLongitude",
+                 "coordinateUncertaintyInMeters",
+                 "coordinatePrecision",
+                 "pointRadiusSpatialFit",
+                 "verbatimCoordinateSystem",
+                 "verbatimSRS",
+                 "eventDate",
+                 "startDayOfYear",
+                 "endDayOfYear",
+                 "year",
+                 "month",
+                 "day",
+                 "verbatimEventDate",
+                 "samplingProtocol",
+                 "samplingEffort",
+                 "issue",
+                 "taxonKey",
+                 "acceptedTaxonKey",
+                 "kingdomKey",
+                 "phylumKey",
+                 "classKey",
+                 "orderKey",
+                 "familyKey",
+                 "genusKey",
+                 "subgenusKey",
+                 "speciesKey",
+                 "species")
 ```
 
 Columns in occurrence file not present in the subset:
@@ -331,14 +364,15 @@ occ_eu %>%
   arrange(desc(n))
 ```
 
-We assign 1000 meters to occurrences without uncertainty:
+We assign 1000 meters to occurrences without uncertainty or occurrences with zero uncertainty:
 
 ```{r assign_fix_uncertainty_occs_eu}
 occ_eu <- 
   occ_eu %>%
   mutate(
     coordinateUncertaintyInMeters = 
-      if_else(is.na(coordinateUncertaintyInMeters),
+      if_else(is.na(coordinateUncertaintyInMeters) | 
+                coordinateUncertaintyInMeters == 0.0,
               1000.0,
               coordinateUncertaintyInMeters)
 )
