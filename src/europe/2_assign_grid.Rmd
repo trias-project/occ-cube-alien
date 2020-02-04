@@ -27,7 +27,6 @@ library(tidyverse)      # To do datascience
 library(here)           # To find files
 library(rgbif)          # To use GBIF services
 library(glue)           # To write queries
-library(RSQLite)        # To interact with SQlite databases
 library(sp)             # To work with geospatial data
 ```
 
