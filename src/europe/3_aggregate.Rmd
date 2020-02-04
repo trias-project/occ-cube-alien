@@ -635,14 +635,12 @@ occ_cube_eu_species <-
   rename(taxonKey = speciesKey)
 ```
 
-In `occ_cube_eu_subspecies`, if not empty, rename `acceptedTaxonKey` to `taxonKey`:
+In `occ_cube_eu_subspecies`, rename `acceptedTaxonKey` to `taxonKey`:
 
 ```{r rename_occ_cube_eu_subspecies}
-if (ncol(occ_cube_eu_subspecies) > 0) {
-  occ_cube_eu_subspecies <-
+occ_cube_eu_subspecies <-
     occ_cube_eu_subspecies %>%
     rename(taxonKey = acceptedTaxonKey)
-}
 ```
 
 Merge the three data.frames in a single *cube*, ` eu_modellingtaxa_cube`:
