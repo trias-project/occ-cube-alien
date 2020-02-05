@@ -133,7 +133,7 @@ Install any required packages.
 
 ## Contributors
 
-[List of contributors](https://github.com/trias-project/unified-checklist/contributors)
+[List of contributors](https://github.com/trias-project/occ-cube-alien/contributors)
 
 ## License
 
