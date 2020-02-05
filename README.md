@@ -1,4 +1,4 @@
-# Occurrence cubes of alien species
+# Occurrence cubes for non-native taxa in Belgium and Europe
 
 ## Rationale
 
