@@ -234,7 +234,7 @@ issues_to_discard <- c(
 )
 ```
 
-Occurrences with the following occurrence status should filtered out as well:
+Occurrences with the following occurrence status should be filtered out as well:
 
 ```{r occurrenceStatus}
 occurrenceStatus_to_discard <- c(
