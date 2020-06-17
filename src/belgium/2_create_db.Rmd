@@ -39,7 +39,8 @@ Download the occurrences from GBIF, based on the download key returned in `downl
 ```{r get_occ_file}
 key <- "0003154-200613084148143"
 zip_filename <- paste0(key, ".zip")
-if (!file.exists(here::here("data", "raw", zip_filename))) {
+zip_path <- here::here("data", "raw", zip_filename)
+if (!file.exists(zip_path)) {
   occ <- occ_download_get(
     key = key,
     path = here::here("data", "raw")
@@ -54,7 +55,7 @@ occ_file <- paste(key, "occurrence.txt", sep = "_")
 occ_path <- here::here("data", "raw", occ_file)
 
 if (!file.exists(here::here("data", "raw", occ_file))) {
-  unzip(zipfile = occ,
+  unzip(zipfile = zip_path,
         files = "occurrence.txt",
         exdir = here::here("data", "raw"))
   file.rename(from = here::here("data", "raw", "occurrence.txt"),
