@@ -398,7 +398,7 @@ any(map_lgl(issues_to_discard,
             }))
 ```
 
-Overview of alll indexes present on `occ`:
+Overview of all indexes present on `occ`:
 
 ```{r index_filtered_table}
 query <- glue_sql(
