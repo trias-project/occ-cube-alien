@@ -243,10 +243,19 @@ occurrenceStatus_to_discard <- c(
 )
 ```
 
-We create an index based on these two columns if not already present:
+We won't take into account unverified observations neither:
+
+```{r identificationVerificationStatus}
+identificationVerificationStatus_to_discard <- c(
+  "unverified"
+)
+```
+
+
+We create an index based on these three columns if not already present:
 
 ```{r create_idx_occStatus_issue}
-idx_occStatus_issue <- "idx_occStatus_issue"
+idx_occStatus_issue <- "idx_verifStatus_occStatus_issue"
 # get indexes on table
 query <- glue_sql(
     "PRAGMA index_list({table_name})",
@@ -261,7 +270,9 @@ if (!idx_occStatus_issue %in% indexes_all$name) {
   "CREATE INDEX {`idx`} ON {table_name} ({`cols_idx`*})",
   idx = idx_occStatus_issue,
   table_name = table_name,
-  cols_idx = c("occurrenceStatus", "issue"),
+  cols_idx = c("identificationVerificationStatus",
+               "occurrenceStatus",
+               "issue"),
   .con = sqlite_occ
   )
   dbExecute(sqlite_occ, query)
@@ -298,10 +309,11 @@ if (!table_name_subset %in% dbListTables(sqlite_occ)) {
                fields = field_types_subset)
   query <- glue_sql(
   "INSERT INTO {small_table} SELECT {`some_cols`*} FROM {big_table} WHERE 
-  occurrenceStatus NOT IN ({bad_status*}) AND ", issue_condition, 
+  identificationVerificationStatus NOT IN ({unverified*}) AND occurrenceStatus NOT IN ({bad_status*}) AND ", issue_condition, 
   small_table = table_name_subset,
   some_cols = names(field_types_subset),
   big_table = table_name,
+  unverified = identificationVerificationStatus_to_discard,
   bad_status = occurrenceStatus_to_discard,
   .con = sqlite_occ
   )
