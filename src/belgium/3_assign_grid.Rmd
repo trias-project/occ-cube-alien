@@ -289,7 +289,7 @@ dbCommit(sqlite_occ)
 
 Preview:
 
-```{r}
+```{r preview}
 query <- glue_sql("SELECT * FROM {table} WHERE _ROWID_ <= 10",
                   table = table_name,
                   .con = sqlite_occ)
