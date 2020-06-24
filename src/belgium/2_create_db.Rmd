@@ -247,7 +247,8 @@ We won't take into account unverified observations neither:
 
 ```{r identificationVerificationStatus}
 identificationVerificationStatus_to_discard <- c(
-  "unverified"
+  "unverified",
+  "unvalidated"
 )
 ```
 
