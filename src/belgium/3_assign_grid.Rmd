@@ -35,8 +35,8 @@ library(RSQLite)        # To interact with SQlite databases
 Name and path of `.sqlite` file:
 
 ```{r name_path}
+key <- "0003154-200613084148143"
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
-key <- "0000537-200127171203522"
 sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
 
@@ -124,7 +124,7 @@ dbExecute(sqlite_occ, query)
 dbBegin(sqlite_occ)
 query <- glue_sql(
             "UPDATE {table} SET {`column`} = 1000 WHERE 
-            {`column`} = '' OR {`column`} = '0.0'",
+            {`column`} = '' OR {`column`} = 0",
             table = table_name,
             column = "coordinateUncertaintyInMeters",
             .con = sqlite_occ)
@@ -133,10 +133,10 @@ dbExecute(sqlite_occ, query)
 dbCommit(sqlite_occ)
 ```
 
-Check whether coordinate uncertainty is always present and is always other than 0:
+Get all possible values of coordinate uncertainty:
 
-```{r get_geodata}
-query <- glue_sql("SELECT {`column`} FROM {table}",
+```{r get_unique_values_uncertainty}
+query <- glue_sql("SELECT DISTINCT {`column`} FROM {table}",
               table = table_name,
               column = "coordinateUncertaintyInMeters",
               .con = sqlite_occ
@@ -144,10 +144,19 @@ query <- glue_sql("SELECT {`column`} FROM {table}",
 uncertainty_df <- 
   dbGetQuery(sqlite_occ, query) %>%
   as_tibble()
-uncertainty_df %>%
-  filter(is.na(coordinateUncertaintyInMeters) | 
-           coordinateUncertaintyInMeters == 0) %>%
-  count()
+uncertainty_df
+```
+
+Are there occurrences with 0 uncertainty?
+
+```{r zero_in_uncertainty_df}
+0 %in% uncertainty_df
+```
+
+Are there ocurrences without uncertainty?
+
+```{r zero_in_uncertainty_df}
+NA_real_ %in% uncertainty_df
 ```
 
 # Assign grid to occurrences
