@@ -287,7 +287,7 @@ issues_to_discard <- paste0("\'%", issues_to_discard, "%\'")
 
 We create the subquery for filtering on issue conditions:
 
-```{r}
+```{r subquery_issues}
 issue_condition <- paste("issue NOT LIKE", issues_to_discard, collapse = " AND ")
 issue_condition
 ```
@@ -410,6 +410,35 @@ any(map_lgl(issues_to_discard,
               any(str_detect(issues_left$issue, issue))
             }))
 ```
+
+We create an index on `identificationVerificationStatus`:
+
+```{r idx_identificationVerificationStatus}
+idx_issue <- "idx_issue"
+if (!idx_issue %in% indexes$name) {
+  query <- glue_sql(
+    "CREATE INDEX {idx} ON {table_name} ({cols_idx})",
+    idx = idx_issue,
+    table_name = table_name_subset,
+    cols_idx = c("identificationVerificationStatus"),
+    .con = sqlite_occ
+  )
+  dbExecute(sqlite_occ, query)
+}
+```
+
+Identification verification status left in the filtered data:
+
+```{r check_identificationVerificationStatus_values}
+query <- glue_sql(
+    "SELECT DISTINCT identificationVerificationStatus FROM {table}",
+    table = table_name_subset,
+    .con = sqlite_occ
+  )
+status_verification_left <- dbGetQuery(sqlite_occ, query)
+status_verification_left
+```
+
 
 Overview of all indexes present on `occ`:
 
