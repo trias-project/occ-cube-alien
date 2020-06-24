@@ -102,6 +102,7 @@ cols_to_use <- c("gbifID",
                  "basisOfRecord",
                  "occurrenceStatus",
                  "lastInterpreted",
+                 "identificationVerificationStatus",
                  "hasCoordinate",
                  "hasGeospatialIssues",
                  "decimalLatitude",
@@ -334,6 +335,47 @@ if (any(
   occ_eu <- 
     occ_eu %>%
     filter(!occurrenceStatus %in% occurrenceStatus_to_discard)
+}
+```
+
+## Filter on identification verification status
+
+We won't take into account unverified observations:
+
+```{r identificationVerificationStatus_to_discard_occs_eu}
+identificationVerificationStatus_to_discard <- c(
+  "unverified",
+  "unvalidated",
+  "not able to validate",
+  "control could not be conclusive due to insufficient knowledge"
+)
+```
+
+Identification verification status present in `occ_eu`:
+
+```{r iidentification_status_in_data_occs_eu}
+identificationVerificationStatus <-
+  occ_eu %>% 
+  group_by(identificationVerificationStatus) %>%
+  count() %>%
+  arrange(desc(n))
+identificationVerificationStatus
+```
+
+Are there some `identificationVerificationStatus_to_discard` in `identificationVerificationStatus`?
+
+```{r any_identificationStatus_to_discard_in_data_occs_eu}
+any(identificationVerificationStatus_to_discard %in% str_to_lower(identificationVerificationStatus$identificationVerificationStatus))
+```
+
+If yes, remove occurrences with `identificationVerificationStatus` equal to one of `identificationVerificationStatus_to_discard`:
+
+```{r remove_identificationStatus_to_discard_occs_eu}
+if (any(
+  identificationVerificationStatus_to_discard %in% str_to_lower(identificationVerificationStatus$identificationVerificationStatus))) {
+  occ_eu <- 
+    occ_eu %>%
+    filter(!str_to_lower(identificationVerificationStatus) %in% identificationVerificationStatus_to_discard)
 }
 ```
 
