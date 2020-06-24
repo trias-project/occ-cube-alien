@@ -310,7 +310,7 @@ if (!table_name_subset %in% dbListTables(sqlite_occ)) {
                fields = field_types_subset)
   query <- glue_sql(
   "INSERT INTO {small_table} SELECT {`some_cols`*} FROM {big_table} WHERE 
-  identificationVerificationStatus NOT IN ({unverified*}) AND occurrenceStatus NOT IN ({bad_status*}) AND ", issue_condition, 
+  LOWER(identificationVerificationStatus) NOT IN ({unverified*}) AND LOWER(occurrenceStatus) NOT IN ({bad_status*}) AND ", issue_condition, 
   small_table = table_name_subset,
   some_cols = names(field_types_subset),
   big_table = table_name,
