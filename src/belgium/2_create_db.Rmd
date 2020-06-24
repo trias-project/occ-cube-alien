@@ -333,7 +333,7 @@ table_name_subset %in% dbListTables(sqlite_occ)
 
 Columns present:
 
-```{r}
+```{r cols_in_occ}
 dbListFields(sqlite_occ, name = table_name_subset)
 ```
 
