@@ -28,6 +28,7 @@ Load libraries:
 
 ```{r load_libraries_eu}
 library(tidyverse)      # To do datascience
+library(tidylog)        # To provide feedback on dplyr functions
 library(sp)             # To work with geospatial data
 library(here)           # To find files
 library(rgbif)          # To use GBIF services
