@@ -416,7 +416,7 @@ occ_eu <-
   mutate(
     coordinateUncertaintyInMeters = 
       if_else(is.na(coordinateUncertaintyInMeters) | 
-                coordinateUncertaintyInMeters == 0.0,
+                coordinateUncertaintyInMeters == 0,
               1000.0,
               coordinateUncertaintyInMeters)
 )
