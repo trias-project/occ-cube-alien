@@ -664,9 +664,9 @@ Merge the three data.frames in a single *occurrence cube*, ` eu_modellingtaxa_cu
 
 ```{r make_ eu_modellingtaxa_cube}
 eu_modellingtaxa_cube <- 
-  occ_cube_eu_species %>%
-  bind_rows(occ_cube_eu_subspecies) %>%
-  bind_rows(occ_cube_eu_synonym)
+  bind_rows(occ_cube_eu_species,
+            occ_cube_eu_subspecies, 
+            occ_cube_eu_synonym)
 ```
 
 ### Merge taxa
@@ -709,9 +709,9 @@ Merge the three data.frames in a single data.frame, ` eu_modellingtaxa_info`:
 
 ```{r make_eu_modellingtaxa_cube}
 eu_modellingtaxa_info <- 
-  taxa_species_eu %>%
-  bind_rows(taxa_subspecies_eu) %>%
-  bind_rows(taxa_synonym_eu)
+  bind_rows(taxa_species_eu,
+            taxa_subspecies_eu,
+            taxa_synonym_eu)
 ```
 
 ### Save aggregated data
