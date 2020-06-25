@@ -173,9 +173,7 @@ modelling_taxa <-
   modelling_taxa %>%
   bind_cols(
     map_dfr(modelling_taxa$backbone_taxonKey,
-        function(taxon) {
-          name_usage(taxon, 
-                     return = "data")}) %>%
+        ~name_usage(.x)$data) %>%
       select(key, taxonomicStatus, rank, speciesKey)
 )
 ```
@@ -300,14 +298,20 @@ taxa_species_eu <-
   # get unique 'speciesKey'
   distinct(speciesKey) %>%
   
-  # rename column 'speciesKey' to 'key'
-  rename(key = speciesKey) %>%
+  # extract speciesKey
+  pull(speciesKey) %>%
   
-  # GBIF query via name_usage with 'key' column as input
-  pmap_dfr(name_usage, return = "data") %>%
+  # GBIF query via name_usage
+  map(~name_usage(key = .x)) %>%
   
-  # select columns of interest
-  select(speciesKey, scientificName, rank, taxonomicStatus) %>%
+  # Select data
+  map(~.x[["data"]]) %>%
+  
+  # Select columns of interest
+  map(~select(.x, speciesKey, scientificName, rank, taxonomicStatus)) %>%
+  
+  # Merge all taxa in a data.frame
+  reduce(full_join) %>%
   
   # rename 'scientificName' to 'species_scientificName'
   rename(species_scientificName = scientificName) %>%
@@ -450,12 +454,18 @@ taxa_subspecies_eu <-
   # get unique 'acceptedTaxonKey'
   distinct(acceptedTaxonKey) %>%
   
-  # rename column 'acceptedTaxonKey' to 'key'
-  rename(key = acceptedTaxonKey) %>%
+  # extract acceptedTaxonKey
+  pull(acceptedTaxonKey) %>%
   
-  # GBIF query via name_usage with 'key' column as input
-  pmap_dfr(name_usage, return = "data")
-
+  # GBIF query via name_usage
+  map(~name_usage(key = .x)) %>%
+  
+  # Select data
+  map(~.x[["data"]]) %>%
+  
+  # Merge all taxa in a data.frame
+  reduce(full_join)
+  
 if (ncol(taxa_subspecies_eu) > 0) {
   taxa_subspecies_eu <-
     taxa_subspecies_eu %>%
@@ -583,16 +593,22 @@ For these taxa we don't have occcurrences linked to other related taxa. We have 
 ```{r taxa_synonym_eu}
 taxa_synonym_eu <- 
   
-  # create a df with 'key' column
-  tibble(key = modelling_taxa_synonyms_key[
-    which(modelling_taxa_synonyms_key %in% 
-            unique(occ_cube_eu_synonym$taxonKey))]) %>%
+  # create vector with synonyms keys present in occurrence cube 
+  modelling_taxa_synonyms_key[
+    which(modelling_taxa_synonyms_key %in%
+            unique(occ_cube_eu_synonym$taxonKey))] %>%
   
-  # GBIF query via name_usage with 'key' column as input
-  pmap_dfr(name_usage, return = "data") %>%
+  # GBIF query via name_usage
+  map(~name_usage(key = .x)) %>%
+  
+  # Select data
+  map(~.x[["data"]]) %>%
   
   # select columns of interest
-  select(key, scientificName, rank, taxonomicStatus) %>%
+  map(~select(.x, key, scientificName, rank, taxonomicStatus)) %>%
+  
+  # Merge all taxa in a data.frame
+  reduce(full_join) %>% 
   
   # rename 'key' to 'taxonKey'
   rename(taxonKey = key) %>%
