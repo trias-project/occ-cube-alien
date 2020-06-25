@@ -240,7 +240,9 @@ Occurrences with the following occurrence status should be filtered out as well:
 ```{r occurrenceStatus}
 occurrenceStatus_to_discard <- c(
   "absent",
-  "excluded"
+  "excluded",
+  "not able to validate",
+  "control could not be conclusive due to insufficient knowledge"
 )
 ```
 
