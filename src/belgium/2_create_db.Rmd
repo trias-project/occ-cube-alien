@@ -240,9 +240,7 @@ Occurrences with the following occurrence status should be filtered out as well:
 ```{r occurrenceStatus}
 occurrenceStatus_to_discard <- c(
   "absent",
-  "excluded",
-  "not able to validate",
-  "control could not be conclusive due to insufficient knowledge"
+  "excluded"
 )
 ```
 
@@ -251,7 +249,9 @@ We won't take into account unverified observations neither:
 ```{r identificationVerificationStatus}
 identificationVerificationStatus_to_discard <- c(
   "unverified",
-  "unvalidated"
+  "unvalidated",
+  "not able to validate",
+  "control could not be conclusive due to insufficient knowledge"
 )
 ```
 
