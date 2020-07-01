@@ -686,7 +686,7 @@ Save as tab separated text file:
 
 ```{r save_baseline_datacube}
 write_csv(occ_cube_baseline,
-          here::here("data", "processed", "be_classes_cube.tsv"),
+          here::here("data", "processed", "be_classes_cube.csv"),
           na = "")
 ```
 
