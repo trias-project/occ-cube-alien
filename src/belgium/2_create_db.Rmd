@@ -24,6 +24,7 @@ Load libraries:
 
 ```{r load_libraries}
 library(tidyverse)      # To do datascience
+library(tidylog)        # To provide feedback on dplyr functions
 library(here)           # To find files
 library(rgbif)          # To use GBIF services
 library(glue)           # To write queries
@@ -37,9 +38,10 @@ library(RSQLite)        # To interact with SQlite databases
 Download the occurrences from GBIF, based on the download key returned in `download.Rmd`:
 
 ```{r get_occ_file}
-key <- "0000537-200127171203522"
+key <- "0003154-200613084148143"
 zip_filename <- paste0(key, ".zip")
-if (!file.exists(here::here("data", "raw", zip_filename))) {
+zip_path <- here::here("data", "raw", zip_filename)
+if (!file.exists(zip_path)) {
   occ <- occ_download_get(
     key = key,
     path = here::here("data", "raw")
@@ -54,7 +56,7 @@ occ_file <- paste(key, "occurrence.txt", sep = "_")
 occ_path <- here::here("data", "raw", occ_file)
 
 if (!file.exists(here::here("data", "raw", occ_file))) {
-  unzip(zipfile = occ,
+  unzip(zipfile = zip_path,
         files = "occurrence.txt",
         exdir = here::here("data", "raw"))
   file.rename(from = here::here("data", "raw", "occurrence.txt"),
@@ -184,12 +186,14 @@ cols_to_use <- c(
   "gbifID", "scientificName", "kingdom", "phylum", "class", "order", "family",
   "genus", "specificEpithet", "infraspecificEpithet", "taxonRank", 
   "taxonomicStatus", "datasetKey", "basisOfRecord", "occurrenceStatus",
-  "lastInterpreted", "hasCoordinate", "hasGeospatialIssues", "decimalLatitude", "decimalLongitude", "coordinateUncertaintyInMeters",
-  "coordinatePrecision", "pointRadiusSpatialFit", "verbatimCoordinateSystem", 
-  "verbatimSRS", "eventDate", "startDayOfYear", "endDayOfYear", "year", "month",
-  "day", "verbatimEventDate", "samplingProtocol", "samplingEffort", "issue",
-  "taxonKey", "acceptedTaxonKey", "kingdomKey", "phylumKey", "classKey", 
-  "orderKey", "familyKey", "genusKey", "subgenusKey", "speciesKey", "species"
+  "lastInterpreted", "hasCoordinate", "hasGeospatialIssues", "decimalLatitude",
+  "decimalLongitude", "coordinateUncertaintyInMeters", "coordinatePrecision",
+  "pointRadiusSpatialFit", "verbatimCoordinateSystem", "verbatimSRS",
+  "eventDate", "startDayOfYear", "endDayOfYear", "year", "month", "day",
+  "verbatimEventDate", "samplingProtocol", "samplingEffort", "issue",
+  "identificationVerificationStatus", "taxonKey", "acceptedTaxonKey",
+  "kingdomKey", "phylumKey", "classKey", "orderKey", "familyKey", "genusKey",
+  "subgenusKey", "speciesKey", "species"
 )
 ```
 
@@ -231,7 +235,7 @@ issues_to_discard <- c(
 )
 ```
 
-Occurrences with the following occurrence status should filtered out as well:
+Occurrences with the following occurrence status should be filtered out as well:
 
 ```{r occurrenceStatus}
 occurrenceStatus_to_discard <- c(
@@ -240,10 +244,22 @@ occurrenceStatus_to_discard <- c(
 )
 ```
 
-We create an index based on these two columns if not already present:
+We won't take into account unverified observations neither:
+
+```{r identificationVerificationStatus}
+identificationVerificationStatus_to_discard <- c(
+  "unverified",
+  "unvalidated",
+  "not able to validate",
+  "control could not be conclusive due to insufficient knowledge"
+)
+```
+
+
+We create an index based on these three columns if not already present:
 
 ```{r create_idx_occStatus_issue}
-idx_occStatus_issue <- "idx_occStatus_issue"
+idx_occStatus_issue <- "idx_verifStatus_occStatus_issue"
 # get indexes on table
 query <- glue_sql(
     "PRAGMA index_list({table_name})",
@@ -258,7 +274,9 @@ if (!idx_occStatus_issue %in% indexes_all$name) {
   "CREATE INDEX {`idx`} ON {table_name} ({`cols_idx`*})",
   idx = idx_occStatus_issue,
   table_name = table_name,
-  cols_idx = c("occurrenceStatus", "issue"),
+  cols_idx = c("identificationVerificationStatus",
+               "occurrenceStatus",
+               "issue"),
   .con = sqlite_occ
   )
   dbExecute(sqlite_occ, query)
@@ -273,7 +291,7 @@ issues_to_discard <- paste0("\'%", issues_to_discard, "%\'")
 
 We create the subquery for filtering on issue conditions:
 
-```{r}
+```{r subquery_issues}
 issue_condition <- paste("issue NOT LIKE", issues_to_discard, collapse = " AND ")
 issue_condition
 ```
@@ -295,10 +313,11 @@ if (!table_name_subset %in% dbListTables(sqlite_occ)) {
                fields = field_types_subset)
   query <- glue_sql(
   "INSERT INTO {small_table} SELECT {`some_cols`*} FROM {big_table} WHERE 
-  occurrenceStatus NOT IN ({bad_status*}) AND ", issue_condition, 
+  LOWER(identificationVerificationStatus) NOT IN ({unverified*}) AND LOWER(occurrenceStatus) NOT IN ({bad_status*}) AND ", issue_condition, 
   small_table = table_name_subset,
   some_cols = names(field_types_subset),
   big_table = table_name,
+  unverified = identificationVerificationStatus_to_discard,
   bad_status = occurrenceStatus_to_discard,
   .con = sqlite_occ
   )
@@ -318,7 +337,7 @@ table_name_subset %in% dbListTables(sqlite_occ)
 
 Columns present:
 
-```{r}
+```{r cols_in_occ}
 dbListFields(sqlite_occ, name = table_name_subset)
 ```
 
@@ -396,7 +415,36 @@ any(map_lgl(issues_to_discard,
             }))
 ```
 
-Overview of alll indexes present on `occ`:
+We create an index on `identificationVerificationStatus`:
+
+```{r idx_identificationVerificationStatus}
+idx_issue <- "idx_issue"
+if (!idx_issue %in% indexes$name) {
+  query <- glue_sql(
+    "CREATE INDEX {idx} ON {table_name} ({cols_idx})",
+    idx = idx_issue,
+    table_name = table_name_subset,
+    cols_idx = c("identificationVerificationStatus"),
+    .con = sqlite_occ
+  )
+  dbExecute(sqlite_occ, query)
+}
+```
+
+Identification verification status left in the filtered data:
+
+```{r check_identificationVerificationStatus_values}
+query <- glue_sql(
+    "SELECT DISTINCT identificationVerificationStatus FROM {table}",
+    table = table_name_subset,
+    .con = sqlite_occ
+  )
+status_verification_left <- dbGetQuery(sqlite_occ, query)
+status_verification_left
+```
+
+
+Overview of all indexes present on `occ`:
 
 ```{r index_filtered_table}
 query <- glue_sql(

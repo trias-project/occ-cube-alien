@@ -24,6 +24,7 @@ Load libraries:
 
 ```{r load_libraries}
 library(tidyverse)      # To do datascience
+library(tidylog)        # To provide feedback on dplyr functions
 library(here)           # To find files
 library(rgbif)          # To use GBIF services
 library(glue)           # To write queries
@@ -33,7 +34,7 @@ library(RSQLite)        # To interact with SQlite databases
 Name and path of `.sqlite` file:
 
 ```{r name_path}
-key <- "0000537-200127171203522"
+key <- "0003154-200613084148143"
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
@@ -115,8 +116,8 @@ class_df <-
   mutate(class = map_chr(
     classKey, 
     function(x) {
-      name_usage(x, return = "data") %>%
-        pull(scientificName)
+      taxon = name_usage(x)
+      taxon$data %>% pull(scientificName)
       })
   )
 class_df
@@ -132,42 +133,38 @@ We extract taxa from unified checklist:
 datasetKey <- "6d9e952f-948c-4483-9807-575348147c7e"
 alien_taxa <- name_usage(
   datasetKey = datasetKey, 
-  return = "data",
-  limit = 10000)  %>%
+  limit = 10000)[["data"]]  %>%
   filter(origin == "SOURCE")
 ```
 
-Rank present values in checklist:
+Rank - taxonomic status pair values present in checklist:
 
-```{r overview_rank}
+```{r overview_rank_tax_status}
 alien_taxa %>%
-  group_by(rank) %>%
+  group_by(rank, taxonomicStatus) %>%
   count()
 ```
 
-Taxonomic status values present in checklist:
-
-```{r taxonStatus}
-alien_taxa %>%
-  group_by(taxonomicStatus) %>%
-  count()
-```
-
-## Aggregate occurrences for accepted species
+## Aggregate occurrences for accepted alien species and genera
 
 ### Aggregate occurrences
 
-As initial step, we start by selecting occurrences linked to taxa with rank `SPECIES` and taxonomic status `ACCEPTED` and `DOUBTFUL`:
+As initial step, we start by selecting occurrences linked to taxa with rank `SPECIES` or `GENUS` and taxonomic status `ACCEPTED` and `DOUBTFUL`:
 
 ```{r alien_taxa_species}
 alien_taxa_species <- 
   alien_taxa %>%
-  filter(rank == "SPECIES", 
+  filter(rank %in% c("SPECIES", "GENUS"), 
          taxonomicStatus %in% c("ACCEPTED", "DOUBTFUL"))
+```
+
+Preview:
+
+```{r alien_taxa_species_preview}
 alien_taxa_species %>% head()
 ```
 
-The `nubKey` of these taxa are the `speciesKey` we can filter on:
+The `nubKey` of these taxa are the `speciesKey` or `genusKey` we can filter on:
 
 ```{r get_alien_taxa_species_key}
 alien_taxa_species_key <-
@@ -178,10 +175,10 @@ alien_taxa_species_key <-
 
 Species, synonyms of that species and infraspecific taxa of that species all share the same `speciesKey`.
 
-For speeding up the aggregation, we create an index on  `year`,  `eea_cell_code` and `speciesKey` if not present:
+For speeding up the aggregation, we create an index on  `year`,  `eea_cell_code`, `speciesKey` and `genusKey` if not present:
 
 ```{r create_idx_speciesKey}
-idx_species_year_cell <- "idx_species_year_cell"
+idx_species_year_cell <- "idx_species_genus_year_cell"
 # get indexes on table
 query <- glue_sql(
     "PRAGMA index_list({table_name})",
@@ -199,6 +196,7 @@ if (!idx_species_year_cell %in% indexes_all$name) {
   cols_idx = c("year", 
                "eea_cell_code", 
                "speciesKey",
+               "genusKey",
                "coordinateUncertaintyInMeters"),
   .con = sqlite_occ
   )
@@ -206,14 +204,15 @@ if (!idx_species_year_cell %in% indexes_all$name) {
 }
 ```
 
-Group by `year`, `eea_cell_code` and `speciesKey`, count number of occurrences for each group and get the lowest value of coordinate uncertainty `occurrenceUncertaintyInMeters`:
+Group by `year`, `eea_cell_code`, `speciesKey`, `genusKey`, count number of occurrences for each group and get the lowest value of coordinate uncertainty `occurrenceUncertaintyInMeters`:
 
 ```{r get_datacube_species}
 query <- glue_sql(
   "SELECT {`cols`*}, COUNT(_ROWID_), MIN({`coord_uncertainty`}) FROM {table} GROUP BY {`cols`*}",
   cols = c("year", 
            "eea_cell_code", 
-           "speciesKey"),
+           "speciesKey",
+           "genusKey"),
   coord_uncertainty = "coordinateUncertaintyInMeters",
   table = table_name,
   .con = sqlite_occ
@@ -226,19 +225,38 @@ occ_cube_species <-
 )
 occ_cube_species <-
   occ_cube_species %>%
-  mutate(speciesKey = as.integer(speciesKey)) %>%
-  filter(speciesKey %in% alien_taxa_species_key)
+  mutate(speciesKey = as.integer(speciesKey),
+         genusKey = as.integer(genusKey)) %>%
+  filter(speciesKey %in% alien_taxa_species_key | 
+           genusKey %in% alien_taxa_species_key)
 ```
 
-Number of alien species included in the occurrence cube:
+Remove occurrences at genus level, if present:
+
+```{r remove_genus_level_occs}
+occ_cube_species <-
+  occ_cube_species %>% 
+  filter(!is.na(speciesKey) & speciesKey != 0)
+```
+
+Number of alien species (or genera) included in the occurrence cube:
 
 ```{r species_included}
 paste(
   length(alien_taxa_species_key[
-  which(alien_taxa_species_key %in% unique(occ_cube_species$speciesKey))]),
+  which(alien_taxa_species_key %in% c(unique(occ_cube_species$speciesKey), 
+                                      unique(occ_cube_species$genusKey)))]),
   "out of",
   length(alien_taxa_species_key)
 )
+```
+
+Drop `genusKey`:
+
+```{r drop_genusKey_occ_cube}
+occ_cube_species <-
+  occ_cube_species %>%
+  select(-genusKey)
 ```
 
 Preview:
@@ -257,6 +275,7 @@ First, we get all distinct taxa:
 query <- glue_sql(
   "SELECT DISTINCT {`cols`*} FROM {table}",
   cols = c("speciesKey",
+           "genusKey",
            "taxonKey",
            "scientificName"),
   table = table_name,
@@ -264,7 +283,24 @@ query <- glue_sql(
 )
 occ_cube_species_taxa <- 
   dbGetQuery(sqlite_occ, query) %>%
-  filter(speciesKey %in% alien_taxa_species_key)
+  filter(speciesKey %in% alien_taxa_species_key | 
+           genusKey %in% alien_taxa_species_key)
+```
+
+Drop taxa at genus level:
+
+```{r drop_taxa_genus_level}
+occ_cube_species_taxa <-
+  occ_cube_species_taxa %>%
+  filter(!is.na(speciesKey) & speciesKey != 0)
+```
+
+Drop `genusKey`:
+
+```{r drop_genusKey_taxa}
+occ_cube_species_taxa <-
+  occ_cube_species_taxa %>%
+  select(-genusKey)
 ```
 
 Some species have occurrences coming from multiple taxa:
@@ -272,10 +308,10 @@ Some species have occurrences coming from multiple taxa:
 ```{r show_multiple_taxonKey}
 occ_cube_species_taxa %>%
   group_by(speciesKey) %>%
-  count() %>%
+  add_tally() %>%
+  ungroup() %>%
   filter(n > 1) %>%
   select(-n) %>%
-  left_join(occ_cube_species_taxa, by = "speciesKey") %>%
   arrange(speciesKey, taxonKey)
 ```
 
@@ -306,17 +342,23 @@ We create `taxa_species` by adding the taxonomic rank, `SPECIES`, and the taxono
 taxa_species <- 
   occ_cube_species_taxa %>%
   
-  # get unique 'speciesKey'
+# get unique 'speciesKey'
   distinct(speciesKey) %>%
   
-  # rename column 'speciesKey' to 'key'
-  rename(key = speciesKey) %>%
+  # extract speciesKey
+  pull(speciesKey) %>%
   
-  # GBIF query via name_usage with 'key' column as input
-  pmap_dfr(name_usage, return = "data") %>%
+  # GBIF query via name_usage
+  map(~name_usage(key = .x)) %>%
   
-  # select columns of interest
-  select(speciesKey, scientificName, rank, taxonomicStatus) %>%
+  # Select data
+  map(~.x[["data"]]) %>%
+
+  # Select columns of interest
+  map(~select(.x, speciesKey, scientificName, rank, taxonomicStatus)) %>%
+  
+  # Merge all taxa in a data.frame
+  reduce(full_join) %>%
   
   # rename 'scientificName' to 'species_scientificName'
   rename(species_scientificName = scientificName) %>%
@@ -325,7 +367,7 @@ taxa_species <-
   right_join(occ_cube_species_taxa, by = "speciesKey") %>%
   
   # group by 'speciesKey'
-  group_by(speciesKey,
+  group_by(speciesKey, 
            species_scientificName,
            rank,
            taxonomicStatus) %>%
@@ -431,15 +473,14 @@ occ_cube_subspecies_taxa <-
   dbGetQuery(sqlite_occ, query)
 ```
 
-Some species have occurrences coming from multiple taxa:
+Some infraspecific taxa have occurrences coming from multiple taxa:
 
 ```{r show_multiple_taxonKey_in_occ_cube_subspecies}
 occ_cube_subspecies_taxa %>%
   group_by(acceptedTaxonKey) %>%
-  count() %>%
+  add_tally() %>%
   filter(n > 1) %>%
-  select(-n) %>%
-  left_join(occ_cube_subspecies_taxa)
+  select(-n)
 ```
 
 Some infraspecific taxa have occurrences only from taxa linked to their synonyms. In these cases `acceptedTaxonKey` is not equal to `taxonKey`:
@@ -475,11 +516,17 @@ taxa_subspecies <-
   # get unique 'acceptedTaxonKey'
   distinct(acceptedTaxonKey) %>%
   
-  # rename column 'acceptedTaxonKey' to 'key'
-  rename(key = acceptedTaxonKey) %>%
+  # extract acceptedTaxonKey
+  pull(acceptedTaxonKey) %>%
   
-  # GBIF query via name_usage with 'key' column as input
-  pmap_dfr(name_usage, return = "data") %>%
+  # GBIF query via name_usage
+  map(~name_usage(key = .x)) %>%
+  
+  # Select data
+  map(~.x[["data"]]) %>%
+  
+  # Merge all taxa in a data.frame
+  reduce(full_join) %>%
   
   # rename 'scientificName' to 'accepted_scientificName'
   rename(accepted_scientificName = scientificName)
@@ -610,16 +657,22 @@ For these taxa we don't have occcurrences linked to other related taxa. We have 
 ```{r taxa_synonym}
 taxa_synonym <- 
   
-  # create a df with 'key' column
-  tibble(key = alien_taxa_synonyms_key[
+  # create vector with synonyms keys present in occurrence cube 
+  alien_taxa_synonyms_key[
     which(alien_taxa_synonyms_key %in% 
-            unique(occ_cube_synonym$taxonKey))]) %>%
+            unique(occ_cube_synonym$taxonKey))] %>%
   
-  # GBIF query via name_usage with 'key' column as input
-  pmap_dfr(name_usage, return = "data") %>%
+  # GBIF query via name_usage
+  map(~name_usage(key = .x)) %>%
+  
+  # Select data
+  map(~.x[["data"]]) %>%
   
   # select columns of interest
-  select(key, scientificName, rank, taxonomicStatus) %>%
+  map(~select(.x, key, scientificName, rank, taxonomicStatus)) %>%
+  
+  # Merge all taxa in a data.frame
+  reduce(full_join) %>% 
   
   # rename 'key' to 'taxonKey'
   rename(taxonKey = key) %>%
@@ -641,7 +694,7 @@ Save as tab separated text file:
 
 ```{r save_baseline_datacube}
 write_csv(occ_cube_baseline,
-          here::here("data", "processed", "be_classes_cube.tsv"),
+          here::here("data", "processed", "be_classes_cube.csv"),
           na = "")
 ```
 

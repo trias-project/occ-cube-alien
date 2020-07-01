@@ -24,6 +24,7 @@ Load libraries:
 
 ```{r load_libraries_assign_grid_eu}
 library(tidyverse)      # To do datascience
+library(tidylog)        # To provide feedback on dplyr functions
 library(here)           # To find files
 library(rgbif)          # To use GBIF services
 library(glue)           # To write queries
@@ -37,9 +38,10 @@ library(sp)             # To work with geospatial data
 We download the occurrences from GBIF, based on the key got in `download.Rmd`:
 
 ```{r get_occ_file_eu}
-key <- "0004487-200127171203522"
+key <- "0003164-200613084148143"
 zip_filename <- paste0(key, ".zip")
-if (!file.exists(here::here("data", "raw", zip_filename))) {
+zip_path <- here::here("data", "raw", zip_filename)
+if (!file.exists(zip_path)) {
   occ <- occ_download_get(
     key = key, 
     path = here::here("data", "raw")
@@ -54,7 +56,7 @@ occ_file <- paste(key, "occurrence.txt", sep = "_")
 occ_path <- here::here("data", "raw", occ_file)
 
 if (!file.exists(here::here("data", "raw", occ_file))) {
-  unzip(zipfile = occ,
+  unzip(zipfile = zip_path,
         files = "occurrence.txt",
         exdir = here::here("data", "raw"))
   file.rename(from = here::here("data", "raw", "occurrence.txt"),
@@ -100,6 +102,7 @@ cols_to_use <- c("gbifID",
                  "basisOfRecord",
                  "occurrenceStatus",
                  "lastInterpreted",
+                 "identificationVerificationStatus",
                  "hasCoordinate",
                  "hasGeospatialIssues",
                  "decimalLatitude",
@@ -335,6 +338,47 @@ if (any(
 }
 ```
 
+## Filter on identification verification status
+
+We won't take into account unverified observations:
+
+```{r identificationVerificationStatus_to_discard_occs_eu}
+identificationVerificationStatus_to_discard <- c(
+  "unverified",
+  "unvalidated",
+  "not able to validate",
+  "control could not be conclusive due to insufficient knowledge"
+)
+```
+
+Identification verification status present in `occ_eu`:
+
+```{r iidentification_status_in_data_occs_eu}
+identificationVerificationStatus <-
+  occ_eu %>% 
+  group_by(identificationVerificationStatus) %>%
+  count() %>%
+  arrange(desc(n))
+identificationVerificationStatus
+```
+
+Are there some `identificationVerificationStatus_to_discard` in `identificationVerificationStatus`?
+
+```{r any_identificationStatus_to_discard_in_data_occs_eu}
+any(identificationVerificationStatus_to_discard %in% str_to_lower(identificationVerificationStatus$identificationVerificationStatus))
+```
+
+If yes, remove occurrences with `identificationVerificationStatus` equal to one of `identificationVerificationStatus_to_discard`:
+
+```{r remove_identificationStatus_to_discard_occs_eu}
+if (any(
+  identificationVerificationStatus_to_discard %in% str_to_lower(identificationVerificationStatus$identificationVerificationStatus))) {
+  occ_eu <- 
+    occ_eu %>%
+    filter(!str_to_lower(identificationVerificationStatus) %in% identificationVerificationStatus_to_discard)
+}
+```
+
 ## Overview and control filtered data table
 
 Number of occurrences left:
@@ -372,7 +416,7 @@ occ_eu <-
   mutate(
     coordinateUncertaintyInMeters = 
       if_else(is.na(coordinateUncertaintyInMeters) | 
-                coordinateUncertaintyInMeters == 0.0,
+                coordinateUncertaintyInMeters == 0,
               1000.0,
               coordinateUncertaintyInMeters)
 )
