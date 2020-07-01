@@ -251,6 +251,14 @@ paste(
 )
 ```
 
+Drop `genusKey`:
+
+```{r drop_genusKey_occ_cube}
+occ_cube_species <-
+  occ_cube_species %>%
+  select(-genusKey)
+```
+
 Preview:
 
 ```{r preview_occ_species}
@@ -289,7 +297,7 @@ occ_cube_species_taxa <-
 
 Drop `genusKey`:
 
-```{r drop_genusKey}
+```{r drop_genusKey_taxa}
 occ_cube_species_taxa <-
   occ_cube_species_taxa %>%
   select(-genusKey)
