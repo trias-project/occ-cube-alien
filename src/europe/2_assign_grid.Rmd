@@ -347,7 +347,10 @@ identificationVerificationStatus_to_discard <- c(
   "unverified",
   "unvalidated",
   "not able to validate",
-  "control could not be conclusive due to insufficient knowledge"
+  "control could not be conclusive due to insufficient knowledge",
+  "unconfirmed",
+  "unconfirmed - not reviewed",
+  "validation requested"
 )
 ```
 
