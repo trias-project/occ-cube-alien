@@ -321,10 +321,11 @@ occurrenceStatus <-
 occurrenceStatus
 ```
 
-Are there some `occurrenceStatus_to_discard` in `occurrenceStatus`?
+Are there some `occurrenceStatus_to_discard` in `occurrenceStatus` (case insensitive search)?
 
 ```{r any_occurrenceStatus_to_discard_in_data_occs_eu}
-any(occurrenceStatus_to_discard %in% occurrenceStatus$occurrenceStatus)
+any(occurrenceStatus_to_discard %in% 
+      str_to_lower(occurrenceStatus$occurrenceStatus))
 ```
 
 If yes, remove occurrences with `occurrenceStatus` equal to one of `occurrenceStatus_to_discard`:
@@ -334,7 +335,7 @@ if (any(
   occurrenceStatus_to_discard %in% occurrenceStatus$occurrenceStatus)) {
   occ_eu <- 
     occ_eu %>%
-    filter(!occurrenceStatus %in% occurrenceStatus_to_discard)
+    filter(!str_to_lower(occurrenceStatus) %in% occurrenceStatus_to_discard)
 }
 ```
 
