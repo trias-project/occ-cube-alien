@@ -418,7 +418,7 @@ any(map_lgl(issues_to_discard,
 We create an index on `identificationVerificationStatus`:
 
 ```{r idx_identificationVerificationStatus}
-idx_issue <- "idx_issue"
+idx_issue <- "idx_identificationVerificationStatus"
 if (!idx_issue %in% indexes$name) {
   query <- glue_sql(
     "CREATE INDEX {idx} ON {table_name} ({cols_idx})",
