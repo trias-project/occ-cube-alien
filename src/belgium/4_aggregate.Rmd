@@ -430,8 +430,8 @@ occ_cube_subspecies <-
   group_by(year, eea_cell_code, acceptedTaxonKey) %>%
   summarize(
     n = n(),
-    min_coord_uncertainty = min(coordinateUncertaintyInMeters)
-)
+    min_coord_uncertainty = min(coordinateUncertaintyInMeters)) %>%
+  ungroup()
 ```
 
 Number of infraspecific taxa included in `occ_cube_subspecies`:

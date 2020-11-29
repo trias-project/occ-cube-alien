@@ -379,8 +379,8 @@ occ_cube_eu_subspecies <-
   group_by(year, eea_cell_code, acceptedTaxonKey) %>%
   summarize(
     n = n(),
-    min_coord_uncertainty = min(coordinateUncertaintyInMeters)
-)
+    min_coord_uncertainty = min(coordinateUncertaintyInMeters)) %>%
+  ungroup()
 ```
 
 Number of infraspecific taxa included in `occ_cube_subspecies`:
@@ -566,8 +566,8 @@ occ_cube_eu_synonym <-
   group_by(year, eea_cell_code, taxonKey) %>%
   summarize(
     n = n(),
-    min_coord_uncertainty = min(coordinateUncertaintyInMeters)
-)
+    min_coord_uncertainty = min(coordinateUncertaintyInMeters)) %>%
+      ungroup()
 ```
 
 Number of synonyms included in `occ_cube_synonym`:
