@@ -299,7 +299,8 @@ Preview:
 query <- glue_sql("SELECT * FROM {table} WHERE _ROWID_ <= 10",
                   table = table_name,
                   .con = sqlite_occ)
-dbGetQuery(sqlite_occ, query)
+dbGetQuery(sqlite_occ, query) %>%
+  select(eea_cell_code , everything())
 ```
 
 Close connection:
