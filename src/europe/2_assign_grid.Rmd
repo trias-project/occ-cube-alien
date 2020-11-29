@@ -451,6 +451,12 @@ colnames(geodata_df@coords) <- c("x", "y")
 
 ## Assign occurrence within uncertainty circle
 
+Set random number generator seed (this helps reproducibility). We use the unique identifier of the [Zenodo dataset's DOI](https://doi.org/10.5281/zenodo.3635510) which the occurrence cube will be published to:
+
+```{r set_seed}
+set.seed(3635510)
+```
+
 Assign the occurrence randomly within the circle with radius equal to `coordinateUncertaintyInMeters`:
 
 ```{r assign_pts_in_circle_occs_eu}
