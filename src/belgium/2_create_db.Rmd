@@ -255,7 +255,6 @@ identificationVerificationStatus_to_discard <- c(
 )
 ```
 
-
 We create an index based on these three columns if not already present:
 
 ```{r create_idx_occStatus_issue}
@@ -442,7 +441,6 @@ query <- glue_sql(
 status_verification_left <- dbGetQuery(sqlite_occ, query)
 status_verification_left
 ```
-
 
 Overview of all indexes present on `occ`:
 
