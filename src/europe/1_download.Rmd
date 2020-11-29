@@ -49,6 +49,11 @@ Preview file:
 ```{r preview_taxa_modelling}
 head(taxa)
 ```
+Number of taxa:
+
+```{r n_taxa}
+nrow(taxa)
+```
 
 Retrieve the `taxonKey`s we want to use to download occurrences:
 
