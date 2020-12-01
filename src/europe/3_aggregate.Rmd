@@ -42,8 +42,9 @@ library(glue)           # To write queries
 Read taxa for modelling from  `modelling_species.tsv`:
 
 ```{r read_modelling_taxa}
+taxa_input_file <- "https://raw.githubusercontent.com/trias-project/occ-cube-alien/b22225d4eddb3bc6916f387c5a0d6dac3a38a90e/references/modelling_species.tsv"
 modelling_taxa <- read_tsv(
-  here::here("references", "modelling_species.tsv"),
+  taxa_input_file,
   na = "",
   quote = "",
   col_types = cols(
@@ -69,7 +70,7 @@ modelling_taxa %>% head()
 Name and path of occurrence data file:
 
 ```{r name_path_eu}
-key <- "0003164-200613084148143"
+key <- "0123859-200613084148143"
 occ_file <- paste(key, "occurrence.tsv", sep = "_")
 occ_path <- here::here("data", "interim", occ_file)
 ```
@@ -378,8 +379,8 @@ occ_cube_eu_subspecies <-
   group_by(year, eea_cell_code, acceptedTaxonKey) %>%
   summarize(
     n = n(),
-    min_coord_uncertainty = min(coordinateUncertaintyInMeters)
-)
+    min_coord_uncertainty = min(coordinateUncertaintyInMeters)) %>%
+  ungroup()
 ```
 
 Number of infraspecific taxa included in `occ_cube_subspecies`:
@@ -565,8 +566,8 @@ occ_cube_eu_synonym <-
   group_by(year, eea_cell_code, taxonKey) %>%
   summarize(
     n = n(),
-    min_coord_uncertainty = min(coordinateUncertaintyInMeters)
-)
+    min_coord_uncertainty = min(coordinateUncertaintyInMeters)) %>%
+      ungroup()
 ```
 
 Number of synonyms included in `occ_cube_synonym`:

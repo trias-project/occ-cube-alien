@@ -38,7 +38,7 @@ library(RSQLite)        # To interact with SQlite databases
 Download the occurrences from GBIF, based on the download key returned in `download.Rmd`:
 
 ```{r get_occ_file}
-key <- "0003154-200613084148143"
+key <- "0125107-200613084148143"
 zip_filename <- paste0(key, ".zip")
 zip_path <- here::here("data", "raw", zip_filename)
 if (!file.exists(zip_path)) {
@@ -175,6 +175,19 @@ cols_occ_db <- dbListFields(sqlite_occ, table_name)
 length(cols_occ_db)
 ```
 
+Number of occurrences:
+
+```{r n_occs_raw}
+query <- glue_sql(
+    "SELECT COUNT() FROM {table}",
+    table = table_name,
+    .con = sqlite_occ
+  )
+n_occs_total <- dbGetQuery(sqlite_occ, query)
+n_occs_total <- n_occs_total$`COUNT()`
+n_occs_total
+```
+
 # Filter data
 
 ## Define columns to select
@@ -251,10 +264,12 @@ identificationVerificationStatus_to_discard <- c(
   "unverified",
   "unvalidated",
   "not able to validate",
-  "control could not be conclusive due to insufficient knowledge"
+  "control could not be conclusive due to insufficient knowledge",
+  "unconfirmed",
+  "unconfirmed - not reviewed",
+  "validation requested"
 )
 ```
-
 
 We create an index based on these three columns if not already present:
 
@@ -418,7 +433,7 @@ any(map_lgl(issues_to_discard,
 We create an index on `identificationVerificationStatus`:
 
 ```{r idx_identificationVerificationStatus}
-idx_issue <- "idx_issue"
+idx_issue <- "idx_identificationVerificationStatus"
 if (!idx_issue %in% indexes$name) {
   query <- glue_sql(
     "CREATE INDEX {idx} ON {table_name} ({cols_idx})",
@@ -443,6 +458,18 @@ status_verification_left <- dbGetQuery(sqlite_occ, query)
 status_verification_left
 ```
 
+Number of occurrences left:
+
+```{r n_occs_filtered}
+query <- glue_sql(
+    "SELECT COUNT() FROM {table}",
+    table = table_name_subset,
+    .con = sqlite_occ
+  )
+n_occs <- dbGetQuery(sqlite_occ, query)
+n_occs <- n_occs$`COUNT()`
+n_occs
+```
 
 Overview of all indexes present on `occ`:
 

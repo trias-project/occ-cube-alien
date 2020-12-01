@@ -34,7 +34,7 @@ library(lubridate)      # To work with dates
 
 ## Taxa
 
-As the list of alien species in Belgium (defined in the [unified checklist](https://doi.org/10.15468/xoidmd)) is [too long](https://github.com/gbif/portal-feedback/issues/1768) for a query to the GBIF API, we don't filter on taxa in the download step.
+We don't filter on taxa in the download step as we need data at class level for compensating research effort bias (see [indicators](https://github.com/trias-project/indicators) repository) later.
 
 ## Countries
 
@@ -87,7 +87,7 @@ Trigger download:
 
 ```{r trigger_gbif_download}
 # Reuse existing download (comment to trigger new download)
-gbif_download_key <- "0003154-200613084148143"
+gbif_download_key <- "0125107-200613084148143"
 
 # Trigger new download (commented by default)
 # gbif_download_key <- occ_download(
