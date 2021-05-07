@@ -30,6 +30,7 @@ Dama dama	mammals	Animalia	5220136	ACCEPTED
 Deroceras invadens	mollusca	Animalia	8745918	ACCEPTED
 Egeria densa	aquatic plants	Plantae	5329260	ACCEPTED
 Elaeagnus angustifolia	plants	Plantae	3039269	ACCEPTED
+Elaphe taeniura	reptiles	Animalia	3080725268	SYNONYM
 Elaphe schrenckii	reptiles	Animalia	2458438	ACCEPTED
 Ensis directus	mollusca	Animalia	2287249	ACCEPTED
 Eriocheir sinensis	crustaceans	Animalia	2225776	ACCEPTED
@@ -81,3 +82,11 @@ Tamiasciurus hudsonicus	mammals	Animalia	2437282	ACCEPTED
 Triturus carnifex	amphibians	Animalia	2431887	ACCEPTED
 Vaccinium corymbosum	plants	Plantae	2882849	ACCEPTED
 Vaccinium macrocarpum	plants	Plantae	7777960	ACCEPTED
+Zizania latifolia	plants	Plantae	2703231	ACCEPTED
+Lindernia dubia	plants	Plantae	3171888	ACCEPTED
+Graptemys pseudogeographica pseudogeographica	reptiles	Animalia	7190901	ACCEPTED
+Graptemys pseudogeographica kohnii	reptiles	Animalia	6157050	ACCEPTED
+Psittacula eupatria	birds	Animalia	5229055	ACCEPTED
+Psittacula krameri	birds	Animalia	2479226	ACCEPTED
+Syrmaticus reevesii	birds	Animalia	2473477	ACCEPTED
+Hedera hibernica	plants	Plantae	8168344	ACCEPTED
