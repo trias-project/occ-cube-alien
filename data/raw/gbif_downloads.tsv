@@ -11,3 +11,4 @@ gbif_download_key	input_checklist	gbif_download_created	gbif_download_status	gbi
 0003164-200613084148143	https://raw.githubusercontent.com/trias-project/occ-processing/master/references/modelling_species.tsv	2020-06-17 09:03:30	SUCCEEDED	https://doi.org/10.15468/dl.htgw7v
 0123859-200613084148143	https://raw.githubusercontent.com/trias-project/occ-cube-alien/b22225d4eddb3bc6916f387c5a0d6dac3a38a90e/references/modelling_species.tsv	2020-11-27 14:36:20	SUCCEEDED	https://doi.org/10.15468/dl.k8adrf
 0125107-200613084148143	NA	2020-11-29 10:04:51	SUCCEEDED	https://doi.org/10.15468/dl.cvumnw
+0089458-210914110416597		2022-01-03T15:29:15.069+00:00	RUNNING	https://doi.org/10.15468/dl.hefbvj
