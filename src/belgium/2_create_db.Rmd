@@ -29,6 +29,7 @@ library(here)           # To find files
 library(rgbif)          # To use GBIF services
 library(glue)           # To write queries
 library(RSQLite)        # To interact with SQlite databases
+library(inborutils)     # To write a SQLite database from a csv file
 ```
 
 # Transform CSV to sqlite file
