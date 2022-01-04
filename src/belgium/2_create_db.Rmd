@@ -39,7 +39,7 @@ library(inborutils)     # To write a SQLite database from a csv file
 Download the occurrences from GBIF, based on the download key returned in `download.Rmd`:
 
 ```{r get_occ_file}
-key <- "0125107-200613084148143"
+key <- "0089458-210914110416597"
 zip_filename <- paste0(key, ".zip")
 zip_path <- here::here("data", "raw", zip_filename)
 if (!file.exists(zip_path)) {
