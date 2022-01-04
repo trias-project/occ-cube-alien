@@ -97,83 +97,105 @@ And table name:
 table_name <- "occ_all"
 ```
 
-### Define storage class for each column
+### Define columns to read
 
-The standard storage class is `TEXT`:
+We define a subset of columns, `cols_to_use`, we are interested to, and their type:
 
-```{r def_default_cols_type}
-# default type: TEXT
-field_types <- rep("TEXT", length(cols_occ_file))
-names(field_types) <- cols_occ_file
-```
-
-The following columns should be of storage class `INTEGER`:
-
-1. `*Key`, e.g. `taxonKey`, `speciesKey`, but no `datasetKey`
-2. `*DayOfYear`: `startDayOfYear` and  `endDayOfYear`  
-3. `year`
-4. `month`
-5. `day`
-
-```{r set_to_integer}
-int_fields <- names(field_types)[str_detect(names(field_types), "Key") & 
-                                   names(field_types) != "datasetKey"]
-int_fields <- c(
-  int_fields,
-  names(field_types)[str_detect(names(field_types), "DayOfYear")],
-  names(field_types)[names(field_types) == "year"],
-  names(field_types)[names(field_types) == "month"],
-  names(field_types)[names(field_types) == "day"]
+```{r columns_to_use}
+cols_to_use <- cols_only(
+  "gbifID" = col_double(),
+  "scientificName" = col_character(),
+  "kingdom" = col_character(),
+  "phylum" = col_character(),
+  "class" = col_character(),
+  "order" = col_character(),
+  "family" = col_character(),
+  "genus" = col_character(),
+  "specificEpithet" = col_character(),
+  "infraspecificEpithet" = col_character(),
+  "taxonRank" = col_character(), 
+  "taxonomicStatus" = col_character(),
+  "datasetKey" = col_character(),
+  "basisOfRecord" = col_character(),
+  "occurrenceStatus" = col_character(),
+  "lastInterpreted" = col_datetime(),
+  "hasCoordinate" = col_logical(),
+  "hasGeospatialIssues" = col_logical(),
+  "decimalLatitude" = col_double(),
+  "decimalLongitude" = col_double(),
+  "coordinateUncertaintyInMeters" = col_double(),
+  "coordinatePrecision" = col_double(),
+  "pointRadiusSpatialFit" = col_double(),
+  "verbatimCoordinateSystem" = col_character(),
+  "verbatimSRS" = col_character(),
+  "eventDate" = col_date(),
+  "startDayOfYear" = col_double(),
+  "endDayOfYear" = col_double(),
+  "year" = col_double(),
+  "month" = col_double(),
+  "day" = col_double(),
+  "verbatimEventDate" = col_character(),
+  "samplingProtocol" = col_character(),
+  "samplingEffort" = col_character(),
+  "issue" = col_character(),
+  "identificationVerificationStatus" = col_character(),
+  "taxonKey" = col_double(),
+  "acceptedTaxonKey" = col_double(),
+  "kingdomKey" = col_double(),
+  "phylumKey" = col_double(),
+  "classKey" = col_double(),
+  "orderKey" = col_double(),
+  "familyKey" = col_double(),
+  "genusKey" = col_double(),
+  "subgenusKey" = col_double(),
+  "speciesKey" = col_double(),
+  "species" = col_character()
 )
-field_types[which(names(field_types) %in% int_fields)] <- "INTEGER"
 ```
 
-The following columns should be of storage class `REAL`:
+Columns not present in csv:
 
-1. `decimal*`: `decimalLatitude` and `decimalLongitude`
-2. `coordinate*`: `coordinateUncertaintyInMeters` and `coordinatePrecision`
-3. `pointRadiusSpatialFit`
+```{r cols_not_present}
+names(cols_to_use$cols)[!names(cols_to_use$cols) %in% cols_occ_file]
+```
 
-```{r set_to_real}
-real_fields <- names(field_types)[str_detect(names(field_types), "decimal")]
-real_fields <- c(
-  real_fields,
-  names(field_types)[str_detect(names(field_types), "coordinate")],
-  names(field_types)[names(field_types) == "pointRadiusSpatialFit"]
+### Write csv to sqlite
+
+```{r csv_to_sqlite}
+csv_to_sqlite(csv_file = occ_path,
+              sqlite_file = sqlite_path,
+              table_name = table_name,
+              pre_process_size = 50000, 
+              chunk_size = 10000,
+              delim = "\t", 
+              col_types = cols_to_use
 )
-field_types[which(names(field_types) %in% real_fields)] <- "REAL"
 ```
 
+## Overview
 Open connection to database:
 
 ```{r open_connection_to_db}
 sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_path)
 ```
 
-Fill database with occurrences from text file. This step reads the large occurrence file in chunks and transfers them in the sqlite file. This step can take long the first time you run it:
-
-```{r fill_sqlite_file}
-if (!table_name %in% dbListTables(sqlite_occ)) {
-  dbWriteTable(
-    conn = sqlite_occ,
-    name = table_name,
-    sep = "\t",
-    value = occ_path,
-    row.names = FALSE,
-    header = TRUE,
-    field.types = field_types,
-    overwrite = TRUE
-  )
-}
-```
-
-## Overview
-
 Number of columns present:
 
 ```{r check_fields_present}
 cols_occ_db <- dbListFields(sqlite_occ, table_name)
 length(cols_occ_db)
+```
+
+Check: selected columns not in the SQLite database:
+
+```{r cols_not_present}
+names(cols_to_use$cols)[!names(cols_to_use$cols) %in% cols_occ_db]
+```
+
+Check: columns in SQLite database not in selected columns:
+
+```{r}
+cols_occ_db[!cols_occ_db %in% names(cols_to_use$cols)]
 ```
 
 Number of occurrences:
@@ -189,52 +211,20 @@ n_occs_total <- n_occs_total$`COUNT()`
 n_occs_total
 ```
 
-# Filter data
+Preview first 100 rows from table `occ_all`:
 
-## Define columns to select
-
-We define a subset of columns, `cols_to_use`, we are interested to:
-
-```{r columns_to_use}
-cols_to_use <- c(
-  "gbifID", "scientificName", "kingdom", "phylum", "class", "order", "family",
-  "genus", "specificEpithet", "infraspecificEpithet", "taxonRank", 
-  "taxonomicStatus", "datasetKey", "basisOfRecord", "occurrenceStatus",
-  "lastInterpreted", "hasCoordinate", "hasGeospatialIssues", "decimalLatitude",
-  "decimalLongitude", "coordinateUncertaintyInMeters", "coordinatePrecision",
-  "pointRadiusSpatialFit", "verbatimCoordinateSystem", "verbatimSRS",
-  "eventDate", "startDayOfYear", "endDayOfYear", "year", "month", "day",
-  "verbatimEventDate", "samplingProtocol", "samplingEffort", "issue",
-  "identificationVerificationStatus", "taxonKey", "acceptedTaxonKey",
-  "kingdomKey", "phylumKey", "classKey", "orderKey", "familyKey", "genusKey",
-  "subgenusKey", "speciesKey", "species"
+```{r preview_df}
+query <- glue_sql("SELECT * FROM {big_table} LIMIT 100",
+                  big_table = table_name,
+                  .con = sqlite_occ
 )
+preview_df <- dbGetQuery(conn = sqlite_occ, query)
+preview_df
 ```
 
-Columns in occurrence file not in `cols_to_use`:
 
-```{r cols_in_cols_to_use_not_present_in_cols_occ_db}
-cols_to_use[which(!cols_to_use %in% cols_occ_db)]
-```
 
-will be removed from the selection:
-
-```{r remove_cols_not_in_cols_occ_db}
-cols_to_use <- cols_to_use[which(cols_to_use %in% cols_occ_db)]
-```
-
-Final number of columns to select:
-
-```{r n_cols_to_use}
-length(cols_to_use)
-```
-
-Storage class of these columns:
-
-```{r define_field_type_subset}
-field_types_subset <- field_types[which(names(field_types) %in% cols_to_use)]
-field_types_subset
-```
+# Filter data
 
 ## Define filters on occurrences
 
@@ -326,12 +316,11 @@ We create the new table with selected columns and filtered data on `occurrenceSt
 if (!table_name_subset %in% dbListTables(sqlite_occ)) {
   dbCreateTable(conn = sqlite_occ,
                name = table_name_subset,
-               fields = field_types_subset)
+               fields = preview_df)
   query <- glue_sql(
-  "INSERT INTO {small_table} SELECT {`some_cols`*} FROM {big_table} WHERE 
+  "INSERT INTO {small_table} SELECT * FROM {big_table} WHERE 
   LOWER(identificationVerificationStatus) NOT IN ({unverified*}) AND LOWER(occurrenceStatus) NOT IN ({bad_status*}) AND ", issue_condition, 
   small_table = table_name_subset,
-  some_cols = names(field_types_subset),
   big_table = table_name,
   unverified = identificationVerificationStatus_to_discard,
   bad_status = occurrenceStatus_to_discard,
