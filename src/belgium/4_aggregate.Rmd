@@ -93,6 +93,7 @@ query <- glue_sql(
 )
 occ_cube_baseline <- 
   dbGetQuery(sqlite_occ, query) %>%
+  mutate(classKey = as.numeric(classKey)) %>%
   rename(
     n = "COUNT(_ROWID_)",
     min_coord_uncertainty = "MIN(`coordinateUncertaintyInMeters`)"
@@ -114,11 +115,15 @@ class_df <- tibble(
 class_df <- 
   class_df %>%
   mutate(class = map_chr(
-    classKey, 
+    .data$classKey, 
     function(x) {
-      taxon = name_usage(x)
-      taxon$data %>% pull(scientificName)
-      })
+      if (!is.na(x)) {
+        taxon = name_usage(x)
+        taxon$data %>% pull(scientificName)
+      } else {
+        NA_character_
+      }
+    })
   )
 class_df
 ```
@@ -355,7 +360,12 @@ taxa_species <-
   map(~.x[["data"]]) %>%
 
   # Select columns of interest
-  map(~select(.x, speciesKey, scientificName, rank, taxonomicStatus)) %>%
+  map(~select(.x,
+              speciesKey,
+              scientificName,
+              rank,
+              taxonomicStatus, 
+              kingdom)) %>%
   
   # Merge all taxa in a data.frame
   reduce(full_join) %>%
@@ -370,7 +380,8 @@ taxa_species <-
   group_by(speciesKey, 
            species_scientificName,
            rank,
-           taxonomicStatus) %>%
+           taxonomicStatus,
+           kingdom) %>%
   
   # create 'includes' column
   summarize(includes = paste(
@@ -540,7 +551,7 @@ if ("acceptedKey" %in% names(taxa_subspecies)) {
     # populate 'acceptedKey' column for not synonyms
     mutate(acceptedKey = case_when(
       is.na(acceptedKey) ~ key,
-      !is.na(acceptedKey) ~acceptedKey)
+      !is.na(acceptedKey) ~ acceptedKey)
   )
 } else {
   taxa_subspecies <-
@@ -554,7 +565,7 @@ taxa_subspecies <-
   taxa_subspecies %>%
   
   # select columns of interest
-  select(acceptedKey, accepted_scientificName, rank, taxonomicStatus) %>%
+  select(acceptedKey, accepted_scientificName, rank, taxonomicStatus, kingdom) %>%
 
   # add columns to original df
   right_join(occ_cube_subspecies_taxa, 
@@ -564,7 +575,8 @@ taxa_subspecies <-
   group_by(acceptedKey, 
            accepted_scientificName,
            rank,
-           taxonomicStatus) %>%
+           taxonomicStatus,
+           kingdom) %>%
   
   # create 'includes' column
   summarize(includes = paste(
@@ -656,8 +668,8 @@ For these taxa we don't have occcurrences linked to other related taxa. We have 
 
 ```{r taxa_synonym}
 taxa_synonym <- 
-  
-  # create vector with synonyms keys present in occurrence cube 
+  if (length(alien_taxa_synonyms_key) > 0) {
+    # create vector with synonyms keys present in occurrence cube 
   alien_taxa_synonyms_key[
     which(alien_taxa_synonyms_key %in% 
             unique(occ_cube_synonym$taxonKey))] %>%
@@ -669,7 +681,7 @@ taxa_synonym <-
   map(~.x[["data"]]) %>%
   
   # select columns of interest
-  map(~select(.x, key, scientificName, rank, taxonomicStatus)) %>%
+  map(~select(.x, key, scientificName, rank, taxonomicStatus, kingdom)) %>%
   
   # Merge all taxa in a data.frame
   reduce(full_join) %>% 
@@ -682,7 +694,10 @@ taxa_synonym <-
     taxonKey, 
     scientificName, 
     sep = ": ")
-)
+  )
+  } else {
+    NULL
+}
 taxa_synonym
 ```
 
