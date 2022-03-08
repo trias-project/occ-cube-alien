@@ -8,7 +8,7 @@ Aix sponsa	birds	Animalia	2498387	ACCEPTED
 Anas sibilatrix	birds	Animalia	2498110	ACCEPTED
 Astacus leptodactylus	crustaceans	Animalia	4417551	SYNONYM
 Azolla filiculoides	aquatic plants	Plantae	2650107	ACCEPTED
-Balanus tintinnabulum	crustaceans	Animalia	2115692	ACCEPTED
+Megabalanus tintinnabulum	crustaceans	Animalia	5166487	ACCEPTED
 Callinectes sapidus	crustaceans	Animalia	2225646	ACCEPTED
 Callosciurus prevostii	mammals	Animalia	2437397	ACCEPTED
 Campylopus introflexus	plants	Plantae	5281901	ACCEPTED
@@ -22,7 +22,7 @@ Cornus sericea	plants	Plantae	3082244	ACCEPTED
 Corbicula fluminalis	mollusca	Animalia	5189032	ACCEPTED
 Corbicula fluminea	mollusca	Animalia	8190231	ACCEPTED
 Coturnix japonica	birds	Animalia	2474162	ACCEPTED
-Crassula helmsii	aquatic plants	Plantae	8035075	ACCEPTED
+Crassula helmsii	aquatic plants	Plantae	5362054	ACCEPTED
 Cyperus eragrostis	plants	Plantae	2715482	ACCEPTED
 Cyperus esculentus	plants	Plantae	2716226	ACCEPTED
 Dolichotis patagonum	mammals	Animalia	2437619	ACCEPTED
@@ -30,7 +30,6 @@ Dama dama	mammals	Animalia	5220136	ACCEPTED
 Deroceras invadens	mollusca	Animalia	8745918	ACCEPTED
 Egeria densa	aquatic plants	Plantae	5329260	ACCEPTED
 Elaeagnus angustifolia	plants	Plantae	3039269	ACCEPTED
-Elaphe taeniura	reptiles	Animalia	3080725268	SYNONYM
 Elaphe schrenckii	reptiles	Animalia	2458438	ACCEPTED
 Ensis directus	mollusca	Animalia	2287249	ACCEPTED
 Eriocheir sinensis	crustaceans	Animalia	2225776	ACCEPTED
@@ -46,7 +45,7 @@ Leiothrix lutea	birds	Animalia	5231398	ACCEPTED
 Leuciscus aspius	fish	Animalia	5851603	ACCEPTED
 Lycium barbarum	plants	Plantae	2928835	ACCEPTED
 Magallana gigas	mollusca	Animalia	7820753	ACCEPTED
-Massylaea vermiculata	mollusca	Animalia	9291405	ACCEPTED
+Eobania vermiculata	mollusca	Animalia	2294275	ACCEPTED
 Mephitis mephitis	mammals	Animalia	5219380	ACCEPTED
 Mimulus guttatus Fisch. ex DC.	plants	Plantae	6070603	SYNONYM
 Misgurnus anguillicaudatus	fish	Animalia	2367919	ACCEPTED
@@ -54,8 +53,8 @@ Mnemiopsis leidyi	comb jellies	Animalia	2501248	ACCEPTED
 Myiopsitta monachus	birds	Animalia	2479407	ACCEPTED
 Mytilopsis leucophaeata	mollusca	Animalia	2287076	ACCEPTED
 Neogobius melanostomus	fish	Animalia	2379089	ACCEPTED
-Neovison vison	mammals	Animalia	2433652	ACCEPTED
-Orthriophis taeniurus	reptiles	Animalia	2455523	ACCEPTED
+Mustela vison	mammals	Animalia	5218823	ACCEPTED
+Elaphe taeniura	reptiles	Animalia	8889878	ACCEPTED
 Palaemon macrodactylus	crustaceans	Animalia	2224970	ACCEPTED
 Pelophylax bedriagae	amphibians	Animalia	2426640	ACCEPTED
 Pelophylax ridibundus	amphibians	Animalia	2426661	ACCEPTED
