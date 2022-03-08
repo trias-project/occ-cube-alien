@@ -35,7 +35,7 @@ library(RSQLite)        # To interact with SQlite databases
 Name and path of `.sqlite` file:
 
 ```{r name_path}
-key <- "0125107-200613084148143"
+key <- "0089458-210914110416597"
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
@@ -110,7 +110,7 @@ geodata_df <-
   ))
 ```
 
-We apply the same changes in sqlite table. To speed up the process we deactivate database synchronization and wrap the execution of the query in a transaction:
+We apply the same changes in SQLite table. To speed up the process we deactivate database synchronization and wrap the execution of the query in a transaction:
 
 ```{r assign_1000_as_uncertainty_on_db}
 # speed up by deactivating db synchronization
@@ -133,7 +133,7 @@ dbExecute(sqlite_occ, query)
 dbCommit(sqlite_occ)
 ```
 
-Get all possible values of coordinate uncertainty:
+Get all possible values of coordinate uncertainty from SQLite database:
 
 ```{r get_unique_values_uncertainty}
 query <- glue_sql("SELECT DISTINCT {`column`} FROM {table}",
@@ -147,13 +147,13 @@ uncertainty_df <-
 uncertainty_df
 ```
 
-Are there occurrences with 0 uncertainty?
+Are there occurrences with 0 uncertainty left?
 
 ```{r zero_in_uncertainty_df}
 0 %in% uncertainty_df
 ```
 
-Are there ocurrences without uncertainty?
+Are there occurrences without uncertainty?
 
 ```{r zero_in_uncertainty_df}
 NA_real_ %in% uncertainty_df
@@ -185,10 +185,10 @@ write_tsv(geodata_df, temp_file_coords, na = "")
 remove(geodata_df)
 ```
 
-Set random number generator seed (this helps reproducibility). We use the unique identifier of the [Zenodo dataset's DOI](https://doi.org/10.5281/zenodo.3635510) which the occurrence cube will be published to:
+Set random number generator seed (this helps reproducibility). We use the unique identifier of the reserved [Zenodo dataset's DOI](https://doi.org/10.5281/zenodo.5819028) which the occurrence cube will be published to:
 
 ```{r set_seed}
-set.seed(3635510)
+set.seed(5819028)
 ```
 
 We define the function to apply to each chunk:
