@@ -1,13 +1,14 @@
 gbif_download_key	input_checklist	gbif_download_created	gbif_download_status	gbif_download_doi
-0003729-190415153152247	https://raw.githubusercontent.com/trias-project/occ-processing/add-aggregate-belgium-pipeline/data/raw/modelling_species.tsv	2019-04-24 14:17:33	SUCCEEDED	https://doi.org/10.15468/dl.9ynba2
-0003809-190415153152247	NA	2019-04-24 17:52:31	SUCCEEDED	https://doi.org/10.15468/dl.7gwm6j
-0004690-190415153152247	https://raw.githubusercontent.com/trias-project/occ-processing/pipeline-EU/data/raw/modelling_species.tsv	2019-04-26 08:51:11	SUCCEEDED	https://doi.org/10.15468/dl.cughdk
-0008507-190621201848488	NA	2019-07-09 08:31:24	SUCCEEDED	https://doi.org/10.15468/dl.1eycss
-0030713-190918142434337	NA	2019-10-28 09:05:48	SUCCEEDED	https://doi.org/10.15468/dl.g1z7y7
-0032154-190918142434337	https://raw.githubusercontent.com/trias-project/occ-processing/master/references/modelling_species.tsv	2019-10-30 09:39:22	SUCCEEDED	https://doi.org/10.15468/dl.db9azb
-0000537-200127171203522	NA	2020-01-28 14:23:32	SUCCEEDED	https://doi.org/10.15468/dl.apwtzv
-0004487-200127171203522	https://raw.githubusercontent.com/trias-project/occ-processing/master/references/modelling_species.tsv	2020-02-04 08:09:58	SUCCEEDED	https://doi.org/10.15468/dl.ha64d7
-0003154-200613084148143	NA	2020-06-17 08:36:35	SUCCEEDED	https://doi.org/10.15468/dl.97jyjt
-0003164-200613084148143	https://raw.githubusercontent.com/trias-project/occ-processing/master/references/modelling_species.tsv	2020-06-17 09:03:30	SUCCEEDED	https://doi.org/10.15468/dl.htgw7v
-0123859-200613084148143	https://raw.githubusercontent.com/trias-project/occ-cube-alien/b22225d4eddb3bc6916f387c5a0d6dac3a38a90e/references/modelling_species.tsv	2020-11-27 14:36:20	SUCCEEDED	https://doi.org/10.15468/dl.k8adrf
-0125107-200613084148143	NA	2020-11-29 10:04:51	SUCCEEDED	https://doi.org/10.15468/dl.cvumnw
+0003729-190415153152247	https://raw.githubusercontent.com/trias-project/occ-processing/add-aggregate-belgium-pipeline/data/raw/modelling_species.tsv	2019-04-24T14:17:33Z	SUCCEEDED	https://doi.org/10.15468/dl.9ynba2
+0003809-190415153152247	NA	2019-04-24T17:52:31Z	SUCCEEDED	https://doi.org/10.15468/dl.7gwm6j
+0004690-190415153152247	https://raw.githubusercontent.com/trias-project/occ-processing/pipeline-EU/data/raw/modelling_species.tsv	2019-04-26T08:51:11Z	SUCCEEDED	https://doi.org/10.15468/dl.cughdk
+0008507-190621201848488	NA	2019-07-09T08:31:24Z	SUCCEEDED	https://doi.org/10.15468/dl.1eycss
+0030713-190918142434337	NA	2019-10-28T09:05:48Z	SUCCEEDED	https://doi.org/10.15468/dl.g1z7y7
+0032154-190918142434337	https://raw.githubusercontent.com/trias-project/occ-processing/master/references/modelling_species.tsv	2019-10-30T09:39:22Z	SUCCEEDED	https://doi.org/10.15468/dl.db9azb
+0000537-200127171203522	NA	2020-01-28T14:23:32Z	SUCCEEDED	https://doi.org/10.15468/dl.apwtzv
+0004487-200127171203522	https://raw.githubusercontent.com/trias-project/occ-processing/master/references/modelling_species.tsv	2020-02-04T08:09:58Z	SUCCEEDED	https://doi.org/10.15468/dl.ha64d7
+0003154-200613084148143	NA	2020-06-17T08:36:35Z	SUCCEEDED	https://doi.org/10.15468/dl.97jyjt
+0003164-200613084148143	https://raw.githubusercontent.com/trias-project/occ-processing/master/references/modelling_species.tsv	2020-06-17T09:03:30Z	SUCCEEDED	https://doi.org/10.15468/dl.htgw7v
+0123859-200613084148143	https://raw.githubusercontent.com/trias-project/occ-cube-alien/b22225d4eddb3bc6916f387c5a0d6dac3a38a90e/references/modelling_species.tsv	2020-11-27T14:36:20Z	SUCCEEDED	https://doi.org/10.15468/dl.k8adrf
+0125107-200613084148143	NA	2020-11-29T10:04:51Z	SUCCEEDED	https://doi.org/10.15468/dl.cvumnw
+0089458-210914110416597		2022-01-03T15:29:15Z	SUCCEEDED	https://doi.org/10.15468/dl.hefbvj

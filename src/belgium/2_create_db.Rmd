@@ -38,7 +38,7 @@ library(RSQLite)        # To interact with SQlite databases
 Download the occurrences from GBIF, based on the download key returned in `download.Rmd`:
 
 ```{r get_occ_file}
-key <- "0125107-200613084148143"
+key <- "0089458-210914110416597"
 zip_filename <- paste0(key, ".zip")
 zip_path <- here::here("data", "raw", zip_filename)
 if (!file.exists(zip_path)) {
@@ -143,6 +143,8 @@ real_fields <- c(
 field_types[which(names(field_types) %in% real_fields)] <- "REAL"
 ```
 
+### Write csv to sqlite
+
 Open connection to database:
 
 ```{r open_connection_to_db}
@@ -166,6 +168,7 @@ if (!table_name %in% dbListTables(sqlite_occ)) {
 }
 ```
 
+
 ## Overview
 
 Number of columns present:
@@ -179,13 +182,35 @@ Number of occurrences:
 
 ```{r n_occs_raw}
 query <- glue_sql(
-    "SELECT COUNT() FROM {table}",
+    "SELECT COUNT(1) FROM {table}",
     table = table_name,
     .con = sqlite_occ
   )
 n_occs_total <- dbGetQuery(sqlite_occ, query)
-n_occs_total <- n_occs_total$`COUNT()`
 n_occs_total
+```
+
+Preview first 100 rows from table `occ_all`:
+
+```{r preview_df}
+query <- glue_sql("SELECT * FROM {table} LIMIT 100",
+                  table = table_name,
+                  .con = sqlite_occ
+)
+preview_df <- dbGetQuery(conn = sqlite_occ, query)
+preview_df
+```
+
+Are there occurrences without geographical coordinates? If yes (likely due to parsing issues) they should be filtered out in next section.
+
+```{r check_issues_coords}
+query <- glue_sql("SELECT * FROM {table} WHERE 
+                  decimalLatitude IS NULL OR 
+                  decimalLongitude IS NULL",
+                  table = table_name,
+                  .con = sqlite_occ)
+suspect_coords_df <- dbGetQuery(sqlite_occ, query)
+suspect_coords_df
 ```
 
 # Filter data
@@ -356,7 +381,32 @@ Columns present:
 dbListFields(sqlite_occ, name = table_name_subset)
 ```
 
+Number of occurrences:
+
+```{r n_occs_filtered}
+query <- glue_sql(
+    "SELECT COUNT(1) FROM {table}",
+    table = table_name_subset,
+    .con = sqlite_occ
+  )
+n_occs <- dbGetQuery(sqlite_occ, query)
+n_occs_total$`COUNT(1)`
+```
+
+
 ### Check filtered data
+
+Are there occurrences without geographical coordinates? It should not.
+
+```{r check_issues_coords}
+query <- glue_sql("SELECT * FROM {table} WHERE 
+                  decimalLatitude IS NULL OR 
+                  decimalLongitude IS NULL",
+                  table = table_name_subset,
+                  .con = sqlite_occ)
+invalid_coords <- dbGetQuery(sqlite_occ, query)
+invalid_coords
+```
 
 We create an index on `occurrenceStatus` to retrieve occurrence status values faster:
 
@@ -449,26 +499,14 @@ if (!idx_issue %in% indexes$name) {
 Identification verification status left in the filtered data:
 
 ```{r check_identificationVerificationStatus_values}
-query <- glue_sql(
-    "SELECT DISTINCT identificationVerificationStatus FROM {table}",
-    table = table_name_subset,
-    .con = sqlite_occ
-  )
+query <- glue_sql("SELECT identificationVerificationStatus, COUNT(*)
+                  FROM {table}
+                  GROUP BY identificationVerificationStatus
+                  ORDER BY 2 DESC",
+                  table = table_name_subset,
+                  .con = sqlite_occ)
 status_verification_left <- dbGetQuery(sqlite_occ, query)
 status_verification_left
-```
-
-Number of occurrences left:
-
-```{r n_occs_filtered}
-query <- glue_sql(
-    "SELECT COUNT() FROM {table}",
-    table = table_name_subset,
-    .con = sqlite_occ
-  )
-n_occs <- dbGetQuery(sqlite_occ, query)
-n_occs <- n_occs$`COUNT()`
-n_occs
 ```
 
 Overview of all indexes present on `occ`:
