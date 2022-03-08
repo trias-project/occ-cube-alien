@@ -34,7 +34,7 @@ library(RSQLite)        # To interact with SQlite databases
 Name and path of `.sqlite` file:
 
 ```{r name_path}
-key <- "0125107-200613084148143"
+key <- "0089458-210914110416597"
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
@@ -73,7 +73,7 @@ if (!idx_baseline %in% indexes_all$name) {
   table_name = table_name,
   cols_idx = c("year", 
                "eea_cell_code", 
-               "classKey", 
+               "classKey",
                "coordinateUncertaintyInMeters"),
   .con = sqlite_occ
   )
