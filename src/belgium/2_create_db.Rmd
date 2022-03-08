@@ -29,7 +29,6 @@ library(here)           # To find files
 library(rgbif)          # To use GBIF services
 library(glue)           # To write queries
 library(RSQLite)        # To interact with SQlite databases
-library(inborutils)     # To write a SQLite database from a csv file
 ```
 
 # Transform CSV to sqlite file
@@ -97,87 +96,80 @@ And table name:
 table_name <- "occ_all"
 ```
 
-### Define columns to read
+### Define storage class for each column
 
-We define a subset of columns, `cols_to_use`, we are interested to, and their type:
+The standard storage class is `TEXT`:
 
-```{r columns_to_use}
-cols_to_use <- cols_only(
-  "gbifID" = col_double(),
-  "scientificName" = col_character(),
-  "kingdom" = col_character(),
-  "phylum" = col_character(),
-  "class" = col_character(),
-  "order" = col_character(),
-  "family" = col_character(),
-  "genus" = col_character(),
-  "specificEpithet" = col_character(),
-  "infraspecificEpithet" = col_character(),
-  "taxonRank" = col_character(), 
-  "taxonomicStatus" = col_character(),
-  "datasetKey" = col_character(),
-  "basisOfRecord" = col_character(),
-  "occurrenceStatus" = col_character(),
-  "lastInterpreted" = col_datetime(),
-  "hasCoordinate" = col_logical(),
-  "hasGeospatialIssues" = col_logical(),
-  "decimalLatitude" = col_double(),
-  "decimalLongitude" = col_double(),
-  "coordinateUncertaintyInMeters" = col_double(),
-  "coordinatePrecision" = col_double(),
-  "pointRadiusSpatialFit" = col_double(),
-  "verbatimCoordinateSystem" = col_character(),
-  "verbatimSRS" = col_character(),
-  "eventDate" = col_date(),
-  "startDayOfYear" = col_double(),
-  "endDayOfYear" = col_double(),
-  "year" = col_double(),
-  "month" = col_double(),
-  "day" = col_double(),
-  "verbatimEventDate" = col_character(),
-  "samplingProtocol" = col_character(),
-  "samplingEffort" = col_character(),
-  "issue" = col_character(),
-  "identificationVerificationStatus" = col_character(),
-  "taxonKey" = col_double(),
-  "acceptedTaxonKey" = col_double(),
-  "kingdomKey" = col_double(),
-  "phylumKey" = col_double(),
-  "classKey" = col_double(),
-  "orderKey" = col_double(),
-  "familyKey" = col_double(),
-  "genusKey" = col_double(),
-  "subgenusKey" = col_double(),
-  "speciesKey" = col_double(),
-  "species" = col_character()
-)
+```{r def_default_cols_type}
+# default type: TEXT
+field_types <- rep("TEXT", length(cols_occ_file))
+names(field_types) <- cols_occ_file
 ```
 
-Columns not present in csv:
+The following columns should be of storage class `INTEGER`:
 
-```{r cols_not_present}
-names(cols_to_use$cols)[!names(cols_to_use$cols) %in% cols_occ_file]
+1. `*Key`, e.g. `taxonKey`, `speciesKey`, but no `datasetKey`
+2. `*DayOfYear`: `startDayOfYear` and  `endDayOfYear`  
+3. `year`
+4. `month`
+5. `day`
+
+```{r set_to_integer}
+int_fields <- names(field_types)[str_detect(names(field_types), "Key") & 
+                                   names(field_types) != "datasetKey"]
+int_fields <- c(
+  int_fields,
+  names(field_types)[str_detect(names(field_types), "DayOfYear")],
+  names(field_types)[names(field_types) == "year"],
+  names(field_types)[names(field_types) == "month"],
+  names(field_types)[names(field_types) == "day"]
+)
+field_types[which(names(field_types) %in% int_fields)] <- "INTEGER"
+```
+
+The following columns should be of storage class `REAL`:
+
+1. `decimal*`: `decimalLatitude` and `decimalLongitude`
+2. `coordinate*`: `coordinateUncertaintyInMeters` and `coordinatePrecision`
+3. `pointRadiusSpatialFit`
+
+```{r set_to_real}
+real_fields <- names(field_types)[str_detect(names(field_types), "decimal")]
+real_fields <- c(
+  real_fields,
+  names(field_types)[str_detect(names(field_types), "coordinate")],
+  names(field_types)[names(field_types) == "pointRadiusSpatialFit"]
+)
+field_types[which(names(field_types) %in% real_fields)] <- "REAL"
 ```
 
 ### Write csv to sqlite
 
-```{r csv_to_sqlite}
-csv_to_sqlite(csv_file = occ_path,
-              sqlite_file = sqlite_path,
-              table_name = table_name,
-              pre_process_size = 50000, 
-              chunk_size = 10000,
-              delim = "\t", 
-              col_types = cols_to_use
-)
-```
-
-## Overview
 Open connection to database:
 
 ```{r open_connection_to_db}
 sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_path)
 ```
+
+Fill database with occurrences from text file. This step reads the large occurrence file in chunks and transfers them in the sqlite file. This step can take long the first time you run it:
+
+```{r fill_sqlite_file}
+if (!table_name %in% dbListTables(sqlite_occ)) {
+  dbWriteTable(
+    conn = sqlite_occ,
+    name = table_name,
+    sep = "\t",
+    value = occ_path,
+    row.names = FALSE,
+    header = TRUE,
+    field.types = field_types,
+    overwrite = TRUE
+  )
+}
+```
+
+
+## Overview
 
 Number of columns present:
 
@@ -186,45 +178,87 @@ cols_occ_db <- dbListFields(sqlite_occ, table_name)
 length(cols_occ_db)
 ```
 
-Check: selected columns not in the SQLite database:
-
-```{r cols_not_present}
-names(cols_to_use$cols)[!names(cols_to_use$cols) %in% cols_occ_db]
-```
-
-Check: columns in SQLite database not in selected columns:
-
-```{r}
-cols_occ_db[!cols_occ_db %in% names(cols_to_use$cols)]
-```
-
 Number of occurrences:
 
 ```{r n_occs_raw}
 query <- glue_sql(
-    "SELECT COUNT() FROM {table}",
+    "SELECT COUNT(1) FROM {table}",
     table = table_name,
     .con = sqlite_occ
   )
 n_occs_total <- dbGetQuery(sqlite_occ, query)
-n_occs_total <- n_occs_total$`COUNT()`
 n_occs_total
 ```
 
 Preview first 100 rows from table `occ_all`:
 
 ```{r preview_df}
-query <- glue_sql("SELECT * FROM {big_table} LIMIT 100",
-                  big_table = table_name,
+query <- glue_sql("SELECT * FROM {table} LIMIT 100",
+                  table = table_name,
                   .con = sqlite_occ
 )
 preview_df <- dbGetQuery(conn = sqlite_occ, query)
 preview_df
 ```
 
+Are there occurrences without geographical coordinates? If yes (likely due to parsing issues) they should be filtered out in next section.
 
+```{r check_issues_coords}
+query <- glue_sql("SELECT * FROM {table} WHERE 
+                  decimalLatitude IS NULL OR 
+                  decimalLongitude IS NULL",
+                  table = table_name,
+                  .con = sqlite_occ)
+suspect_coords_df <- dbGetQuery(sqlite_occ, query)
+suspect_coords_df
+```
 
 # Filter data
+
+## Define columns to select
+
+We define a subset of columns, `cols_to_use`, we are interested to:
+
+```{r columns_to_use}
+cols_to_use <- c(
+  "gbifID", "scientificName", "kingdom", "phylum", "class", "order", "family",
+  "genus", "specificEpithet", "infraspecificEpithet", "taxonRank", 
+  "taxonomicStatus", "datasetKey", "basisOfRecord", "occurrenceStatus",
+  "lastInterpreted", "hasCoordinate", "hasGeospatialIssues", "decimalLatitude",
+  "decimalLongitude", "coordinateUncertaintyInMeters", "coordinatePrecision",
+  "pointRadiusSpatialFit", "verbatimCoordinateSystem", "verbatimSRS",
+  "eventDate", "startDayOfYear", "endDayOfYear", "year", "month", "day",
+  "verbatimEventDate", "samplingProtocol", "samplingEffort", "issue",
+  "identificationVerificationStatus", "taxonKey", "acceptedTaxonKey",
+  "kingdomKey", "phylumKey", "classKey", "orderKey", "familyKey", "genusKey",
+  "subgenusKey", "speciesKey", "species"
+)
+```
+
+Columns in occurrence file not in `cols_to_use`:
+
+```{r cols_in_cols_to_use_not_present_in_cols_occ_db}
+cols_to_use[which(!cols_to_use %in% cols_occ_db)]
+```
+
+will be removed from the selection:
+
+```{r remove_cols_not_in_cols_occ_db}
+cols_to_use <- cols_to_use[which(cols_to_use %in% cols_occ_db)]
+```
+
+Final number of columns to select:
+
+```{r n_cols_to_use}
+length(cols_to_use)
+```
+
+Storage class of these columns:
+
+```{r define_field_type_subset}
+field_types_subset <- field_types[which(names(field_types) %in% cols_to_use)]
+field_types_subset
+```
 
 ## Define filters on occurrences
 
@@ -316,11 +350,12 @@ We create the new table with selected columns and filtered data on `occurrenceSt
 if (!table_name_subset %in% dbListTables(sqlite_occ)) {
   dbCreateTable(conn = sqlite_occ,
                name = table_name_subset,
-               fields = preview_df)
+               fields = field_types_subset)
   query <- glue_sql(
-  "INSERT INTO {small_table} SELECT * FROM {big_table} WHERE 
+  "INSERT INTO {small_table} SELECT {`some_cols`*} FROM {big_table} WHERE 
   LOWER(identificationVerificationStatus) NOT IN ({unverified*}) AND LOWER(occurrenceStatus) NOT IN ({bad_status*}) AND ", issue_condition, 
   small_table = table_name_subset,
+  some_cols = names(field_types_subset),
   big_table = table_name,
   unverified = identificationVerificationStatus_to_discard,
   bad_status = occurrenceStatus_to_discard,
@@ -346,7 +381,32 @@ Columns present:
 dbListFields(sqlite_occ, name = table_name_subset)
 ```
 
+Number of occurrences:
+
+```{r n_occs_filtered}
+query <- glue_sql(
+    "SELECT COUNT(1) FROM {table}",
+    table = table_name_subset,
+    .con = sqlite_occ
+  )
+n_occs <- dbGetQuery(sqlite_occ, query)
+n_occs_total$`COUNT(1)`
+```
+
+
 ### Check filtered data
+
+Are there occurrences without geographical coordinates? It should not.
+
+```{r check_issues_coords}
+query <- glue_sql("SELECT * FROM {table} WHERE 
+                  decimalLatitude IS NULL OR 
+                  decimalLongitude IS NULL",
+                  table = table_name_subset,
+                  .con = sqlite_occ)
+invalid_coords <- dbGetQuery(sqlite_occ, query)
+invalid_coords
+```
 
 We create an index on `occurrenceStatus` to retrieve occurrence status values faster:
 
@@ -439,26 +499,14 @@ if (!idx_issue %in% indexes$name) {
 Identification verification status left in the filtered data:
 
 ```{r check_identificationVerificationStatus_values}
-query <- glue_sql(
-    "SELECT DISTINCT identificationVerificationStatus FROM {table}",
-    table = table_name_subset,
-    .con = sqlite_occ
-  )
+query <- glue_sql("SELECT identificationVerificationStatus, COUNT(*)
+                  FROM {table}
+                  GROUP BY identificationVerificationStatus
+                  ORDER BY 2 DESC",
+                  table = table_name_subset,
+                  .con = sqlite_occ)
 status_verification_left <- dbGetQuery(sqlite_occ, query)
 status_verification_left
-```
-
-Number of occurrences left:
-
-```{r n_occs_filtered}
-query <- glue_sql(
-    "SELECT COUNT() FROM {table}",
-    table = table_name_subset,
-    .con = sqlite_occ
-  )
-n_occs <- dbGetQuery(sqlite_occ, query)
-n_occs <- n_occs$`COUNT()`
-n_occs
 ```
 
 Overview of all indexes present on `occ`:
