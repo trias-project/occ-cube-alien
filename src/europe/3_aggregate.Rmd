@@ -70,7 +70,7 @@ modelling_taxa %>% head()
 Name and path of occurrence data file:
 
 ```{r name_path_eu}
-key <- "0175695-210914110416597"
+key <- "0176950-210914110416597"
 occ_file <- paste(key, "occurrence.tsv", sep = "_")
 occ_path <- here::here("data", "interim", occ_file)
 ```
@@ -341,7 +341,7 @@ taxa_species_eu
 
 ## Aggregate occurrences for infraspecific taxa
 
-Accepted infraspecific taxa in unified checklist:
+Accepted infraspecific taxa in the modelling list:
 
 ```{r modelling_taxa_under_species_eu}
 rank_under_species <- c("SUBSPECIFICAGGREGATE",
@@ -526,9 +526,9 @@ taxa_subspecies_eu
 
 ## Aggregate occurrences for synonyms we want to keep
 
-Some taxa in unified checklists are synonyms. For these taxa we don't trust the link to accepted taxa provided by GBIF.
+Some taxa in the modelling list are synonyms. For these taxa we don't trust the link to accepted taxa provided by GBIF.
 
-Get synonyms from unified checklist:
+Get synonyms from the list:
 
 ```{r modelling_taxa_synonyms_eu}
 modelling_taxa_synonyms <-

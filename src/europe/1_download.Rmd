@@ -39,7 +39,7 @@ library(leaflet)        # To make interactive maps
 The species selected for modelling are saved in file `modelling_species.tsv` on GitHub (link with specific commit for traceability):
 
 ```{r load_modelling_species_file_eu}
-taxa_input_file <- "https://raw.githubusercontent.com/trias-project/occ-cube-alien/b22225d4eddb3bc6916f387c5a0d6dac3a38a90e/references/modelling_species.tsv"
+taxa_input_file <- "https://raw.githubusercontent.com/trias-project/occ-cube-alien/5d25654a2e9c406630195c598975f740fe69ca88/references/modelling_species.tsv"
 taxa <- read_tsv(taxa_input_file,
                  na = "")
 ```
@@ -126,7 +126,7 @@ Trigger download:
 
 ```{r trigger_gbif_download_eu}
 # Reuse existing download (comment to trigger new download)
-gbif_download_key <- "0175695-210914110416597"
+gbif_download_key <- "0176950-210914110416597"
 
 # Trigger new download (commented by default)
 # gbif_download_key <- occ_download(
