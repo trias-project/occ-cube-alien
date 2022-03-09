@@ -1,82 +1,82 @@
-taxonKey,scientificName,rank,taxonomicStatus,includes
-2115692,"Balanus tintinnabulum (Linnaeus, 1758)",SPECIES,ACCEPTED,"2115692: Balanus tintinnabulum (Linnaeus, 1758) | 5166487: Megabalanus tintinnabulum (Linnaeus, 1758)"
-2224970,"Palaemon macrodactylus M.J.Rathbun, 1902",SPECIES,ACCEPTED,"2224970: Palaemon macrodactylus M.J.Rathbun, 1902 | 10032298: BOLD:ACG4332"
-2225646,"Callinectes sapidus Rathbun, 1896",SPECIES,ACCEPTED,"2225646: Callinectes sapidus Rathbun, 1896"
-2225772,"Hemigrapsus sanguineus (De Haan, 1835)",SPECIES,ACCEPTED,"2225772: Hemigrapsus sanguineus (De Haan, 1835) | 9930418: BOLD:AAB4163"
-2225776,"Eriocheir sinensis H.Milne Edwards, 1853",SPECIES,ACCEPTED,"2225776: Eriocheir sinensis H.Milne Edwards, 1853 | 10020734: BOLD:AAB0750"
-2227663,"Rhithropanopeus harrisii (Gould, 1841)",SPECIES,ACCEPTED,"2227663: Rhithropanopeus harrisii (Gould, 1841) | 10616195: BOLD:AAA2223"
-2287076,"Mytilopsis leucophaeata (Conrad, 1831)",SPECIES,ACCEPTED,"2287076: Mytilopsis leucophaeata (Conrad, 1831) | 10398094: BOLD:AAH4257 | 5728957: Congeria cochleata (Nyst, 1835) | 9486144: Congeria leucophaeata (Conrad, 1831)"
-2287249,"Ensis directus (Conrad, 1844)",SPECIES,ACCEPTED,"2287249: Ensis directus (Conrad, 1844) | 10198292: BOLD:ABV8193"
-2367742,"Pimephales promelas Rafinesque, 1820",SPECIES,ACCEPTED,"2367742: Pimephales promelas Rafinesque, 1820 | 9837060: BOLD:AAA3948"
-2367919,"Misgurnus anguillicaudatus (Cantor, 1842)",SPECIES,ACCEPTED,"2367919: Misgurnus anguillicaudatus (Cantor, 1842)"
-2379089,"Neogobius melanostomus (Pallas, 1814)",SPECIES,ACCEPTED,"2379089: Neogobius melanostomus (Pallas, 1814) | 9987658: BOLD:AAC0218 | 2376496: Gobius exanthematosus Pallas, 1814 | 2379093: Gobius cephalarges Pallas, 1814 | 2379090: Gobius melanostomus Pallas, 1814 | 2379075: Neogobius cephalarges (Pallas, 1814)"
-2426640,"Pelophylax bedriagae (Camerano, 1882)",SPECIES,ACCEPTED,"2426640: Pelophylax bedriagae (Camerano, 1882) | 2426642: Rana bedriagae Camerano, 1882"
-2426661,"Pelophylax ridibundus (Pallas, 1771)",SPECIES,ACCEPTED,"2426661: Pelophylax ridibundus (Pallas, 1771) | 2426662: Rana ridibunda Pallas, 1771 | 10388020: BOLD:AAN3045 | 9321745: Pelophylax ridibundus kurtmuelleri (Gayda, 1940) | 10295183: BOLD:AAD6744"
-2431887,"Triturus carnifex (Laurenti, 1768)",SPECIES,ACCEPTED,"2431887: Triturus carnifex (Laurenti, 1768) | 10509308: BOLD:AAC9264 | 10174248: BOLD:ACE8564"
-2433652,"Neovison vison (Schreber, 1777)",SPECIES,ACCEPTED,"5218823: Mustela vison Schreber, 1777 | 2433652: Neovison vison (Schreber, 1777) | 10238501: BOLD:AAD3317"
-2437282,"Tamiasciurus hudsonicus (Erxleben, 1777)",SPECIES,ACCEPTED,"2437282: Tamiasciurus hudsonicus (Erxleben, 1777)"
-2437397,"Callosciurus prevostii (Desmarest, 1822)",SPECIES,ACCEPTED,"9081553: Callosciurus prevostii borneoensis (Müller & Schlegel, 1842) | 2437397: Callosciurus prevostii (Desmarest, 1822)"
-2437619,"Dolichotis patagonum (Zimmermann, 1780)",SPECIES,ACCEPTED,"2437619: Dolichotis patagonum (Zimmermann, 1780)"
-2440954,"Cervus nippon Temminck, 1838",SPECIES,ACCEPTED,"2440954: Cervus nippon Temminck, 1838 | 4262379: Cervus nippon mantchuricus Swinhoe, 1864 | 10635465: BOLD:ACE6621"
-2441905,"Chelydra serpentina (Linnaeus, 1758)",SPECIES,ACCEPTED,"2441905: Chelydra serpentina (Linnaeus, 1758)"
-2455523,"Orthriophis taeniurus (Cope, 1861)",SPECIES,ACCEPTED,"2455527: Elaphe taeniura Smith, 1943"
-2458438,"Elaphe schrenckii Strauch, 1873",SPECIES,ACCEPTED,"2458438: Elaphe schrenckii Strauch, 1873"
-2474162,"Coturnix japonica Temminck & Schlegel, 1849",SPECIES,ACCEPTED,"2474162: Coturnix japonica Temminck & Schlegel, 1849"
-2479407,"Myiopsitta monachus (Boddaert, 1783)",SPECIES,ACCEPTED,"2479407: Myiopsitta monachus (Boddaert, 1783)"
-2486131,"Pycnonotus cafer (Linnaeus, 1766)",SPECIES,ACCEPTED,"2486131: Pycnonotus cafer (Linnaeus, 1766)"
-2498110,"Anas sibilatrix Poeppig, 1829",SPECIES,ACCEPTED,"9508460: Mareca sibilatrix (Poeppig, 1829) | 2498110: Anas sibilatrix Poeppig, 1829"
-2498387,"Aix sponsa (Linnaeus, 1758)",SPECIES,ACCEPTED,"2498387: Aix sponsa (Linnaeus, 1758)"
-2498388,"Aix galericulata (Linnaeus, 1758)",SPECIES,ACCEPTED,"2498388: Aix galericulata (Linnaeus, 1758)"
-2501248,"Mnemiopsis leidyi A.Agassiz, 1865",SPECIES,ACCEPTED,"2501248: Mnemiopsis leidyi A.Agassiz, 1865"
-2650107,Azolla filiculoides Lam.,SPECIES,ACCEPTED,2650107: Azolla filiculoides Lam. | 4196474: Azolla cristata Kaulf.
-2715482,Cyperus eragrostis Lam.,SPECIES,ACCEPTED,2715482: Cyperus eragrostis Lam. | 2715499: Cyperus vegetus Willd.
-2716226,Cyperus esculentus L.,SPECIES,ACCEPTED,2716226: Cyperus esculentus L. | 2716237: Cyperus esculentus subsp. aureus K.Richt. | 7258849: Cyperus esculentus var. esculentus | 7370775: Cyperus aureus Ten.
-2766030,Pontederia cordata L.,SPECIES,ACCEPTED,2766030: Pontederia cordata L.
-2882849,Vaccinium corymbosum L.,SPECIES,ACCEPTED,2882849: Vaccinium corymbosum L.
-2891770,Impatiens glandulifera Royle,SPECIES,ACCEPTED,2891770: Impatiens glandulifera Royle | 2891771: Impatiens roylei Walpers
-2891774,Impatiens capensis Meerb.,SPECIES,ACCEPTED,2891774: Impatiens capensis Meerb.
-2891782,Impatiens parviflora DC.,SPECIES,ACCEPTED,2891782: Impatiens parviflora DC. | 7309672: Impatiens parviflora subsp. parviflora
-2891783,Impatiens balfourii Hook.f.,SPECIES,ACCEPTED,2891783: Impatiens balfourii Hook.f. | 4193998: Impatiens mathildae Chiov.
-2928835,Lycium barbarum L.,SPECIES,ACCEPTED,2928835: Lycium barbarum L. | 3798323: Lycium barbatum Thunb. | 2928836: Lycium halimifolium Miller | 2928837: Lycium vulgare Dun.
-2992543,Rubus laciniatus Willd.,SPECIES,ACCEPTED,2992543: Rubus laciniatus Willd.
-2993761,Rubus spectabilis Pursh,SPECIES,ACCEPTED,2993761: Rubus spectabilis Pursh
-3003244,Rosa multiflora Thunb.,SPECIES,ACCEPTED,3003244: Rosa multiflora Thunb. | 8552347: Rosa hollandica hort.
-3003709,Rosa glauca Pourr.,SPECIES,ACCEPTED,8684350: Rosa ferruginea Vill. | 3003709: Rosa glauca Pourr. | 3004227: Rosa rubrifolia Vill.
-3024109,Amelanchier lamarckii F.G.Schroed.,SPECIES,ACCEPTED,3024109: Amelanchier lamarckii F.G.Schroed.
-3033965,Akebia quinata Decne.,SPECIES,ACCEPTED,3033965: Akebia quinata Decne.
-3039269,Elaeagnus angustifolia L.,SPECIES,ACCEPTED,3039269: Elaeagnus angustifolia L. | 3039268: Elaeagnus orientalis L. | 4048211: Elaeagnus hortensis M.Bieb. | 7350313: Elaeagnus angustifolia var. caspica Sosn.
-3082244,Cornus sericea L.,SPECIES,ACCEPTED,3082244: Cornus sericea L. | 3663343: Cornus alba subsp. stolonifera (Michx.) Wangerin | 3663557: Swida sericea (L.) Holub | 6427418: Cornus stolonifera Michx. | 7221327: Cornus sericea subsp. sericea | 6427558: Swida stolonifera (Michx.) Rydb.
-3084015,Phytolacca americana L.,SPECIES,ACCEPTED,3084015: Phytolacca americana L. | 4192629: Phytolacca decandra L. | 7219448: Phytolacca americana var. americana
-3084842,Carpobrotus edulis N.E.Br.,SPECIES,ACCEPTED,3084842: Carpobrotus edulis N.E.Br. | 7329201: Carpobrotus edulis subsp. edulis | 7475472: Carpobrotus edulis (L.) L.Bolus | 8028176: Carpobrotus edulis var. rubescens Druce
-3114229,Rudbeckia laciniata L.,SPECIES,ACCEPTED,3114229: Rudbeckia laciniata L.
-3151558,Symphyotrichum novi-belgii (L.) G.L.Nesom,SPECIES,ACCEPTED,3151558: Symphyotrichum novi-belgii (L.) G.L.Nesom | 5406382: Aster novi-belgii L. | 7174375: Aster novi-belgii subsp. novi-belgii | 5692758: Aster novi-belgii subsp. laevigatus (Lam.) Thell. | 7446699: Symphyotrichum novi-belgii var. laevigatus (Lam.) B.Bock | 5406383: Aster serotinus Willd. | 7223381: Symphyotrichum novi-belgii var. novi-belgii | 5396150: Aster spectabilis Dryand. ex Ait. | 7733013: Aster laevigatus Lam. | 5406387: Aster tardiflorus L. | 5406394: Aster brumalis Nees
-3151618,Symphyotrichum novae-angliae (L.) G.L.Nesom,SPECIES,ACCEPTED,3151618: Symphyotrichum novae-angliae (L.) G.L.Nesom | 5406425: Aster novae-angliae L.
-3172348,Fraxinus pennsylvanica Marshall,SPECIES,ACCEPTED,3172348: Fraxinus pennsylvanica Marshall | 7784150: Fraxinus pubescens var. coriacea Dippel
-3189866,Acer negundo L.,SPECIES,ACCEPTED,3189866: Acer negundo L. | 6359254: Acer negundo subsp. negundo | 6709409: Acer negundo var. variegatum Jacques | 9029419: ? violaceum Booth ex Kirchn. | 9792149: Acer negundo subsp. interius (Britton) Á.Löve & D.Löve | 8660298: Acer negundo var. violaceum (K.Koch) Dippel | 3768664: Acer negundo var. californicum (Torr. & A.Gray) Sarg. | 7459798: Negundo fraxinifolium (Nutt.) DC.
-3190538,Rhus typhina L.,SPECIES,ACCEPTED,3190538: Rhus typhina L. | 3190535: Rhus hirta (L.) Sudw.
-3190653,Ailanthus altissima (Mill.) Swingle,SPECIES,ACCEPTED,3190653: Ailanthus altissima (Mill.) Swingle | 3190654: Ailanthus glandulosa Desf.
-4382841,"Hemigrapsus takanoi Asakura & Watanabe, 2005",SPECIES,ACCEPTED,"4382841: Hemigrapsus takanoi Asakura & Watanabe, 2005 | 10113730: BOLD:AAY5062"
-4559541,"Sinanodonta woodiana (I.Lea, 1834)",SPECIES,ACCEPTED,"4559541: Sinanodonta woodiana (I.Lea, 1834) | 4592908: Anodonta woodiana (I.Lea, 1834)"
-5178057,"Caprella mutica Schurin, 1935",SPECIES,ACCEPTED,"5178057: Caprella mutica Schurin, 1935 | 9920313: BOLD:AAE7686"
-5189032,"Corbicula fluminalis (O.F.Müller, 1774)",SPECIES,ACCEPTED,"5189032: Corbicula fluminalis (O.F.Müller, 1774)"
-5192470,"Potamopyrgus antipodarum (Gray, 1843)",SPECIES,ACCEPTED,"5192470: Potamopyrgus antipodarum (Gray, 1843) | 5725386: Potamopyrgus jenkinsi (E.A.Smith, 1889) | 10331094: BOLD:ABY5556 | 6491335: Hydrobia jenkinsi E.A.Smith, 1889 | 6491334: Paludestrina jenkinsi (E.A.Smith, 1889)"
-5219380,"Mephitis mephitis (Schreber, 1776)",SPECIES,ACCEPTED,"5219380: Mephitis mephitis (Schreber, 1776)"
-5220136,"Dama dama (Linnaeus, 1758)",SPECIES,ACCEPTED,"5220136: Dama dama (Linnaeus, 1758) | 7973622: Cervus dama Linnaeus, 1758 | 7261385: Dama dama dama | 10573830: BOLD:AAI9594 | 5220137: Dama mesopotamica (Brooke, 1875)"
-5231398,"Leiothrix lutea (Scopoli, 1786)",SPECIES,ACCEPTED,"5231398: Leiothrix lutea (Scopoli, 1786)"
-5281901,"Campylopus introflexus Bridel, 1819",SPECIES,ACCEPTED,"5281901: Campylopus introflexus Bridel, 1819 | 9290766: Campylopus pilifer var. brevirameus (Dix.) J.-P.Frahm & M.Stech, 2006"
-5328909,Sagittaria latifolia Willd.,SPECIES,ACCEPTED,5328909: Sagittaria latifolia Willd.
-5329260,Egeria densa Planch.,SPECIES,ACCEPTED,5329260: Egeria densa Planch. | 5329263: Elodea densa (Planch.) Casp.
-5851603,"Leuciscus aspius (Linnaeus, 1758)",SPECIES,ACCEPTED,"5851603: Leuciscus aspius (Linnaeus, 1758) | 2360181: Aspius aspius (Linnaeus, 1758) | 10644598: BOLD:AAC8137"
-7777960,Vaccinium macrocarpum Ait.,SPECIES,ACCEPTED,7777960: Vaccinium macrocarpum Ait. | 8373490: Oxycoccus macrocarpus (Ait.) Pers. | 4936636: Oxycoccus macrocarpos (Aiton) Pursh | 2882842: Oxycoccus macrocarpus (Aiton) Pursh
-7820753,"Magallana gigas (Thunberg, 1793)",SPECIES,ACCEPTED,"2286069: Crassostrea gigas (Thunberg, 1793) | 7820753: Magallana gigas (Thunberg, 1793) | 9948260: BOLD:AAB2297"
-8035075,Crassula helmsii A.Berger,SPECIES,ACCEPTED,5362054: Crassula helmsii (Kirk) Cockayne | 8035075: Crassula helmsii A.Berger
-8190231,"Corbicula fluminea (O.F.Müller, 1774)",SPECIES,ACCEPTED,"8190231: Corbicula fluminea (O.F.Müller, 1774) | 6126843: Corbicula insularis Prime, 1867 | 5794018: Corbicula leana Prime, 1867 | 8104327: Corbicula producta Martens, 1905"
-8745918,"Deroceras invadens Reise, Hutchinson, Schunack & Schlitt, 2011",SPECIES,ACCEPTED,"8745918: Deroceras invadens Reise, Hutchinson, Schunack & Schlitt, 2011"
-8848208,Koenigia polystachya (Wall. ex Meisn.) T.M.Schust. & Reveal,SPECIES,ACCEPTED,4033547: Persicaria polystachya (Meisn.) H.Gross | 6391908: Persicaria wallichii W.Greuter & Burdet | 8266758: Aconogonon polystachyum (Meisn.) Small | 5334448: Polygonum polystachyum Meisn. | 4037343: Rubrivena polystachya (Wall.) M.Král | 8848208: Koenigia polystachya (Wall. ex Meisn.) T.M.Schust. & Reveal
-9185677,"Podarcis siculus (Rafinesque-schmaltz, 1810)",SPECIES,ACCEPTED,"6159401: Podarcis siculus campestris De Betta, 1857 | 9185677: Podarcis siculus (Rafinesque-schmaltz, 1810) | 2469233: Podarcis sicula Conant & Collins, 1991 | 7190769: Podarcis siculus siculus | 6159412: Podarcis siculus tyrrhenicus (Mertens, 1932) | 9176870: Lacerta sicula Rafinesqueschmaltz, 1810 | 9003740: Lacerta sicula mertensi Wettstein, 1931 | 6159392: Podarcis siculus caporiaccoi (Taddei, 1949) | 9020321: Podarcis sicula sicula | 9597819: Lacerta sicula ragusae Wettstein, 1931 | 9244840: Lacerta sicula cettii Taddei, 1949 | 6159430: Podarcis siculus cettii (Cara, 1872) | 6159436: Podarcis siculus sanctinicolai (Taddei, 1949) | 6159402: Podarcis sicula campestris Entzeroth, 1982 | 9287390: Podarcis sicula ragusae Tiedemann Et Al., 1994 | 9418093: Lacerta serpa Radovanovic, 1941 | 6159410: Podarcis siculus calabresiae (Taddei, 1949)"
-9202318,Symphyotrichum lanceolatum (Willd.) G.L.Nesom,SPECIES,ACCEPTED,"9202318: Symphyotrichum lanceolatum (Willd.) G.L.Nesom | 5406285: Aster lanceolatus Willd. | 8066155: Aster paniculatus Lam., 1783 | 4237140: Symphyotrichum lanceolatum var. hesperium (A.Gray) G.L.Nesom | 6293570: Symphyotrichum lanceolatum var. lanceolatum | 7066048: Symphyotrichum lanceolatum subsp. lanceolatum"
-9291405,"Massylaea vermiculata (O.F.Müller, 1774)",SPECIES,ACCEPTED,"9291405: Massylaea vermiculata (O.F.Müller, 1774) | 2294275: Eobania vermiculata (O.F.Müller, 1774) | 10642175: Eobania vermiculata vermiculata | 4564053: Helix vermiculata O.F.Müller, 1774"
-3663237,Cornus sanguinea subsp. australis (C.A.Mey.) Jáv.,SUBSPECIES,ACCEPTED,3663237: Cornus sanguinea subsp. australis (C.A.Mey.) Jáv. | 3663678: Swida australis (C.A.Mey.) Pojark. ex Grossh. | 3663151: Cornus australis C.A.Mey. | 8207659: Cornus sanguinea subsp. australis (C.A.Mey.) Soó
-8421432,Cornus sanguinea subsp. hungarica (Kárpáti) Soó,SUBSPECIES,ACCEPTED,8421432: Cornus sanguinea subsp. hungarica (Kárpáti) Soó | 3663378: Cornus hungarica Kárpáti | 3663277: Swida hungarica (Kárpáti) Soják
-4417551,"Astacus leptodactylus Eschscholtz, 1823",SPECIES,HOMOTYPIC_SYNONYM,"4417551: Astacus leptodactylus Eschscholtz, 1823"
-6070603,Mimulus guttatus Fisch. ex DC.,SPECIES,HETEROTYPIC_SYNONYM,6070603: Mimulus guttatus Fisch. ex DC.
+taxonKey,scientificName,rank,taxonomicStatus,kingdom,includes
+2224970,"Palaemon macrodactylus Rathbun, 1902",SPECIES,ACCEPTED,Animalia,"2224970: Palaemon macrodactylus Rathbun, 1902 | 10032298: BOLD:ACG4332"
+2225646,"Callinectes sapidus Rathbun, 1896",SPECIES,ACCEPTED,Animalia,"2225646: Callinectes sapidus Rathbun, 1896"
+2225772,"Hemigrapsus sanguineus (de Haan, 1835)",SPECIES,ACCEPTED,Animalia,"2225772: Hemigrapsus sanguineus (de Haan, 1835) | 9930418: BOLD:AAB4163"
+2225776,"Eriocheir sinensis H.Milne Edwards, 1853",SPECIES,ACCEPTED,Animalia,"2225776: Eriocheir sinensis H.Milne Edwards, 1853 | 10020734: BOLD:AAB0750"
+2227663,"Rhithropanopeus harrisii (Gould, 1841)",SPECIES,ACCEPTED,Animalia,"2227663: Rhithropanopeus harrisii (Gould, 1841) | 10616195: BOLD:AAA2223"
+2287076,"Mytilopsis leucophaeata (Conrad, 1831)",SPECIES,ACCEPTED,Animalia,"2287076: Mytilopsis leucophaeata (Conrad, 1831) | 10398094: BOLD:AAH4257 | 8283653: Mytilopsis leucophaeta (Conrad, 1831) | 5189111: Congeria leucophaeta (Conrad, 1831) | 5728957: Congeria cochleata (Nyst, 1835) | 9486144: Congeria leucophaeata (Conrad, 1831)"
+2287249,"Ensis directus (Conrad, 1844)",SPECIES,ACCEPTED,Animalia,"2287249: Ensis directus (Conrad, 1844) | 10198292: BOLD:ABV8193"
+2294275,"Eobania vermiculata (O.F.Müller, 1774)",SPECIES,ACCEPTED,Animalia,"9291405: Massylaea vermiculata (O.F.Müller, 1774)"
+2367742,"Pimephales promelas Rafinesque, 1820",SPECIES,ACCEPTED,Animalia,"2367742: Pimephales promelas Rafinesque, 1820 | 9837060: BOLD:AAA3948"
+2367919,"Misgurnus anguillicaudatus (Cantor, 1842)",SPECIES,ACCEPTED,Animalia,"2367919: Misgurnus anguillicaudatus (Cantor, 1842)"
+2379089,"Neogobius melanostomus (Pallas, 1814)",SPECIES,ACCEPTED,Animalia,"2379089: Neogobius melanostomus (Pallas, 1814) | 9987658: BOLD:AAC0218 | 2379090: Gobius melanostomus Pallas, 1814 | 2379075: Neogobius cephalarges (Pallas, 1814) | 2379093: Gobius cephalarges Pallas, 1814 | 2376496: Gobius exanthematosus Pallas, 1814"
+2426640,"Pelophylax bedriagae (Camerano, 1882)",SPECIES,ACCEPTED,Animalia,"2426640: Pelophylax bedriagae (Camerano, 1882) | 2426642: Rana bedriagae Camerano, 1882"
+2426661,"Pelophylax ridibundus (Pallas, 1771)",SPECIES,ACCEPTED,Animalia,"2426661: Pelophylax ridibundus (Pallas, 1771) | 10964839: Rana ridibunda ridibunda | 2426662: Rana ridibunda Pallas, 1771 | 9321745: Pelophylax ridibundus kurtmuelleri (Gayda, 1940) | 7580395: Rana cachinnans Pallas, 1814"
+2431887,"Triturus carnifex (Laurenti, 1768)",SPECIES,ACCEPTED,Animalia,"2431887: Triturus carnifex (Laurenti, 1768) | 10509308: BOLD:AAC9264 | 9227543: Triturus cristatus carnifex (Laurenti, 1768) | 10174248: BOLD:ACE8564 | 11043111: Triton cristatus carnifex (Laurenti, 1768)"
+2437282,"Tamiasciurus hudsonicus (Erxleben, 1777)",SPECIES,ACCEPTED,Animalia,"2437282: Tamiasciurus hudsonicus (Erxleben, 1777)"
+2437397,"Callosciurus prevostii (Desmarest, 1822)",SPECIES,ACCEPTED,Animalia,"2437397: Callosciurus prevostii (Desmarest, 1822) | 9081553: Callosciurus prevostii borneoensis (Müller & Schlegel, 1842)"
+2437619,"Dolichotis patagonum (Zimmermann, 1780)",SPECIES,ACCEPTED,Animalia,"2437619: Dolichotis patagonum (Zimmermann, 1780)"
+2440954,"Cervus nippon Temminck, 1838",SPECIES,ACCEPTED,Animalia,"2440954: Cervus nippon Temminck, 1838 | 10635465: BOLD:ACE6621 | 4262379: Cervus nippon mantchuricus Swinhoe, 1864"
+2441905,"Chelydra serpentina (Linnaeus, 1758)",SPECIES,ACCEPTED,Animalia,"2441905: Chelydra serpentina (Linnaeus, 1758)"
+2458438,"Elaphe schrenckii Strauch, 1873",SPECIES,ACCEPTED,Animalia,"2458438: Elaphe schrenckii Strauch, 1873"
+2474162,"Coturnix japonica Temminck & Schlegel, 1849",SPECIES,ACCEPTED,Animalia,"2474162: Coturnix japonica Temminck & Schlegel, 1849"
+2479407,"Myiopsitta monachus (Boddaert, 1783)",SPECIES,ACCEPTED,Animalia,"2479407: Myiopsitta monachus (Boddaert, 1783) | 11277649: Myopsitta monachus (Boddaert) | 7192688: Myiopsitta monachus monachus | 6170796: Myiopsitta monachus cotorra (Vieillot, 1818)"
+2486131,"Pycnonotus cafer (Linnaeus, 1766)",SPECIES,ACCEPTED,Animalia,"2486131: Pycnonotus cafer (Linnaeus, 1766)"
+2498110,"Anas sibilatrix Poeppig, 1829",SPECIES,ACCEPTED,Animalia,"2498110: Anas sibilatrix Poeppig, 1829 | 9508460: Mareca sibilatrix (Poeppig, 1829)"
+2498387,"Aix sponsa (Linnaeus, 1758)",SPECIES,ACCEPTED,Animalia,"2498387: Aix sponsa (Linnaeus, 1758)"
+2498388,"Aix galericulata (Linnaeus, 1758)",SPECIES,ACCEPTED,Animalia,"2498388: Aix galericulata (Linnaeus, 1758)"
+2501248,"Mnemiopsis leidyi A.Agassiz, 1865",SPECIES,ACCEPTED,Animalia,"2501248: Mnemiopsis leidyi A.Agassiz, 1865"
+2650107,Azolla filiculoides Lam.,SPECIES,ACCEPTED,Plantae,2650107: Azolla filiculoides Lam. | 4196474: Azolla cristata Kaulf.
+2715482,Cyperus eragrostis Lam.,SPECIES,ACCEPTED,Plantae,2715482: Cyperus eragrostis Lam. | 2715499: Cyperus vegetus Willd.
+2716226,Cyperus esculentus L.,SPECIES,ACCEPTED,Plantae,"2716226: Cyperus esculentus L. | 7370775: Cyperus aureus Ten. | 2716228: Cyperus melanorhizus Delile | 7258849: Cyperus esculentus var. esculentus | 2716248: Cyperus esculentus var. macrostachyus Boeckeler | 10908473: Cyperus esculentus f. aureus (Ten.) P.Fourn., 1935"
+2766030,Pontederia cordata L.,SPECIES,ACCEPTED,Plantae,2766030: Pontederia cordata L.
+2882849,Vaccinium corymbosum L.,SPECIES,ACCEPTED,Plantae,2882849: Vaccinium corymbosum L.
+2891770,Impatiens glandulifera Royle,SPECIES,ACCEPTED,Plantae,2891770: Impatiens glandulifera Royle | 2891771: Impatiens roylei Walp. | 4192870: Impatiens glanduligera Lindl. | 8018161: Impatiens glandulifera f. albida (Hegi) B.Boivin
+2891774,Impatiens capensis Meerb.,SPECIES,ACCEPTED,Plantae,2891774: Impatiens capensis Meerb.
+2891782,Impatiens parviflora DC.,SPECIES,ACCEPTED,Plantae,2891782: Impatiens parviflora DC. | 7309672: Impatiens parviflora subsp. parviflora
+2891783,Impatiens balfourii Hook.fil.,SPECIES,ACCEPTED,Plantae,2891783: Impatiens balfourii Hook.fil. | 4193998: Impatiens mathildae Chiov.
+2928835,Lycium barbarum L.,SPECIES,ACCEPTED,Plantae,2928835: Lycium barbarum L. | 2928836: Lycium halimifolium Mill. | 3798323: Lycium barbatum Thunb. | 2928837: Lycium vulgare Dunal
+2992543,Rubus laciniatus Willd.,SPECIES,ACCEPTED,Plantae,2992543: Rubus laciniatus Willd. | 9365081: Rubus nemoralis f. laciniatus A.Beek | 2992546: Rubus laciniatus subsp. laciniatus
+2993761,Rubus spectabilis Pursh,SPECIES,ACCEPTED,Plantae,2993761: Rubus spectabilis Pursh
+3003244,Rosa multiflora Thunb.,SPECIES,ACCEPTED,Plantae,3003244: Rosa multiflora Thunb. | 8552347: Rosa hollandica hort.
+3003709,Rosa glauca Pourr.,SPECIES,ACCEPTED,Plantae,3003709: Rosa glauca Pourr. | 8684350: Rosa ferruginea Vill. | 3004226: Rosa livida Host | 3004227: Rosa rubrifolia Vill. | 10996718: Rosa caesia subsp. glauca (Nyman) G.G.Graham & Primavesi
+3024109,Amelanchier ×lamarckii F.G.Schroed.,SPECIES,ACCEPTED,Plantae,3024109: Amelanchier ×lamarckii F.G.Schroed.
+3033965,Akebia quinata (Houtt.) Decne.,SPECIES,ACCEPTED,Plantae,3033965: Akebia quinata (Houtt.) Decne. | 8376014: Akebia quinata (Houtt.) Dcne.
+3039269,Elaeagnus angustifolia L.,SPECIES,ACCEPTED,Plantae,3039269: Elaeagnus angustifolia L. | 7350313: Elaeagnus angustifolia var. caspica Sosn. | 6708897: Elaeagnus angustifolia var. orientalis (L.) Kuntze | 3039268: Elaeagnus orientalis L. | 4048211: Elaeagnus hortensis M.Bieb.
+3082244,Cornus sericea L.,SPECIES,ACCEPTED,Plantae,3082244: Cornus sericea L. | 3663557: Swida sericea (L.) Holub | 6427558: Swida stolonifera (Michx.) Rydb. | 3663343: Cornus alba subsp. stolonifera (Michx.) Wangerin | 7221327: Cornus sericea subsp. sericea | 6427418: Cornus stolonifera Michx. | 3663108: Cornus baileyi J.M.Coult. & W.H.Evans
+3084015,Phytolacca americana L.,SPECIES,ACCEPTED,Plantae,3084015: Phytolacca americana L. | 7219448: Phytolacca americana var. americana | 4192629: Phytolacca decandra L.
+3084842,Carpobrotus edulis (L.) N.E.Br.,SPECIES,ACCEPTED,Plantae,3084842: Carpobrotus edulis (L.) N.E.Br. | 8028176: Carpobrotus edulis var. rubescens Druce | 7329201: Carpobrotus edulis subsp. edulis
+3114229,Rudbeckia laciniata L.,SPECIES,ACCEPTED,Plantae,3114229: Rudbeckia laciniata L. | 4254950: Rudbeckia laciniata var. ampla (A.Nelson) Cronquist
+3151558,Symphyotrichum novi-belgii (L.) G.L.Nesom,SPECIES,ACCEPTED,Plantae,3151558: Symphyotrichum novi-belgii (L.) G.L.Nesom | 5406382: Aster novi-belgii L. | 5692758: Aster novi-belgii subsp. laevigatus (Lam.) Thell. | 7174375: Aster novi-belgii subsp. novi-belgii | 7721098: Aster laevis Vahl ex DC. | 5406394: Aster brumalis Nees | 3151736: Symphyotrichum patulum (Lam.) Karlsson | 5406491: Aster patulus Lam. | 7223381: Symphyotrichum novi-belgii var. novi-belgii | 5406387: Aster tardiflorus L. | 7733013: Aster laevigatus Lam. | 5406383: Aster serotinus Willd. | 7446699: Symphyotrichum novi-belgii var. laevigatus (Lam.) B.Bock
+3151618,Symphyotrichum novae-angliae (L.) G.L.Nesom,SPECIES,ACCEPTED,Plantae,5406425: Aster novae-angliae L. | 3151618: Symphyotrichum novae-angliae (L.) G.L.Nesom
+3172348,Fraxinus pennsylvanica Marshall,SPECIES,ACCEPTED,Plantae,3172348: Fraxinus pennsylvanica Marshall | 3172349: Fraxinus pennsylvanica var. lanceolata (Borkh.) Sarg. | 3172354: Fraxinus pennsylvanica var. subintegerrima (Vahl) Fernald | 3172350: Fraxinus lanceolata Borkh. | 7784150: Fraxinus pubescens var. coriacea Dippel
+3189866,Acer negundo L.,SPECIES,ACCEPTED,Plantae,"3189866: Acer negundo L. | 7408593: Acer negundo var. aureovariegatum Wesm. | 8660298: Acer negundo var. violaceum (G.Kirchn.) Dippel, 1892 | 3768664: Acer negundo var. californicum (Torr. & A.Gray) Sarg. | 6359254: Acer negundo subsp. negundo | 8282529: Acer negundo var. violaceum (G.Kirchn.) H.Jaeger | 9792149: Acer negundo subsp. interius (Britton) Á.Löve & D.Löve | 6709409: Acer negundo var. variegatum Jacques"
+3190538,Rhus typhina L.,SPECIES,ACCEPTED,Plantae,3190538: Rhus typhina L. | 3190535: Rhus hirta (L.) Südw. | 3662800: Rhus typhina f. dissecta Rehder | 9462526: Rhus typhina var. laciniata Hort
+3190653,Ailanthus altissima (Mill.) Swingle,SPECIES,ACCEPTED,Plantae,3190653: Ailanthus altissima (Mill.) Swingle | 3190654: Ailanthus glandulosa Desf. | 3709007: Ailanthus giraldii Dode | 7615579: Ailanthus altissima var. altissima | 7329577: Ailanthus vilmoriniana Dode
+4382841,"Hemigrapsus takanoi Asakura & Watanabe, 2005",SPECIES,ACCEPTED,Animalia,"4382841: Hemigrapsus takanoi Asakura & Watanabe, 2005 | 10113730: BOLD:AAY5062"
+4559541,"Sinanodonta woodiana (I.Lea, 1834)",SPECIES,ACCEPTED,Animalia,"4559541: Sinanodonta woodiana (I.Lea, 1834) | 4592908: Anodonta woodiana (Rea, 1834)"
+5166487,"Megabalanus tintinnabulum (Linnaeus, 1758)",SPECIES,ACCEPTED,Animalia,"2115692: Balanus tintinnabulum (Linnaeus, 1758)"
+5178057,"Caprella mutica Schurin, 1935",SPECIES,ACCEPTED,Animalia,"5178057: Caprella mutica Schurin, 1935 | 9920313: BOLD:AAE7686"
+5189032,"Corbicula fluminalis (O.F.Müller, 1774)",SPECIES,ACCEPTED,Animalia,"5189032: Corbicula fluminalis (O.F.Müller, 1774) | 5794006: Corbicula consobrina (Caillaud, 1823)"
+5192470,"Potamopyrgus antipodarum (Gray, 1843)",SPECIES,ACCEPTED,Animalia,"5192470: Potamopyrgus antipodarum (Gray, 1843) | 5725386: Potamopyrgus jenkinsi (E.A.Smith, 1889) | 10331094: BOLD:ABY5556 | 6491334: Paludestrina jenkinsi (E.A.Smith, 1889) | 6491335: Hydrobia jenkinsi E.A.Smith, 1889"
+5218823,"Mustela vison Schreber, 1777",SPECIES,ACCEPTED,Animalia,"2433652: Neovison vison (Schreber, 1777)"
+5219380,"Mephitis mephitis (Schreber, 1776)",SPECIES,ACCEPTED,Animalia,"5219380: Mephitis mephitis (Schreber, 1776)"
+5220136,"Dama dama (Linnaeus, 1758)",SPECIES,ACCEPTED,Animalia,"5220136: Dama dama (Linnaeus, 1758) | 10573830: BOLD:AAI9594 | 7973622: Cervus dama Linnaeus, 1758 | 5220137: Dama mesopotamica (Brooke, 1875) | 7261385: Dama dama dama"
+5231398,"Leiothrix lutea (Scopoli, 1786)",SPECIES,ACCEPTED,Animalia,"5231398: Leiothrix lutea (Scopoli, 1786)"
+5281901,"Campylopus introflexus Bridel, 1819",SPECIES,ACCEPTED,Plantae,"5281901: Campylopus introflexus Bridel, 1819 | 9290766: Campylopus pilifer var. brevirameus (Dix.) J.-P.Frahm & M.Stech, 2006"
+5328909,Sagittaria latifolia Willd.,SPECIES,ACCEPTED,Plantae,5328909: Sagittaria latifolia Willd.
+5329260,Egeria densa Planch.,SPECIES,ACCEPTED,Plantae,5329260: Egeria densa Planch. | 5329263: Elodea densa (Planch.) Casp.
+5362054,Crassula helmsii (Kirk) Cockayne,SPECIES,ACCEPTED,Plantae,8035075: Crassula helmsii (Kirk) A.Berger
+5851603,"Leuciscus aspius (Linnaeus, 1758)",SPECIES,ACCEPTED,Animalia,"5851603: Leuciscus aspius (Linnaeus, 1758) | 2360181: Aspius aspius (Linnaeus, 1758) | 10644598: BOLD:AAC8137 | 4353856: Squalius leuciscus (Linnaeus, 1758)"
+7777960,Vaccinium macrocarpum Aiton,SPECIES,ACCEPTED,Plantae,7777960: Vaccinium macrocarpum Aiton | 8373490: Oxycoccus macrocarpus (Aiton) Pers. | 4936636: Oxycoccus macrocarpos (Aiton) Pursh | 2882842: Oxycoccus macrocarpus (Aiton) Pursh
+7787813,Spiraea alba DuRoi,SPECIES,DOUBTFUL,Plantae,7787813: Spiraea alba DuRoi
+7820753,"Magallana gigas (Thunberg, 1793)",SPECIES,ACCEPTED,Animalia,"7820753: Magallana gigas (Thunberg, 1793) | 2286069: Crassostrea gigas (Thunberg, 1793) | 9948260: BOLD:AAB2297"
+8190231,"Corbicula fluminea (O.F.Müller, 1774)",SPECIES,ACCEPTED,Animalia,"8190231: Corbicula fluminea (O.F.Müller, 1774) | 6126843: Corbicula insularis Prime, 1867 | 8104327: Corbicula producta E.von Martens, 1905"
+8745918,"Deroceras invadens Reise, Hutchinson, Schunack & Schlitt, 2011",SPECIES,ACCEPTED,Animalia,"8745918: Deroceras invadens Reise, Hutchinson, Schunack & Schlitt, 2011 | 10683203: BOLD:AED5282 | 10791775: BOLD:AED4021 | 10739537: BOLD:AED4849 | 10724595: BOLD:AED4421 | 10889531: BOLD:AED7355 | 10672634: BOLD:AED4026 | 10723752: BOLD:AED4420 | 10790914: BOLD:AED8618 | 10848061: BOLD:AED4025 | 10858711: BOLD:AED5281 | 10806735: BOLD:AED5278 | 10713939: BOLD:AED7356 | 10750216: BOLD:AED5283 | 10765236: BOLD:AED7353 | 10899345: BOLD:AED4847 | 10832292: BOLD:AED4022 | 10873743: BOLD:AED4851 | 10842925: BOLD:AED4024 | 10734424: BOLD:AED7354 | 10708655: BOLD:AED4848 | 10698202: BOLD:AED5280 | 10884311: BOLD:AED4850 | 10817195: BOLD:AED5279 | 10781045: BOLD:AED8619 | 10833138: BOLD:AED8239 | 10775865: BOLD:AED4023"
+8848208,Koenigia polystachya (Wall. ex Meisn.) T.M.Schust. & Reveal,SPECIES,ACCEPTED,Plantae,6391908: Persicaria wallichii Greuter & Burdet | 4037343: Rubrivena polystachya (Wall.) M.Král | 4033547: Persicaria polystachya (Meisn.) H.Gross | 5334448: Polygonum polystachyum Meisn. | 8848208: Koenigia polystachya (Wall. ex Meisn.) T.M.Schust. & Reveal | 8343116: Aconogonon polystachyum (Wall. ex Meisn.) Kral
+9185677,"Podarcis siculus (Rafinesque-Schmaltz, 1810)",SPECIES,ACCEPTED,Animalia,"2469244: Lacerta sicula Brelih, 1961 | 9185677: Podarcis siculus (Rafinesque-Schmaltz, 1810) | 7190769: Podarcis siculus siculus | 6159401: Podarcis siculus campestris (De Betta, 1857) | 6159392: Podarcis siculus caporiaccoi (Taddei, 1949) | 6159410: Podarcis siculus calabresiae (Taddei, 1949) | 6159412: Podarcis siculus tyrrhenicus (Mertens, 1932) | 6159430: Podarcis siculus cettii (Cara, 1872) | 11334535: Lacerta serpa Schreiber | 9244840: Lacerta sicula cettii Taddei, 1949 | 10665900: Lacerta sicula mertensi Wettstein, 1931 | 9597819: Lacerta sicula ragusae Wettstein, 1931 | 6159409: Podarcis siculus ragusae (Wettstein, 1931) | 6159436: Podarcis siculus sanctinicolai (Taddei, 1949)"
+9202318,Symphyotrichum lanceolatum (Willd.) G.L.Nesom,SPECIES,ACCEPTED,Plantae,"5406285: Aster ×lanceolatus Willd. | 9202318: Symphyotrichum lanceolatum (Willd.) G.L.Nesom | 6293570: Symphyotrichum lanceolatum var. lanceolatum | 7066048: Symphyotrichum lanceolatum subsp. lanceolatum | 8273907: Aster simplex Willd. | 4237140: Symphyotrichum lanceolatum var. hesperium (A.Gray) G.L.Nesom | 8066155: Aster paniculatus Lam., 1783"
+3663237,Cornus sanguinea subsp. australis (C.A.Mey.) Jáv.,SUBSPECIES,ACCEPTED,Plantae,"8207659: Cornus sanguinea subsp. australis (C.A.Mey.) Soó, 1978 | 3663678: Swida australis (C.A.Mey.) Pojark. ex Grossh. | 3663237: Cornus sanguinea subsp. australis (C.A.Mey.) Jáv. | 3663151: Cornus australis C.A.Mey."
+8421432,Cornus sanguinea subsp. hungarica (Kárpáti) Soó,SUBSPECIES,ACCEPTED,Plantae,8421432: Cornus sanguinea subsp. hungarica (Kárpáti) Soó | 3663378: Cornus hungarica Kárpáti | 3663277: Swida hungarica (Kárpáti) Soják
+4417551,"Astacus leptodactylus Eschscholtz, 1823",SPECIES,HOMOTYPIC_SYNONYM,Animalia,"4417551: Astacus leptodactylus Eschscholtz, 1823"
+6070603,Mimulus guttatus Fisch. ex DC.,SPECIES,HETEROTYPIC_SYNONYM,Plantae,6070603: Mimulus guttatus Fisch. ex DC.

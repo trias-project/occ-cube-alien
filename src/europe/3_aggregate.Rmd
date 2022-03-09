@@ -42,7 +42,7 @@ library(glue)           # To write queries
 Read taxa for modelling from  `modelling_species.tsv`:
 
 ```{r read_modelling_taxa}
-taxa_input_file <- "https://raw.githubusercontent.com/trias-project/occ-cube-alien/b22225d4eddb3bc6916f387c5a0d6dac3a38a90e/references/modelling_species.tsv"
+taxa_input_file <- "https://raw.githubusercontent.com/trias-project/occ-cube-alien/5d25654a2e9c406630195c598975f740fe69ca88/references/modelling_species.tsv"
 modelling_taxa <- read_tsv(
   taxa_input_file,
   na = "",
@@ -70,7 +70,7 @@ modelling_taxa %>% head()
 Name and path of occurrence data file:
 
 ```{r name_path_eu}
-key <- "0123859-200613084148143"
+key <- "0175695-210914110416597"
 occ_file <- paste(key, "occurrence.tsv", sep = "_")
 occ_path <- here::here("data", "interim", occ_file)
 ```
@@ -309,7 +309,7 @@ taxa_species_eu <-
   map(~.x[["data"]]) %>%
   
   # Select columns of interest
-  map(~select(.x, speciesKey, scientificName, rank, taxonomicStatus)) %>%
+  map(~select(.x, speciesKey, scientificName, rank, taxonomicStatus, kingdom)) %>%
   
   # Merge all taxa in a data.frame
   reduce(full_join) %>%
@@ -324,7 +324,8 @@ taxa_species_eu <-
   group_by(speciesKey, 
            species_scientificName,
            rank,
-           taxonomicStatus) %>%
+           taxonomicStatus,
+           kingdom) %>%
   
   # create 'includes' column
   summarize(includes = paste(
@@ -496,7 +497,7 @@ if (ncol(taxa_subspecies_eu) > 0) {
   taxa_subspecies_eu %>%
   
   # select columns of interest
-  select(acceptedKey, accepted_scientificName, rank, taxonomicStatus) %>%
+  select(acceptedKey, accepted_scientificName, rank, taxonomicStatus, kingdom) %>%
 
   # add columns to original df
   right_join(occ_cube_eu_subspecies_taxa, 
@@ -506,7 +507,8 @@ if (ncol(taxa_subspecies_eu) > 0) {
   group_by(acceptedKey, 
            accepted_scientificName,
            rank,
-           taxonomicStatus) %>%
+           taxonomicStatus,
+           kingdom) %>%
   
   # create 'includes' column
   summarize(includes = paste(
@@ -606,7 +608,7 @@ taxa_synonym_eu <-
   map(~.x[["data"]]) %>%
   
   # select columns of interest
-  map(~select(.x, key, scientificName, rank, taxonomicStatus)) %>%
+  map(~select(.x, key, scientificName, rank, taxonomicStatus, kingdom)) %>%
   
   # Merge all taxa in a data.frame
   reduce(full_join) %>% 
