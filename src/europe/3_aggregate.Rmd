@@ -42,7 +42,7 @@ library(glue)           # To write queries
 Read taxa for modelling from  `modelling_species.tsv`:
 
 ```{r read_modelling_taxa}
-taxa_input_file <- "https://raw.githubusercontent.com/trias-project/occ-cube-alien/b22225d4eddb3bc6916f387c5a0d6dac3a38a90e/references/modelling_species.tsv"
+taxa_input_file <- "https://raw.githubusercontent.com/trias-project/occ-cube-alien/5d25654a2e9c406630195c598975f740fe69ca88/references/modelling_species.tsv"
 modelling_taxa <- read_tsv(
   taxa_input_file,
   na = "",
