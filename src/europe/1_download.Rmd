@@ -126,7 +126,7 @@ Trigger download:
 
 ```{r trigger_gbif_download_eu}
 # Reuse existing download (comment to trigger new download)
-gbif_download_key <- "0175695-210914110416597"
+gbif_download_key <- "0176950-210914110416597"
 
 # Trigger new download (commented by default)
 # gbif_download_key <- occ_download(
