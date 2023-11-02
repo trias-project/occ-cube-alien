@@ -204,7 +204,7 @@ reproject_assign <- function(df, pos){
   df <- spTransform(df, CRS("+init=epsg:3035"))
   colnames(df@coords) <- c("x", "y")
   
-  # Step 2: aissgn occurrence within uncertainty circle
+  # Step 2: assign occurrence within uncertainty circle
   df@data <-
     df@data %>%
     mutate(random_angle = runif(nrow_df, 0, 2*pi))

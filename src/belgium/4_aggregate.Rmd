@@ -272,7 +272,7 @@ occ_cube_species %>% head()
 
 ### Map taxa
 
-Grouping by `speciesKey`, we loose informations about which taxa share the same  `speciesKey`. This information could be sometimes helpful. We extract it in a separate data.frame, `taxa_species`.
+Grouping by `speciesKey`, we loose information about which taxa share the same  `speciesKey`. This information could be sometimes helpful. We extract it in a separate data.frame, `taxa_species`.
 
 First, we get all distinct taxa:
 
@@ -664,7 +664,7 @@ occ_cube_synonym %>% head()
 
 ### Map taxa
 
-For these taxa we don't have occcurrences linked to other related taxa. We have just to retrieve scientific name, taxonomic status and rank and make a data.frame called `taxa_synonym`. In this case the column `includes` is trivial:
+For these taxa we don't have occurrences linked to other related taxa. We have just to retrieve scientific name, taxonomic status and rank and make a data.frame called `taxa_synonym`. In this case the column `includes` is trivial:
 
 ```{r taxa_synonym}
 taxa_synonym <- 
