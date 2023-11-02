@@ -186,10 +186,10 @@ write_tsv(geodata_df, temp_file_coords, na = "")
 remove(geodata_df)
 ```
 
-Set random number generator seed (this helps reproducibility). We use the unique identifier of the reserved [Zenodo dataset's DOI](https://doi.org/10.5281/zenodo.5819028) which the occurrence cube will be published to:
+Set random number generator seed (this helps reproducibility). We use the unique identifier of the reserved [Zenodo dataset's DOI](https://doi.org/10.5281/zenodo.10058400) which the occurrence cube will be published to:
 
 ```{r set_seed}
-set.seed(5819028)
+set.seed(10058400)
 ```
 
 We define the function to apply to each chunk:
