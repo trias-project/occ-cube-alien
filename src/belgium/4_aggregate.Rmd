@@ -118,7 +118,7 @@ class_df <-
     .data$classKey, 
     function(x) {
       if (!is.na(x)) {
-        taxon = name_usage(x)
+        taxon <- name_usage(x)
         taxon$data %>% pull(scientificName)
       } else {
         NA_character_
