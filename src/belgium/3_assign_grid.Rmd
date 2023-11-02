@@ -157,7 +157,7 @@ Are there occurrences with 0 uncertainty left?
 Are there occurrences without uncertainty?
 
 ```{r zero_in_uncertainty_df}
-NA_real_ %in% uncertainty_df
+NA %in% uncertainty_df
 ```
 
 # Assign grid to occurrences
