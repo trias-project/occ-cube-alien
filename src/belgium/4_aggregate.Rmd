@@ -294,8 +294,12 @@ query <- glue_sql(
 )
 occ_cube_species_taxa <- 
   dbGetQuery(sqlite_occ, query) %>%
-  filter(speciesKey %in% alien_taxa_species_key | 
-           genusKey %in% alien_taxa_species_key)
+  mutate(speciesKey = as.integer(speciesKey),
+         genusKey = as.integer(genusKey),
+         familyKey = as.integer(familyKey)) %>%
+  filter(speciesKey %in% alien_taxa_species_key |
+           genusKey %in% alien_taxa_species_key |
+           familyKey %in% alien_taxa_species_key)
 ```
 
 Drop taxa at genus or family level:
