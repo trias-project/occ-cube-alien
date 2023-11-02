@@ -64,7 +64,8 @@ query <- glue_sql("SELECT {`cols`*} FROM {table}",
 )
 geodata_df <- 
   dbGetQuery(sqlite_occ, query) %>%
-  as_tibble()
+  dplyr::as_tibble() %>%
+  dplyr::mutate(coordinateUncertaintyInMeters = as.double(.data$coordinateUncertaintyInMeters))
 ```
 
 Number of occurrences:
