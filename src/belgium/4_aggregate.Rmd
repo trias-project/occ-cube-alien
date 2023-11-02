@@ -501,7 +501,8 @@ occ_cube_subspecies_taxa %>%
   group_by(acceptedTaxonKey) %>%
   add_tally() %>%
   filter(n > 1) %>%
-  select(-n)
+  select(-n) %>%
+  arrange(acceptedTaxonKey)
 ```
 
 Some infraspecific taxa have occurrences only from taxa linked to their synonyms. In these cases `acceptedTaxonKey` is not equal to `taxonKey`:
