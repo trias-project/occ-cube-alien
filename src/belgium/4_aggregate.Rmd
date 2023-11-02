@@ -53,7 +53,7 @@ sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_path)
 
 # Aggregate at class level - baseline
 
-In this section we will calculate how many occurrences have been recorded for each year, EEA cell code and class For speeding up the search in database, we create an index on these rows if not present:
+In this section we will calculate how many occurrences have been recorded for each year, EEA cell code and class. For speeding up the search in database, we create an index on these columns if not present:
 
 ```{r create_idx_class}
 idx_baseline <- "idx_year_cell_class"
