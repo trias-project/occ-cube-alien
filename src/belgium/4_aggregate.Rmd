@@ -34,7 +34,7 @@ library(RSQLite)        # To interact with SQlite databases
 Name and path of `.sqlite` file:
 
 ```{r name_path}
-key <- "0089458-210914110416597"
+key <- "0031758-231002084531237"
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
