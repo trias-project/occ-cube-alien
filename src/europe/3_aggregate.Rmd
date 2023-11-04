@@ -70,7 +70,7 @@ modelling_taxa %>% head()
 Name and path of occurrence data file:
 
 ```{r name_path_eu}
-key <- "0176950-210914110416597"
+key <- "0036191-231002084531237"
 occ_file <- paste(key, "occurrence.tsv", sep = "_")
 occ_path <- here::here("data", "interim", occ_file)
 ```
