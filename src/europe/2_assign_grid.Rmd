@@ -347,8 +347,11 @@ We won't take into account unverified observations:
 identificationVerificationStatus_to_discard <- c(
   "unverified",
   "unvalidated",
+  "not validated",
+  "under validation",
   "not able to validate",
   "control could not be conclusive due to insufficient knowledge",
+  "uncertain",
   "unconfirmed",
   "unconfirmed - not reviewed",
   "validation requested"
