@@ -47,5 +47,5 @@ data/raw/*
 data/interim/*.sqlite
 data/interim/*.tsv
 
-# Cube at class level: bigger than 100 MB
+# Processed data: cube at class level is bigger than 100 MB
 data/processed/be_classes_cube.csv
