@@ -5,9 +5,9 @@ Aix galericulata	birds	Animalia	2498388	ACCEPTED
 Aix sponsa	birds	Animalia	2498387	ACCEPTED
 Akebia quinata	plants	Plantae	3033965	ACCEPTED
 Amelanchier lamarckii	plants	Plantae	3024109	ACCEPTED
-Anas sibilatrix	birds	Animalia	2498110	ACCEPTED
+Mareca sibilatrix	birds	Animalia	9508460	ACCEPTED
 Aponogeton distachyos	aquatic plants	Plantae	5328593	ACCEPTED
-Astacus leptodactylus	crustaceans	Animalia	4417551	SYNONYM
+Pontastacus leptodactylus	crustaceans	Animalia	8946295	ACCEPTED
 Azolla filiculoides	aquatic plants	Plantae	2650107	ACCEPTED
 Cabomba caroliniana	aquatic plants	Plantae	2882443	ACCEPTED
 Callinectes sapidus	crustaceans	Animalia	2225646	ACCEPTED
@@ -31,7 +31,7 @@ Cyperus esculentus	plants	Plantae	2716226	ACCEPTED
 Dama dama	mammals	Animalia	5220136	ACCEPTED
 Deroceras invadens	mollusca	Animalia	8745918	ACCEPTED
 Dolichotis patagonum	mammals	Animalia	2437619	ACCEPTED
-Egeria densa	aquatic plants	Plantae	5329260	ACCEPTED
+Elodea densa	aquatic plants	Plantae	5329263	ACCEPTED
 Elaeagnus angustifolia	plants	Plantae	3039269	ACCEPTED
 Elaphe schrenckii	reptiles	Animalia	2458438	ACCEPTED
 Elaphe taeniura	reptiles	Animalia	8889878	ACCEPTED
@@ -45,12 +45,12 @@ Faxonius virilis	crustaceans	Animalia	8971201	ACCEPTED
 Fraxinus pennsylvanica	plants	Plantae	3172348	ACCEPTED
 Graptemys pseudogeographica kohnii	reptiles	Animalia	6157050	ACCEPTED
 Graptemys pseudogeographica pseudogeographica	reptiles	Animalia	7190901	ACCEPTED
-Hedera hibernica	plants	Plantae	8168344	ACCEPTED
-Hedera hibernica	plants	Plantae	3036157	DOUBTFUL
+Hedera hibernica Poit.	plants	Plantae	8168344	ACCEPTED
+Hedera hibernica (G.Kirchn.) Carrière	plants	Plantae	3036157	DOUBTFUL
 Hemigrapsus sanguineus	crustaceans	Animalia	2225772	ACCEPTED
 Hemigrapsus takanoi	crustaceans	Animalia	4382841	ACCEPTED
 Heracleum mantegazzianum	plants	Plantae	3034825	ACCEPTED
-Heracleum persicum	plants	Plantae	8000520	ACCEPTED
+Heracleum persicum	plants	Plantae	3628745	ACCEPTED
 Heracleum sosnowskyi	plants	Plantae	3642949	ACCEPTED
 Houttuynia cordata	plants	Plantae	5384931	ACCEPTED
 Hydrocotyle ranunculoides	aquatic plants	Plantae	7978544	ACCEPTED
@@ -70,7 +70,7 @@ Lysichiton americanus	plants	Plantae	2869311	ACCEPTED
 Magallana gigas	mollusca	Animalia	7820753	ACCEPTED
 Megabalanus tintinnabulum	crustaceans	Animalia	5166487	ACCEPTED
 Mephitis mephitis	mammals	Animalia	5219380	ACCEPTED
-Mimulus guttatus Fisch. ex DC.	plants	Plantae	6070603	SYNONYM
+Erythranthe guttata	plants	Plantae	7346102	ACCEPTED
 Misgurnus anguillicaudatus	fish	Animalia	2367919	ACCEPTED
 Mnemiopsis leidyi	comb jellies	Animalia	2501248	ACCEPTED
 Mustela vison	mammals	Animalia	5218823	ACCEPTED
@@ -104,7 +104,7 @@ Rudbeckia laciniata	plants	Plantae	3114229	ACCEPTED
 Sagittaria latifolia	aquatic plants	Plantae	5328909	ACCEPTED
 Saururus cernuus	plants	Plantae	5384932	ACCEPTED
 Sinanodonta woodiana	mollusca	Animalia	4559541	ACCEPTED
-Spiraea alba	plants	Plantae	7787813	ACCEPTED
+Spiraea alba	plants	Plantae	3026585	ACCEPTED
 Symphyotrichum lanceolatum	plants	Plantae	9202318	ACCEPTED
 Symphyotrichum novae-angliae	plants	Plantae	3151618	ACCEPTED
 Symphyotrichum novi-belgii	plants	Plantae	3151558	ACCEPTED
@@ -112,5 +112,5 @@ Syrmaticus reevesii	birds	Animalia	2473477	ACCEPTED
 Tamiasciurus hudsonicus	mammals	Animalia	2437282	ACCEPTED
 Triturus carnifex	amphibians	Animalia	2431887	ACCEPTED
 Vaccinium corymbosum	plants	Plantae	2882849	ACCEPTED
-Vaccinium macrocarpum	plants	Plantae	7777960	ACCEPTED
-Zizania latifolia	plants	Plantae	2703231	ACCEPTED
+Vaccinium macrocarpon Aiton	plants	Plantae	2882841	ACCEPTED
+Zizania latifolia	plants	Plantae	10919373	ACCEPTED

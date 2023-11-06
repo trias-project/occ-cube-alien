@@ -35,7 +35,7 @@ library(RSQLite)        # To interact with SQlite databases
 Name and path of `.sqlite` file:
 
 ```{r name_path}
-key <- "0089458-210914110416597"
+key <- "0031758-231002084531237"
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
@@ -64,7 +64,8 @@ query <- glue_sql("SELECT {`cols`*} FROM {table}",
 )
 geodata_df <- 
   dbGetQuery(sqlite_occ, query) %>%
-  as_tibble()
+  dplyr::as_tibble() %>%
+  dplyr::mutate(coordinateUncertaintyInMeters = as.double(.data$coordinateUncertaintyInMeters))
 ```
 
 Number of occurrences:
@@ -156,7 +157,7 @@ Are there occurrences with 0 uncertainty left?
 Are there occurrences without uncertainty?
 
 ```{r zero_in_uncertainty_df}
-NA_real_ %in% uncertainty_df
+NA %in% uncertainty_df
 ```
 
 # Assign grid to occurrences
@@ -185,10 +186,10 @@ write_tsv(geodata_df, temp_file_coords, na = "")
 remove(geodata_df)
 ```
 
-Set random number generator seed (this helps reproducibility). We use the unique identifier of the reserved [Zenodo dataset's DOI](https://doi.org/10.5281/zenodo.5819028) which the occurrence cube will be published to:
+Set random number generator seed (this helps reproducibility). We use the unique identifier of the reserved [Zenodo dataset's DOI](https://doi.org/10.5281/zenodo.10058400) which the occurrence cube will be published to:
 
 ```{r set_seed}
-set.seed(5819028)
+set.seed(10058400)
 ```
 
 We define the function to apply to each chunk:
@@ -203,7 +204,7 @@ reproject_assign <- function(df, pos){
   df <- spTransform(df, CRS("+init=epsg:3035"))
   colnames(df@coords) <- c("x", "y")
   
-  # Step 2: aissgn occurrence within uncertainty circle
+  # Step 2: assign occurrence within uncertainty circle
   df@data <-
     df@data %>%
     mutate(random_angle = runif(nrow_df, 0, 2*pi))

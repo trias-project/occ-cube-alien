@@ -34,7 +34,7 @@ library(RSQLite)        # To interact with SQlite databases
 Name and path of `.sqlite` file:
 
 ```{r name_path}
-key <- "0089458-210914110416597"
+key <- "0031758-231002084531237"
 sqlite_file <- paste(key, "occurrence.sqlite", sep = "_")
 sqlite_path <- here::here("data", "interim", sqlite_file)
 ```
@@ -53,7 +53,7 @@ sqlite_occ <- dbConnect(SQLite(), dbname = sqlite_path)
 
 # Aggregate at class level - baseline
 
-In this section we will calculate how many occurrences have been recorded for each year, EEA cell code and class For speeding up the search in database, we create an index on these rows if not present:
+In this section we will calculate how many occurrences have been recorded for each year, EEA cell code and class. For speeding up the search in database, we create an index on these columns if not present:
 
 ```{r create_idx_class}
 idx_baseline <- "idx_year_cell_class"
@@ -118,7 +118,7 @@ class_df <-
     .data$classKey, 
     function(x) {
       if (!is.na(x)) {
-        taxon = name_usage(x)
+        taxon <- name_usage(x)
         taxon$data %>% pull(scientificName)
       } else {
         NA_character_
@@ -150,16 +150,16 @@ alien_taxa %>%
   count()
 ```
 
-## Aggregate occurrences for accepted alien species and genera
+## Aggregate occurrences for accepted alien species, genera and families
 
 ### Aggregate occurrences
 
-As initial step, we start by selecting occurrences linked to taxa with rank `SPECIES` or `GENUS` and taxonomic status `ACCEPTED` and `DOUBTFUL`:
+As initial step, we start by selecting occurrences linked to taxa with rank `SPECIES`, `GENUS` or `FAMILY` and taxonomic status `ACCEPTED` and `DOUBTFUL`:
 
 ```{r alien_taxa_species}
 alien_taxa_species <- 
   alien_taxa %>%
-  filter(rank %in% c("SPECIES", "GENUS"), 
+  filter(rank %in% c("SPECIES", "GENUS", "FAMILY"), 
          taxonomicStatus %in% c("ACCEPTED", "DOUBTFUL"))
 ```
 
@@ -169,7 +169,7 @@ Preview:
 alien_taxa_species %>% head()
 ```
 
-The `nubKey` of these taxa are the `speciesKey` or `genusKey` we can filter on:
+The `nubKey` of these taxa are the `speciesKey`, `genusKey` or `familyKey` we can filter on:
 
 ```{r get_alien_taxa_species_key}
 alien_taxa_species_key <-
@@ -178,12 +178,12 @@ alien_taxa_species_key <-
   pull(nubKey)
 ```
 
-Species, synonyms of that species and infraspecific taxa of that species all share the same `speciesKey`.
+Species, synonyms of that species and infraspecific taxa of that species all share the same `speciesKey`/`genusKey`/`familyKey`.
 
-For speeding up the aggregation, we create an index on  `year`,  `eea_cell_code`, `speciesKey` and `genusKey` if not present:
+For speeding up the aggregation, we create an index on `year`,  `eea_cell_code`, `speciesKey`, `genusKey`, `familyKey` and `coordinateUncertaintyInMeters` if not present:
 
 ```{r create_idx_speciesKey}
-idx_species_year_cell <- "idx_species_genus_year_cell"
+idx_species_year_cell <- "idx_species_genus_family_year_cell"
 # get indexes on table
 query <- glue_sql(
     "PRAGMA index_list({table_name})",
@@ -202,6 +202,7 @@ if (!idx_species_year_cell %in% indexes_all$name) {
                "eea_cell_code", 
                "speciesKey",
                "genusKey",
+               "familyKey",
                "coordinateUncertaintyInMeters"),
   .con = sqlite_occ
   )
@@ -209,7 +210,7 @@ if (!idx_species_year_cell %in% indexes_all$name) {
 }
 ```
 
-Group by `year`, `eea_cell_code`, `speciesKey`, `genusKey`, count number of occurrences for each group and get the lowest value of coordinate uncertainty `occurrenceUncertaintyInMeters`:
+Group by `year`, `eea_cell_code`, `speciesKey`, `genusKey`, `familyKey`, count number of occurrences for each group and get the lowest value of coordinate uncertainty `occurrenceUncertaintyInMeters`:
 
 ```{r get_datacube_species}
 query <- glue_sql(
@@ -217,7 +218,8 @@ query <- glue_sql(
   cols = c("year", 
            "eea_cell_code", 
            "speciesKey",
-           "genusKey"),
+           "genusKey",
+           "familyKey"),
   coord_uncertainty = "coordinateUncertaintyInMeters",
   table = table_name,
   .con = sqlite_occ
@@ -231,37 +233,40 @@ occ_cube_species <-
 occ_cube_species <-
   occ_cube_species %>%
   mutate(speciesKey = as.integer(speciesKey),
-         genusKey = as.integer(genusKey)) %>%
-  filter(speciesKey %in% alien_taxa_species_key | 
-           genusKey %in% alien_taxa_species_key)
+         genusKey = as.integer(genusKey),
+         familyKey = as.integer(familyKey)) %>%
+  filter(speciesKey %in% alien_taxa_species_key |
+           genusKey %in% alien_taxa_species_key |
+           familyKey %in% alien_taxa_species_key)
 ```
 
-Remove occurrences at genus level, if present:
+Remove occurrences at genus level or family level, if present:
 
-```{r remove_genus_level_occs}
+```{r remove_genus_family_level_occs}
 occ_cube_species <-
   occ_cube_species %>% 
   filter(!is.na(speciesKey) & speciesKey != 0)
 ```
 
-Number of alien species (or genera) included in the occurrence cube:
+Number of alien species (or genera or families) included in the occurrence cube:
 
 ```{r species_included}
 paste(
   length(alien_taxa_species_key[
   which(alien_taxa_species_key %in% c(unique(occ_cube_species$speciesKey), 
-                                      unique(occ_cube_species$genusKey)))]),
+                                      unique(occ_cube_species$genusKey),
+                                      unique(occ_cube_species$familyKey)))]),
   "out of",
   length(alien_taxa_species_key)
 )
 ```
 
-Drop `genusKey`:
+Drop `genusKey` and `familyKey`:
 
 ```{r drop_genusKey_occ_cube}
 occ_cube_species <-
   occ_cube_species %>%
-  select(-genusKey)
+  select(-c(genusKey, familyKey))
 ```
 
 Preview:
@@ -272,7 +277,7 @@ occ_cube_species %>% head()
 
 ### Map taxa
 
-Grouping by `speciesKey`, we loose informations about which taxa share the same  `speciesKey`. This information could be sometimes helpful. We extract it in a separate data.frame, `taxa_species`.
+Grouping by `speciesKey`, we loose information about which taxa share the same  `speciesKey`. This information could be sometimes helpful. We extract it in a separate data.frame, `taxa_species`.
 
 First, we get all distinct taxa:
 
@@ -281,6 +286,7 @@ query <- glue_sql(
   "SELECT DISTINCT {`cols`*} FROM {table}",
   cols = c("speciesKey",
            "genusKey",
+           "familyKey",
            "taxonKey",
            "scientificName"),
   table = table_name,
@@ -288,11 +294,15 @@ query <- glue_sql(
 )
 occ_cube_species_taxa <- 
   dbGetQuery(sqlite_occ, query) %>%
-  filter(speciesKey %in% alien_taxa_species_key | 
-           genusKey %in% alien_taxa_species_key)
+  mutate(speciesKey = as.integer(speciesKey),
+         genusKey = as.integer(genusKey),
+         familyKey = as.integer(familyKey)) %>%
+  filter(speciesKey %in% alien_taxa_species_key |
+           genusKey %in% alien_taxa_species_key |
+           familyKey %in% alien_taxa_species_key)
 ```
 
-Drop taxa at genus level:
+Drop taxa at genus or family level:
 
 ```{r drop_taxa_genus_level}
 occ_cube_species_taxa <-
@@ -300,12 +310,12 @@ occ_cube_species_taxa <-
   filter(!is.na(speciesKey) & speciesKey != 0)
 ```
 
-Drop `genusKey`:
+Drop `genusKey` and `familyKey`:
 
 ```{r drop_genusKey_taxa}
 occ_cube_species_taxa <-
   occ_cube_species_taxa %>%
-  select(-genusKey)
+  select(-c(genusKey, familyKey))
 ```
 
 Some species have occurrences coming from multiple taxa:
@@ -491,7 +501,8 @@ occ_cube_subspecies_taxa %>%
   group_by(acceptedTaxonKey) %>%
   add_tally() %>%
   filter(n > 1) %>%
-  select(-n)
+  select(-n) %>%
+  arrange(acceptedTaxonKey)
 ```
 
 Some infraspecific taxa have occurrences only from taxa linked to their synonyms. In these cases `acceptedTaxonKey` is not equal to `taxonKey`:
@@ -664,7 +675,7 @@ occ_cube_synonym %>% head()
 
 ### Map taxa
 
-For these taxa we don't have occcurrences linked to other related taxa. We have just to retrieve scientific name, taxonomic status and rank and make a data.frame called `taxa_synonym`. In this case the column `includes` is trivial:
+For these taxa we don't have occurrences linked to other related taxa. We have just to retrieve scientific name, taxonomic status and rank and make a data.frame called `taxa_synonym`. In this case the column `includes` is trivial:
 
 ```{r taxa_synonym}
 taxa_synonym <- 

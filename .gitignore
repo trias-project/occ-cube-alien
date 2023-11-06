@@ -46,3 +46,6 @@ data/raw/*
 # Interim data: the big sqlite database and occurrence text file for Europe
 data/interim/*.sqlite
 data/interim/*.tsv
+
+# Processed data: cube at class level is bigger than 100 MB
+data/processed/be_classes_cube.csv

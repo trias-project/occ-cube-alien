@@ -38,7 +38,7 @@ library(sp)             # To work with geospatial data
 We download the occurrences from GBIF, based on the key got in `download.Rmd`:
 
 ```{r get_occ_file_eu}
-key <- "0176950-210914110416597"
+key <- "0036191-231002084531237"
 zip_filename <- paste0(key, ".zip")
 zip_path <- here::here("data", "raw", zip_filename)
 if (!file.exists(zip_path)) {
@@ -347,8 +347,11 @@ We won't take into account unverified observations:
 identificationVerificationStatus_to_discard <- c(
   "unverified",
   "unvalidated",
+  "not validated",
+  "under validation",
   "not able to validate",
   "control could not be conclusive due to insufficient knowledge",
+  "uncertain",
   "unconfirmed",
   "unconfirmed - not reviewed",
   "validation requested"
@@ -451,10 +454,10 @@ colnames(geodata_df@coords) <- c("x", "y")
 
 ## Assign occurrence within uncertainty circle
 
-Set random number generator seed (this helps reproducibility). We use the unique identifier of the [Zenodo dataset's DOI](https://doi.org/10.5281/zenodo.5819028) which the occurrence cube will be published to:
+Set random number generator seed (this helps reproducibility). We use the unique identifier of the reserved [Zenodo dataset's DOI](https://doi.org/10.5281/zenodo.10058400) which the occurrence cube will be published to:
 
 ```{r set_seed}
-set.seed(5819028)
+set.seed(10058400)
 ```
 
 Assign the occurrence randomly within the circle with radius equal to `coordinateUncertaintyInMeters`:
