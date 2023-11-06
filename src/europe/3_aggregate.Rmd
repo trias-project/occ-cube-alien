@@ -591,7 +591,7 @@ occ_cube_eu_synonym %>% head()
 
 ### Map taxa
 
-For these taxa we don't have occcurrences linked to other related taxa. We have just to retrieve scientific name, taxonomic status and rank. We extract this information and make a data.frame called `taxa_synonym_eu`. In this case the column `includes` is trivial:
+For these taxa we don't have occurrences linked to other related taxa. We have just to retrieve scientific name, taxonomic status and rank. We extract this information and make a data.frame called `taxa_synonym_eu`. In this case the column `includes` is trivial:
 
 ```{r taxa_synonym_eu}
 taxa_synonym_eu <- 
