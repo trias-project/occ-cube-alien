@@ -575,9 +575,10 @@ occ_cube_eu_synonym <-
 Number of synonyms included in `occ_cube_synonym`:
 
 ```{r synonyms_included_eu}
-paste(length(modelling_taxa_synonyms_key[
+alien_taxa_synonyms_key <- modelling_taxa_synonyms_key[
   which(modelling_taxa_synonyms_key %in% 
-          unique(occ_cube_eu_synonym$taxonKey))]),
+          unique(occ_cube_eu_synonym$taxonKey))]
+paste(length(alien_taxa_synonyms_key),
   "out of",
   length(modelling_taxa_synonyms_key))
 ```
@@ -594,12 +595,9 @@ occ_cube_eu_synonym %>% head()
 For these taxa we don't have occurrences linked to other related taxa. We have just to retrieve scientific name, taxonomic status and rank. We extract this information and make a data.frame called `taxa_synonym_eu`. In this case the column `includes` is trivial:
 
 ```{r taxa_synonym_eu}
-taxa_synonym_eu <- 
-  
+taxa_synonym_eu <- if (length(alien_taxa_synonyms_key) > 0) {
   # create vector with synonyms keys present in occurrence cube 
-  modelling_taxa_synonyms_key[
-    which(modelling_taxa_synonyms_key %in%
-            unique(occ_cube_eu_synonym$taxonKey))] %>%
+  alien_taxa_synonyms_key %>%
   
   # GBIF query via name_usage
   map(~name_usage(key = .x)) %>%
@@ -622,7 +620,9 @@ taxa_synonym_eu <-
     scientificName, 
     sep = ": ")
 )
-taxa_synonym_eu
+} else {
+  NULL
+}
 ```
 
 # Save aggregated data
