@@ -48,4 +48,4 @@ data/interim/*.sqlite
 data/interim/*.tsv
 
 # Cube at class level: bigger than 100 MB
-data/interim/be_classes_cube.csv
+data/processed/be_classes_cube.csv
